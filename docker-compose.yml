@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: asset_tracking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: LYzxeJ2xrSKfzM2f
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    ports:
+      - "4000:9000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:9000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
+    depends_on:
+      - db
+
+volumes:
+  db_data:
