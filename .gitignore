@@ -1,0 +1,27 @@
+# AI/Aider tool history and caches
+.aider*
+!.aider.conf.yml
+
+# Python caches and environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+env/
+venv/
+.pytest_cache/
+
+# Docker and runtime logs
+*.log
+logs/
+runtime/site.json
+
+# Node/UI dependencies and builds
+node_modules/
+dist/
+.eslintcache
+
+# OS files
+.DS_Store
