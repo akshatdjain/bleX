@@ -1,0 +1,18 @@
+[Unit]
+Description=AsseTrack WiFi Provisioning HTTP Listener
+Documentation=https://github.com/assetrack
+After=network-online.target NetworkManager-wait-online.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /home/pi5/scanner/provisioner_service.py
+WorkingDirectory=/home/pi5/scanner
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

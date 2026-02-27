@@ -1,0 +1,80 @@
+DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@localhost/asset_tracking
+INFO:     115.246.216.138:53814 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:44612 - "POST /api/runtime/master HTTP/1.1" 200 OK
+DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@localhost/asset_tracking
+INFO:     115.246.216.138:42998 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:36640 - "POST /api/runtime/master HTTP/1.1" 200 OK
+INFO:     115.246.216.138:48082 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:57436 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:43788 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:51924 - "POST /api/runtime/master HTTP/1.1" 200 OK
+INFO:     115.246.216.138:60058 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:33682 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:39990 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:35936 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:42296 - "POST /api/runtime/master HTTP/1.1" 200 OK
+INFO:     115.246.216.138:34460 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:53334 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:51680 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:57132 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:54844 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:52312 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:41204 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45354 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45364 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45374 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:43048 - "POST /api/runtime/scanner HTTP/1.1" 200 OK
+INFO:     115.246.216.138:47492 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:47500 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:47512 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:35528 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:52540 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:42452 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:42460 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:43554 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:49688 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:39098 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:41398 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:38294 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:35948 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:36488 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:49934 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45996 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:52490 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:38500 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:56550 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:59482 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45724 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:57860 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:39612 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:57394 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:33898 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:33910 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:46684 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:51592 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45698 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45878 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:38692 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:42748 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:41148 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:45238 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:51170 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:40954 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:54824 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:54840 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:37746 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:44782 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:60162 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:60374 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:48146 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     115.246.216.138:53394 - "POST /api/asset/movement HTTP/1.1" 200 OK
+INFO:     82.23.183.43:58266 - "POST /_next/server HTTP/1.1" 404 Not Found
+INFO:     82.23.183.43:33516 - "POST /app HTTP/1.1" 404 Not Found
+INFO:     217.126.184.16:41035 - "GET / HTTP/1.0" 404 Not Found
+INFO:     167.94.138.177:4176 - "GET / HTTP/1.1" 404 Not Found
+INFO:     167.94.138.177:51386 - "GET /robots.txt HTTP/1.1" 404 Not Found
+INFO:     66.132.153.135:49676 - "GET / HTTP/1.1" 404 Not Found
+INFO:     66.132.153.135:49620 - "GET / HTTP/1.1" 404 Not Found
+INFO:     66.132.153.135:49690 - "GET /wiki HTTP/1.1" 404 Not Found
+INFO:     138.68.1.13:42840 - "GET / HTTP/1.1" 404 Not Found
+INFO:     138.68.1.13:42856 - "GET /login HTTP/1.1" 404 Not Found

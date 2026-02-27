@@ -1,0 +1,268 @@
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] 46:EE:F3:DF:A1:69 None → 1
+[API OK] 4B:63:D9:B6:5D:37 None → None
+[API OK] 46:EE:F3:DF:A1:69 1 → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] 4C:D9:4E:7E:90:E3 None → None
+[API OK] 6E:A6:96:7E:4F:CD None → None
+[API OK] 5B:51:BC:E1:03:F0 None → 1
+[API OK] 5B:51:BC:E1:03:F0 1 → None
+[API OK] 6E:54:19:8E:2A:A6 None → None
+[API OK] 6C:14:52:B2:ED:5D None → 1
+[API OK] 58:A2:CE:13:10:FE None → None
+[API OK] 6C:14:52:B2:ED:5D 1 → None
+[API OK] 46:5D:85:21:E3:32 None → None
+[API OK] 40:F3:0B:A5:24:47 None → None
+[API OK] 70:FF:B7:DD:D0:11 None → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] 6D:54:66:53:04:E5 None → 1
+[API OK] 61:45:00:75:36:3A None → None
+[API OK] 6D:54:66:53:04:E5 1 → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] 48:C3:25:02:29:C3 None → 1
+[API OK] 48:C3:25:02:29:C3 1 → None
+[API OK] 48:C3:25:02:29:C3 None → 1
+[API OK] 45:4D:DC:D5:47:8E None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] 48:C3:25:02:29:C3 1 → None
+[API OK] 60:15:E5:F6:72:4F None → None
+[API OK] F0:03:2A:47:01:1E 1 → None
+[API OK] F0:03:2A:47:01:1E None → 2
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] 7D:37:DC:01:8C:F9 None → None
+[API OK] 63:FA:E1:76:44:A6 None → None
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] F0:03:2A:47:01:1E 2 → None
+[API OK] F0:03:2A:47:01:1E None → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 6E:C2:09:D4:07:8C None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] 7C:F8:8F:92:9A:CD None → None
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 64:2D:D2:B5:97:55 None → None
+[API OK] 6C:7C:18:D0:27:B8 None → None
+[API OK] 70:B8:18:03:2E:AB None → 1
+[API OK] 70:B8:18:03:2E:AB 1 → None
+[API OK] 4A:3D:8C:67:D3:61 None → None
+[API OK] 7B:E9:89:A0:9B:CF None → None
+[API OK] 7E:0B:0E:2E:F8:31 None → None
+[API OK] 7E:3E:24:A7:58:D7 None → None
+[API OK] 72:AB:45:94:80:53 None → None
+[API OK] 63:D1:B4:89:81:43 None → None
+[API OK] 5E:16:22:7D:3F:6B None → 1
+[API OK] 5E:16:22:7D:3F:6B 1 → None
+[API OK] 78:96:74:EF:54:45 None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 78:96:74:EF:54:45 None → 1
+[API OK] 6E:B2:C2:C7:67:E2 None → None
+[API OK] 78:96:74:EF:54:45 1 → None
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] 5D:02:6A:5C:44:A4 None → None
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] 78:96:74:EF:54:45 None → 1
+[API OK] 78:96:74:EF:54:45 1 → None
+[API OK] 55:DA:12:92:23:27 None → None
+[API OK] 48:49:70:D6:91:D1 None → None
+[API OK] 6B:A5:65:23:2F:84 None → 1
+[API OK] 6B:A5:65:23:2F:84 1 → None
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] F0:03:2A:47:01:1E 2 → None
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] F0:03:2A:47:01:1E None → 2
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] 63:88:D6:C9:60:B0 None → None
+[API OK] 4B:4A:F1:A9:96:0E None → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] 47:DF:94:EE:F1:6F None → 1
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] 6D:3B:CA:B2:77:FB None → 1
+[API OK] 47:DF:94:EE:F1:6F 1 → None
+[API OK] 6D:3B:CA:B2:77:FB 1 → None
+[API OK] 7C:D8:96:E0:F0:B9 1 → None
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] 54:FF:A2:28:EA:60 None → None
+[API OK] 56:24:3B:8F:ED:10 None → None
+[API OK] 76:38:32:D7:03:CD None → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] 7C:F8:C8:E5:62:97 None → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] 5D:9B:25:5B:02:89 None → None
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 69:DD:0E:86:FA:19 None → None
+[API OK] 6F:D6:FC:3F:47:E0 None → None
+[API OK] 78:88:5E:01:C0:5D None → None
+[API OK] 4E:AF:BA:37:A8:01 None → None
+[API OK] 42:6E:3B:12:D8:AE None → None
+[API OK] 54:7F:FC:E8:6C:38 None → 1
+[API OK] 44:BB:7E:B7:88:4C None → None
+[API OK] 54:7F:FC:E8:6C:38 1 → None
+[API OK] 73:CA:EA:9C:AB:09 None → None
+[API OK] 7F:9B:88:B0:90:ED None → None
+[API OK] 41:03:51:7D:CB:73 None → None
+[API OK] 4E:15:76:94:D7:1A None → None
+[API OK] 5C:C5:8F:CE:7F:FE None → None
+[API OK] 5E:12:D2:FC:47:19 None → None
+[API OK] 5B:1D:8B:DD:EC:98 None → None
+[API OK] 6F:3F:BD:08:E9:6C None → None
+[API OK] 4C:D9:CC:BD:31:42 None → None
+[API OK] 44:FA:5C:98:3E:87 None → None
+[API OK] 67:0E:33:6C:28:9D None → None
+[API OK] 60:F4:3E:7D:E5:63 None → None
+[API OK] 60:F4:3E:7D:E5:63 None → 1
+[API OK] 60:F4:3E:7D:E5:63 1 → None
+[API OK] 7D:72:EC:58:B4:D6 None → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C None → 2
+[API OK] DC:0D:30:26:C4:1C 2 → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 77:E4:11:DF:D3:E4 None → 1
+[API OK] 77:E4:11:DF:D3:E4 1 → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] 77:DE:8D:63:B6:7E None → None
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] 77:DE:8D:63:B6:7E None → 1
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] DC:0D:30:26:C4:1C 1 → 2
+[API OK] F0:03:2A:47:01:1E 1 → 2
+[API OK] 68:CA:75:97:89:87 None → None
+[API OK] 61:4D:D1:2F:FA:7F None → None
+[API OK] 4A:97:9A:35:D5:BB None → None
+[API OK] 7E:AB:C8:2B:16:A8 None → None
+[API OK] 55:F5:13:DF:41:56 None → 2
+[API OK] 55:F5:13:DF:41:56 2 → None
+[API OK] 62:63:D9:21:9D:E8 None → 1
+[API OK] 62:63:D9:21:9D:E8 1 → None
+[API OK] 57:8A:B0:24:97:FF None → None
+[API OK] 6C:8B:AC:88:BA:BE None → None
+[API OK] 60:00:3D:C0:9A:E8 None → None
+[API OK] 64:0F:8A:88:6B:F6 None → None
+[API OK] 5C:B4:F6:A9:1A:E7 None → None
+[API OK] 43:4A:4B:EB:FC:60 None → 1
+[API OK] 43:4A:4B:EB:FC:60 1 → None
+[API OK] 71:93:7D:47:ED:66 None → None
+[API OK] 55:F5:13:DF:41:56 None → 2
+[API OK] 55:F5:13:DF:41:56 2 → None
+[API OK] 60:66:6A:AD:9C:09 None → None
+[API OK] 5F:3E:7D:E5:A9:DF None → None
+[API OK] 73:92:5E:71:8D:A4 None → 1
+[API OK] 73:92:5E:71:8D:A4 1 → None
+[API OK] 64:C6:AF:0E:E8:E3 None → None
+[API OK] DC:0D:30:26:C4:1C 2 → 1
+[API OK] F0:03:2A:47:01:1E 2 → 1
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 75:0E:32:55:84:61 None → None
+[API OK] 5B:C1:33:BF:58:C9 None → 1
+[API OK] 5B:C1:33:BF:58:C9 1 → None
+[API OK] 5E:CD:E3:23:0E:C2 None → None
+[API OK] 79:16:1C:78:B0:1B None → 1
+[API OK] 79:16:1C:78:B0:1B 1 → None
+[API OK] 59:80:01:60:31:EE None → None
+[API OK] 66:80:01:9D:08:1C None → None
+[API OK] 47:C7:4A:22:32:37 None → None
+[API OK] 58:C0:CD:C1:D8:70 None → 1
+[API OK] 58:C0:CD:C1:D8:70 1 → None
+[API OK] 70:B9:A8:8C:31:0E None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] 59:13:7E:98:BF:4C None → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 76:51:37:EE:9D:CC None → None
+[API OK] 5F:7B:2C:E2:F8:B4 None → None
+[API OK] 45:60:64:21:AD:7B None → None
+[API OK] F0:03:2A:47:01:1E 1 → None
+[API OK] F0:03:2A:47:01:1E None → 1
+[API OK] 63:D2:AE:19:B0:D7 None → None
+[API OK] 5F:65:9C:88:2B:22 None → None
+[API OK] 7A:36:0F:65:CF:BE None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 6C:E1:25:11:A5:35 None → None
+[API OK] 50:79:C1:63:AB:2C None → None
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[FIFO] Script started
+[CONSUMER] FIFO consumer started
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] F0:03:2A:47:01:1E 1 → None
+[API OK] F0:03:2A:47:01:1E None → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 74:CD:D6:0D:0A:CA None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 5F:E2:F2:9C:F7:20 None → None
+[API OK] 5B:2E:16:C0:47:A8 None → None
+[API OK] 7D:E3:15:C1:2C:15 None → None
+[API OK] 55:5A:13:49:53:42 None → None
+[API OK] 55:5A:13:49:53:42 None → 1
+[API OK] F0:03:2A:47:01:1E 1 → None
+[API OK] 55:5A:13:49:53:42 1 → None
+[API OK] F0:03:2A:47:01:1E None → 1
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] F0:03:2A:47:01:1E 1 → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] F0:03:2A:47:01:1E None → 1
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 43:64:FA:B7:D7:7C None → None
+[API OK] 4C:85:B6:3C:CB:3E None → None
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] DC:0D:30:26:C4:1C 1 → None
+[API OK] DC:0D:30:26:C4:1C None → 1
+[API OK] 53:1E:07:57:64:04 None → 1
+[API OK] 53:1E:07:57:64:04 1 → None
+[API OK] 74:84:C2:58:0E:42 None → None
+[API OK] 4B:E2:33:44:4E:95 None → None

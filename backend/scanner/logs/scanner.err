@@ -1,0 +1,2544 @@
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 105, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Traceback (most recent call last):
+  File "/home/pi3/scanner/scanner_boot.py", line 116, in <module>
+    stdout=open("logs/scanner.out", "a"),
+           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'logs/scanner.out'
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+python3: can't open file '/home/pi3/scanner.py': [Errno 2] No such file or directory
+  File "/home/pi3/scanner/scanner_boot.py", line 126
+    for f in required_files:
+IndentationError: unexpected indent
+  File "/home/pi3/scanner/scanner_boot.py", line 126
+    for f in required_files:
+IndentationError: unexpected indent
+  File "/home/pi3/scanner/scanner_boot.py", line 126
+    for f in required_files:
+    ^
+IndentationError: unexpected indent
+python3: can't open file '/home/pi3/scanner.py': [Errno 2] No such file or directory
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1686, in _loop
+    rc = self.loop_read()
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2102, in loop_read
+    return self._loop_rc_handle(rc)
+           ~~~~~~~~~~~~~~~~~~~~^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3047, in _loop_rc_handle
+    self._do_on_disconnect(packet_from_broker=False, v1_rc=rc)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1707, in _loop
+    return self.loop_misc()
+           ~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2149, in loop_misc
+    self._check_keepalive()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3294, in _check_keepalive
+    self._do_on_disconnect(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        packet_from_broker=False,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        v1_rc=rc,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given
+Exception in thread paho-mqtt-client-scanner-4EB0EC:
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4523, in _thread_main
+    self.loop_forever(retry_first_connection=True)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2297, in loop_forever
+    rc = self._loop(timeout)
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 1707, in _loop
+    return self.loop_misc()
+           ~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 2149, in loop_misc
+    self._check_keepalive()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 3294, in _check_keepalive
+    self._do_on_disconnect(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        packet_from_broker=False,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+        v1_rc=rc,
+        ^^^^^^^^^
+    )
+    ^
+  File "/usr/lib/python3/dist-packages/paho/mqtt/client.py", line 4383, in _do_on_disconnect
+    on_disconnect(
+    ~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<3 lines>...
+        properties,
+        ^^^^^^^^^^^
+    )
+    ^
+TypeError: on_disconnect() takes 4 positional arguments but 5 were given

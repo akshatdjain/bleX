@@ -1,0 +1,288 @@
+================================================================================
+  BLEGOD - EMBEDDED MQTT BROKER DETAILS
+  Date: 2026-02-19
+================================================================================
+
+CLARIFICATION: Neither Moquette nor HiveMQ CE is a separate app.
+Both would be Java libraries compiled INTO BleGod's APK. One app, one install.
+
+However, there's an important distinction between the two.
+
+
+================================================================================
+1. HIVEMQ CE - WHY IT WON'T WORK AS EMBEDDED
+================================================================================
+
+HiveMQ Community Edition is a STANDALONE SERVER application, not an
+embeddable library. Here's why it's problematic for Android:
+
+TECHNICAL ISSUES:
+  - Designed to run as its own JVM process with 256MB+ heap
+  - Uses its own lifecycle management, shutdown hooks, classloaders
+  - Depends on Java NIO features that behave differently on Android's ART
+  - Configuration expects a filesystem layout (/conf, /data, /log dirs)
+  - Startup sequence assumes it owns the entire process
+  - Extension system uses Java ServiceLoader which is fragile on Android
+  - Many dependencies may conflict with Android's bundled libraries
+  - NOT tested or supported on Android by HiveMQ
+
+WHAT HIVEMQ CE IS GOOD FOR:
+  - Running on your REMOTE SERVER (Linux/Docker) as the central broker
+  - It's excellent there: MQTT 5.0, clustering, high throughput
+
+WHAT HIVEMQ OFFERS FOR ANDROID:
+  - HiveMQ MQTT Client Library (hivemq-mqtt-client)
+  - This is a CLIENT, not a broker
+  - We already use Eclipse Paho as our MQTT client (same purpose)
+  - The HiveMQ client is newer and supports MQTT 5.0, but won't help
+    with running a broker
+
+
+================================================================================
+2. MOQUETTE - THE RIGHT CHOICE FOR EMBEDDED BROKER
+================================================================================
+
+Moquette IS designed to be embedded. It's a library, not a standalone app.
+
+  // One Gradle line in build.gradle.kts
+  implementation("io.moquette:moquette-broker:0.17")
+
+That's it. It compiles into your APK. No separate app. No separate process.
+Your users install BleGod, and the broker is just there.
+
+WHAT MOQUETTE GIVES YOU:
+  - Full MQTT 3.1.1 broker (same protocol as Mosquitto)
+  - QoS 0, 1, 2
+  - Retained messages
+  - Last Will and Testament (LWT)
+  - Username/password authentication
+  - Topic-level ACL (access control lists)
+  - Persistent sessions (survives app restart)
+  - WebSocket listener (if needed)
+  - TLS listener (encrypted local connections)
+  - Runs inside your existing foreground service
+  - Starts in < 1 second
+  - Uses ~20-30MB RAM under load
+  - Handles 50+ concurrent clients easily
+
+WHAT YOUR ESP32/PI SEES:
+  - Exactly the same as connecting to Mosquitto
+  - Connect to tablet_ip:1883 with username/password
+  - Publish to topics, subscribe to topics
+  - No difference from the client's perspective
+  - Zero changes needed on your ESP32 or Pi code
+
+
+================================================================================
+3. HOW IT INTEGRATES INTO BLEGOD
+================================================================================
+
+The embedded broker becomes just another component in BleScannerService,
+alongside the BLE scanner, MQTT client, and watchdog.
+
+STARTUP SEQUENCE:
+  1. App launches
+  2. Foreground service starts
+  3. Embedded Moquette broker starts on port 1883
+  4. BLE scanner starts
+  5. Local MQTT client connects to localhost:1883
+  6. Bridge client connects to your remote server via WSS/TLS 1.3
+  7. Watchdog monitors all components
+
+NEW CLASSES TO ADD:
+
+  EmbeddedBroker.kt
+  -----------------
+  - Wraps Moquette's Server class
+  - Configures port, auth, persistence
+  - Provides start/stop/status methods
+  - Exposes connected client count for UI
+  - Runs on a background thread
+
+  MqttBridge.kt
+  -----------------
+  - Subscribes to all topics on local broker
+  - Forwards messages to remote server via WSS
+  - Handles reconnection on both ends
+  - Buffers messages during remote disconnect
+  - Applies optional filtering/transformation
+
+  MODIFIED: BleScannerService.kt
+  - Starts EmbeddedBroker on service create
+  - Starts MqttBridge after broker is ready
+  - MqttManager now publishes to localhost:1883
+
+  MODIFIED: SettingsManager.kt
+  - Broker port (default 1883)
+  - Broker auth credentials
+  - Remote server URL (wss://yourdomain.com)
+  - Remote server credentials
+  - Bridge topic filter pattern
+
+  NEW UI: BrokerScreen.kt
+  - Connected clients list (IP, client ID, topics)
+  - Message throughput (msgs/sec in, msgs/sec out)
+  - Bridge status (local connected, remote connected)
+  - Queue depth (buffered messages waiting for remote)
+
+
+================================================================================
+4. CONFIGURATION EXAMPLE
+================================================================================
+
+SETTINGS SCREEN WOULD LOOK LIKE:
+
+  --- Local Broker ---
+  Port:           [1883]
+  Username:       [scanner_user]
+  Password:       [********]
+  Max Clients:    [20]
+
+  --- Remote Server (Upstream) ---
+  URL:            [wss://mqtt.yourdomain.com:443]
+  Username:       [blegod_bridge]
+  Password:       [********]
+  Bridge Topics:  [scanners/#]    (what to forward)
+  Bridge QoS:     [1]
+
+  --- BLE Scanner ---
+  Publishes to:   Local Broker (localhost:1883)
+  Topic:          scanners/{device_id}
+
+ESP32/PI CONFIGURATION (unchanged from your current setup):
+  broker: 192.168.1.100    (tablet's IP on the network)
+  port: 1883
+  username: scanner_user
+  password: (whatever you set)
+  topic: scanners/{esp32_id}
+
+
+================================================================================
+5. MESSAGE FLOW (DETAILED)
+================================================================================
+
+  ESP32-01 publishes to: scanners/esp32_01
+  ESP32-02 publishes to: scanners/esp32_02
+  Pi-01    publishes to: scanners/pi_01
+  Tab BLE  publishes to: scanners/tab_01
+
+  All arrive at Moquette broker (inside BleGod app)
+       |
+       v
+  MqttBridge subscribes to: scanners/#
+       |
+       +--> Optional: filter (ignore certain MACs, RSSI thresholds)
+       +--> Optional: enrich (add tablet GPS, timestamp, zone ID)
+       +--> Optional: aggregate (batch 10 messages into 1)
+       +--> Optional: transform (reformat JSON, add metadata)
+       |
+       v
+  Forward to wss://mqtt.yourdomain.com:443
+  Topic mapping: scanners/{id} -> site01/scanners/{id}
+  (can prefix with site/zone identifier)
+
+
+================================================================================
+6. NETWORK CONSIDERATIONS
+================================================================================
+
+OPTION A: All on same Wi-Fi
+  - Tablet, ESP32s, Pis all on same router
+  - ESP32s connect to tablet's local IP (e.g., 192.168.1.100:1883)
+  - Simple, common setup
+
+OPTION B: Tablet as Wi-Fi Hotspot
+  - Tablet creates its own Wi-Fi network
+  - ESP32s/Pis connect to tablet's hotspot
+  - No router needed (field/warehouse deployments)
+  - Android hotspot limit: ~10 connected devices
+  - Tablet IP is usually 192.168.43.1
+
+OPTION C: Ethernet (USB adapter)
+  - Some tablets support USB-to-Ethernet adapters
+  - Wired connection = more reliable
+  - Good for permanent installations
+
+FIREWALL:
+  - Android does NOT block incoming connections to apps by default
+  - Port 1883 is accessible as soon as the broker starts
+  - No root needed, no iptables, no special permissions
+  - Only requirement: android.permission.INTERNET (already in manifest)
+
+
+================================================================================
+7. RELIABILITY & EDGE CASES
+================================================================================
+
+WHAT HAPPENS WHEN:
+
+  Tablet reboots:
+  -> Boot receiver restarts service -> broker starts -> bridge reconnects
+  -> ESP32s auto-reconnect (they should have reconnect logic already)
+  -> Persistent sessions: ESP32s resume where they left off
+
+  Remote server goes down:
+  -> Bridge buffers messages locally (in-memory queue + optional SQLite)
+  -> When remote comes back, bridge flushes queue
+  -> Local broker keeps working, ESP32s unaffected
+
+  ESP32 disconnects:
+  -> Broker detects via keepalive timeout
+  -> LWT message published if configured
+  -> ESP32 reconnects when ready
+
+  App crashes:
+  -> UncaughtExceptionHandler (already implemented) schedules restart
+  -> Broker restarts in 2-3 seconds
+  -> ESP32s reconnect automatically
+
+  Tablet battery dies:
+  -> Everything stops
+  -> On power restore + boot: auto-restart sequence kicks in
+  -> Recommendation: keep tablet plugged in for 24/7 sites
+
+
+================================================================================
+8. COMPARISON: MOQUETTE vs MOSQUITTO
+================================================================================
+
+  Feature              Moquette (in BleGod)     Mosquitto (in Termux)
+  --------             --------------------     ---------------------
+  MQTT 3.1.1           Yes                      Yes
+  MQTT 5.0             No                       Yes (v2.0+)
+  QoS 0/1/2            Yes                      Yes
+  Retained messages    Yes                      Yes
+  Persistent sessions  Yes                      Yes
+  Auth (user/pass)     Yes                      Yes
+  TLS listener         Yes                      Yes
+  WebSocket listener   Yes                      Yes
+  Bridge mode          Via code (MqttBridge)     Via config file
+  Max clients          Tested to 100+           Tested to 1000+
+  Memory               ~30MB                    ~10MB
+  CPU                  Minimal                  Minimal
+  Auto-start           Built into app           Needs Termux:Boot
+  Crash recovery       Built into app           Needs supervisord
+  Updates              Play Store / APK         apt update
+  Monitoring UI        Built into app           Terminal / web plugin
+  
+  For your use case (< 20 clients, beacon data): both are identical
+  in capability. Moquette is the right choice because it removes the
+  Termux dependency entirely.
+
+
+================================================================================
+  BOTTOM LINE
+================================================================================
+
+  - HiveMQ CE: standalone server, won't embed in Android. Ignore it.
+  - Moquette: embeddable Java library, perfect fit. Use this.
+  - It's NOT a separate app. It's a dependency inside BleGod's APK.
+  - Your ESP32s/Pis won't know the difference vs Mosquitto.
+  - Bridge handles the WSS/TLS 1.3 upstream to your server.
+  - Everything runs in one foreground service, one process, one app.
+
+  Say the word and I'll implement EmbeddedBroker + MqttBridge.
+
+================================================================================
+  END
+================================================================================
