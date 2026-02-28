@@ -167,7 +167,7 @@ class BleScannerService : Service() {
             )
         } else null
 
-        return NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
+        val notification = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
             .setContentTitle("BleGod Scanner")
             .setContentText(statusText)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
@@ -178,15 +178,18 @@ class BleScannerService : Service() {
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .apply { if (pendingIntent != null) setContentIntent(pendingIntent) }
             .build()
+            
+        notification.flags = notification.flags or 
+            Notification.FLAG_ONGOING_EVENT or 
+            Notification.FLAG_NO_CLEAR or 
+            Notification.FLAG_FOREGROUND_SERVICE
+            
+        return notification
     }
 
-    private fun buildRichNotification(): Notification {
-        val bleStatus = if (bleScanner.isScanning) "On" else "Off"
-        val brokerStatus = if (embeddedBroker?.isRunning == true) "On" else "Off"
-        val remoteStatus = if (mqttBridge?.isRemoteConnected == true) "Up" else if (settings.remoteHost.isEmpty()) "--" else "Down"
+    private var lastNotificationStatus = ""
 
-        val statusLine = "BLE: $bleStatus  |  Broker: $brokerStatus  |  Remote: $remoteStatus"
-
+    private fun buildRichNotification(statusLine: String): Notification {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         val pendingIntent = if (intent != null) {
             android.app.PendingIntent.getActivity(
@@ -195,31 +198,52 @@ class BleScannerService : Service() {
             )
         } else null
 
-        return NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
-            .setContentTitle("BleGod")
+        val notification = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
+            .setContentTitle("BleGod Scanner")
             .setContentText(statusLine)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
-            .setOngoing(true)
+            .setOngoing(true) // Keeps it un-swipeable on Android 12 and below
             .setSilent(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .apply { if (pendingIntent != null) setContentIntent(pendingIntent) }
             .build()
+            
+        // Force it to be absolutely un-swipeable even on Android 14+
+        notification.flags = notification.flags or 
+            Notification.FLAG_ONGOING_EVENT or 
+            Notification.FLAG_NO_CLEAR or 
+            Notification.FLAG_FOREGROUND_SERVICE
+            
+        return notification
     }
 
     private fun startNotificationUpdater() {
         notificationUpdateJob = serviceScope.launch {
+            // Give initial state time to settle
+            delay(1000)
             while (isActive) {
-                delay(5_000)
                 try {
-                    val notification = buildRichNotification()
-                    val manager = getSystemService(Context.NOTIFICATION_SERVICE)
-                            as android.app.NotificationManager
-                    manager.notify(AppConfig.NOTIFICATION_ID, notification)
+                    val bleStatus = if (bleScanner.isScanning) "On" else "Off"
+                    val brokerStatus = if (embeddedBroker?.isRunning == true) "On" else "Off"
+                    val remoteStatus = if (mqttBridge?.isRemoteConnected == true) "Up" else if (settings.remoteHost.isEmpty()) "--" else "Down"
+
+                    val statusLine = "BLE: $bleStatus  |  Broker: $brokerStatus  |  Remote: $remoteStatus"
+
+                    // ONLY update the notification if the status actually changed.
+                    // On Android 13/14, users can legitimately swipe FGS notifications away.
+                    // If we aggressively notify() every 5 seconds, it aggressively respawns.
+                    if (statusLine != lastNotificationStatus) {
+                        lastNotificationStatus = statusLine
+                        val notification = buildRichNotification(statusLine)
+                        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+                        manager.notify(AppConfig.NOTIFICATION_ID, notification)
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Notification update failed: ${e.message}")
                 }
+                delay(5_000)
             }
         }
     }
