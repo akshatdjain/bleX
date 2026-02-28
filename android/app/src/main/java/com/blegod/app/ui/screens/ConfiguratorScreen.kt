@@ -357,6 +357,14 @@ fun ScannersTab() {
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
 
+    // Read tablet BT MAC + model
+    val tabletMac = remember {
+        try {
+            android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.address ?: "02:00:00:00:00:00"
+        } catch (_: Exception) { "02:00:00:00:00:00" }
+    }
+    val tabletModel = remember { android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercaseChar() } + " " + android.os.Build.MODEL }
+
     // WiFi Push Dialog State
     var showPushDialog by remember { mutableStateOf(false) }
     var selectedScanner by remember { mutableStateOf<DiscoveredScanner?>(null) }
@@ -369,9 +377,15 @@ fun ScannersTab() {
     var isPushingAll by remember { mutableStateOf(false) }
     var pushAllResultMsg by remember { mutableStateOf<String?>(null) }
 
-    // Scanner registration dialog
+    // Shared registration dialog (used for both tablet and discovered scanners)
     var showRegisterScannerDialog by remember { mutableStateOf(false) }
     var registerScannerTarget by remember { mutableStateOf<DiscoveredScanner?>(null) }
+    // Tablet-specific registration state
+    var showRegisterTabletDialog by remember { mutableStateOf(false) }
+    var registerTabletName by remember { mutableStateOf(tabletModel) }
+    var registerTabletResult by remember { mutableStateOf<String?>(null) }
+    var isRegisteringTablet by remember { mutableStateOf(false) }
+
     var registerScannerName by remember { mutableStateOf("") }
     var registerScannerResult by remember { mutableStateOf<String?>(null) }
     var isRegisteringScanner by remember { mutableStateOf(false) }
@@ -390,7 +404,6 @@ fun ScannersTab() {
             if (ip != 0) {
                 return "${ip and 0xff}.${ip shr 8 and 0xff}.${ip shr 16 and 0xff}.${ip shr 24 and 0xff}"
             }
-            // Fallback: enumerate network interfaces
             val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
             while (interfaces.hasMoreElements()) {
                 val iface = interfaces.nextElement()
@@ -403,7 +416,7 @@ fun ScannersTab() {
                 }
             }
         } catch (_: Exception) {}
-        return "192.168.43.1" // Android hotspot default
+        return "192.168.43.1"
     }
 
     // Load registered scanners on mount
@@ -525,7 +538,67 @@ fun ScannersTab() {
         )
     }
 
-    // Scanner registration dialog
+    // ── Tablet Registration Dialog ──
+    if (showRegisterTabletDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!isRegisteringTablet) { showRegisterTabletDialog = false; registerTabletResult = null } },
+            icon = { Icon(Icons.Default.TabletAndroid, null) },
+            title = { Text("Register This Tablet") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("MAC Address", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            Text(tabletMac, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    OutlinedTextField(
+                        value = registerTabletName,
+                        onValueChange = { registerTabletName = it },
+                        label = { Text("Display Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    registerTabletResult?.let {
+                        Text(it, color = if (it.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        isRegisteringTablet = true
+                        registerTabletResult = "Registering..."
+                        scope.launch {
+                            try {
+                                ApiService.configuredBaseUrl = settings.apiBaseUrl
+                                ApiService.registerScanner(tabletMac, registerTabletName.trim().ifBlank { tabletModel }, "android")
+                                registerTabletResult = "✓ Registered!"
+                                dbScanners = try { ApiService.getScanners() } catch (_: Exception) { dbScanners }
+                                isRegisteringTablet = false
+                            } catch (e: Exception) {
+                                registerTabletResult = "Failed: ${e.message}"
+                                isRegisteringTablet = false
+                            }
+                        }
+                    },
+                    enabled = !isRegisteringTablet
+                ) {
+                    if (isRegisteringTablet) CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                    else Text("Register")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { if (!isRegisteringTablet) { showRegisterTabletDialog = false; registerTabletResult = null } }) { Text("Cancel") }
+            }
+        )
+    }
+
+    // ── Network Scanner Registration Dialog ──
     if (showRegisterScannerDialog && registerScannerTarget != null) {
         AlertDialog(
             onDismissRequest = { if (!isRegisteringScanner) { showRegisterScannerDialog = false; registerScannerResult = null } },
@@ -558,7 +631,6 @@ fun ScannersTab() {
                                 ApiService.configuredBaseUrl = settings.apiBaseUrl
                                 ApiService.registerScanner(target.mac, registerScannerName.trim().ifBlank { target.name }, target.type)
                                 registerScannerResult = "✓ Scanner registered!"
-                                // Refresh DB scanners list
                                 dbScanners = try { ApiService.getScanners() } catch (_: Exception) { dbScanners }
                                 isRegisteringScanner = false
                             } catch (e: Exception) {
@@ -579,43 +651,86 @@ fun ScannersTab() {
         )
     }
 
-    if (scanners.isEmpty()) {
-        // Nothing discovered (real state)
-        Column(
-            modifier = Modifier.fillMaxSize().padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            CircularProgressIndicator(modifier = Modifier.size(40.dp))
-            Spacer(Modifier.height(20.dp))
-            Text("Listening for scanners...", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(8.dp))
+    // Always show the full list — tablet card is always at top
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // ── This Tablet Section ──
+        item {
             Text(
-                "Make sure your hotspot is enabled and scanners are running discovery_broadcast.py / boot.py",
-                style = MaterialTheme.typography.bodySmall,
+                "THIS TABLET",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.outline,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
             )
         }
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            item {
-                Text(
-                    "${scanners.size} scanner(s) discovered",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
+        item {
+            val isTabletRegistered = registeredMacs.contains(tabletMac.uppercase())
+            ThisTabletCard(
+                modelName = tabletModel,
+                mac = tabletMac,
+                isRegistered = isTabletRegistered,
+                onRegister = {
+                    registerTabletName = tabletModel
+                    registerTabletResult = null
+                    showRegisterTabletDialog = true
+                }
+            )
+        }
 
-            // Push WiFi to All Scanners button
+        // ── Network Scanners Section ──
+        item { Spacer(Modifier.height(4.dp)) }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "NETWORK SCANNERS",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.outline,
+                    letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                )
+                if (scanners.isNotEmpty()) {
+                    Surface(
+                        shape = RoundedCornerShape(10.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            "${scanners.size}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        if (scanners.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 2.5.dp)
+                    Text("Listening for scanners...", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "Run discovery_broadcast.py / boot.py on your Pi or ESP32",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            // Push to all button
             item {
                 ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = {
                                 val ssid = settings.siteWifiSsid
@@ -626,9 +741,7 @@ fun ScannersTab() {
                                 }
                                 isPushingAll = true
                                 pushAllResultMsg = "Pushing to ${scanners.size} scanner(s)..."
-                                var successCount = 0
-                                var failCount = 0
-                                val total = scanners.size
+                                var successCount = 0; var failCount = 0; val total = scanners.size
                                 for (scanner in scanners) {
                                     pushWifiToScanner(scanner.ip, ssid, psk) { success, _ ->
                                         if (success) successCount++ else failCount++
@@ -645,35 +758,20 @@ fun ScannersTab() {
                         ) {
                             if (isPushingAll) {
                                 CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onPrimary)
-                                Spacer(Modifier.width(8.dp))
-                                Text("Pushing...")
+                                Spacer(Modifier.width(8.dp)); Text("Pushing...")
                             } else {
                                 Icon(Icons.Default.WifiTethering, null, modifier = Modifier.size(18.dp))
-                                Spacer(Modifier.width(8.dp))
-                                Text("Push WiFi to All Scanners (${scanners.size})")
+                                Spacer(Modifier.width(8.dp)); Text("Push WiFi to All (${scanners.size})")
                             }
                         }
                         val savedSsid = settings.siteWifiSsid
-                        if (savedSsid.isNotBlank()) {
-                            Text(
-                                "Saved SSID: $savedSsid",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        } else {
-                            Text(
-                                "No saved credentials — push to a scanner first to save",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
+                        Text(
+                            if (savedSsid.isNotBlank()) "Saved SSID: $savedSsid" else "No saved credentials — push to a scanner first",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (savedSsid.isNotBlank()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.error
+                        )
                         pushAllResultMsg?.let { msg ->
-                            Text(
-                                msg,
-                                color = if (msg.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text(msg, color = if (msg.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -698,6 +796,64 @@ fun ScannersTab() {
                         showRegisterScannerDialog = true
                     }
                 )
+            }
+        }
+    }
+}
+
+// ─── Tablet Card ────────────────────────────────────────────────────────────
+
+@Composable
+fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegister: () -> Unit) {
+    val tabletColor = Color(0xFF00897B) // teal — distinct from Pi purple and ESP orange
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (!isRegistered)
+                MaterialTheme.colorScheme.surface
+            else
+                Color(0xFF00897B).copy(alpha = 0.06f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier.background(tabletColor.copy(alpha = 0.15f), RoundedCornerShape(8.dp)).padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text("Tablet", color = tabletColor, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    Text(modelName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                }
+                if (isRegistered) {
+                    Surface(shape = RoundedCornerShape(6.dp), color = Color(0xFF4CAF50).copy(alpha = 0.12f)) {
+                        Text("Registered ✓", color = Color(0xFF4CAF50), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
+                    }
+                }
+            }
+            Text(mac, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, fontFamily = FontFamily.Monospace)
+            if (!isRegistered) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    "Register this tablet as a scanner to include it in zones and reporting.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+                Spacer(Modifier.height(2.dp))
+                Button(
+                    onClick = onRegister,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = tabletColor),
+                    contentPadding = PaddingValues(vertical = 10.dp)
+                ) {
+                    Icon(Icons.Default.AppRegistration, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Register This Tablet")
+                }
             }
         }
     }
