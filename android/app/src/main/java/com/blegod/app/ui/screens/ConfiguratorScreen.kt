@@ -357,12 +357,27 @@ fun ScannersTab() {
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
 
-    // Read tablet BT MAC + model
+    // Attempt to read real BT MAC — Android blocked BluetoothAdapter.getAddress() since API 23.
+    // Try OEM Settings.Secure keys first (works on most Samsung/OEM tablets without root).
     val tabletMac = remember {
-        try {
-            android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.address ?: "02:00:00:00:00:00"
-        } catch (_: Exception) { "02:00:00:00:00:00" }
+        val cr = context.contentResolver
+        // 1. Samsung / OEM common key
+        android.provider.Settings.Secure.getString(cr, "bluetooth_address")
+            ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
+        // 2. Alternate OEM key
+        ?: android.provider.Settings.Secure.getString(cr, "bluetooth_addr")
+            ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
+        // 3. Standard API (blocked on Android 6+ but worth trying)
+        ?: try {
+            android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.address
+                ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
+        } catch (_: Exception) { null }
+        // 4. Last resort: format ANDROID_ID as a unique identifier
+        ?: android.provider.Settings.Secure.getString(cr, android.provider.Settings.Secure.ANDROID_ID)
+            ?.chunked(2)?.take(6)?.joinToString(":")?.uppercase()
+        ?: "unknown"
     }
+    val isRealMac = remember(tabletMac) { tabletMac.matches(Regex("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")) }
     val tabletModel = remember { android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercaseChar() } + " " + android.os.Build.MODEL }
 
     // WiFi Push Dialog State
@@ -552,7 +567,7 @@ fun ScannersTab() {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("MAC Address", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            Text("Device ID", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
                             Text(tabletMac, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
                         }
                     }
