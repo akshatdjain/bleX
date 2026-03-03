@@ -20,11 +20,11 @@ REDIS_ASSET_ZONE_KEY = "asset:zone:{}"        # asset_mac -> zone_id
 REDIS_ZONE_QUEUE_KEY = "zone:movement:queue"  # FIFO queue for movements
 
 # ---------------- DATABASE (PostgreSQL) ----------------
-DB_HOST = "93.127.206.7"
-DB_PORT = 5432
-DB_NAME = "asset_tracking"
-DB_USER = "postgres"
-DB_PASSWORD = "Samartha@123"
+DB_HOST = "#"
+DB_PORT = #
+DB_NAME = "#"
+DB_USER = "#"
+DB_PASSWORD = "#"
 
 # ---------------- ZONE DECISION LOGIC ----------------
 # RSSI difference (in dBm) required to confirm a zone change
