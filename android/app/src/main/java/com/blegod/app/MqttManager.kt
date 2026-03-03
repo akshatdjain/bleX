@@ -140,11 +140,9 @@ class MqttManager(private val context: Context) {
                             socketFactory = getSocketFactory(settings)
                             
                             // IF we have a custom CA cert OR we are NOT strict, disable hostname verification.
-                            // This is necessary because raw IP addresses usually don't match cert CNs perfectly
-                            // in Android's default HostnameVerifier.
+                            // NOTE: We rely on HostnameInsensitiveSocketFactory patching the SSL parameters.
                             if (settings.remoteCaCertUri.isNotEmpty() || !settings.remoteTlsStrict) {
-                                sslHostnameVerifier = HostnameVerifier { _, _ -> true }
-                                log(LogLevel.DEBUG, "Hostname verification disabled (Custom CA or Unsafe mode)")
+                                log(LogLevel.DEBUG, "Hostname verification bypass enabled via SocketFactory")
                             }
                         } catch (e: Exception) {
                             log(LogLevel.ERROR, "Failed to setup TLS factory: ${e.message}")

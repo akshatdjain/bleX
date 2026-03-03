@@ -174,10 +174,12 @@ class MqttBridge(private val context: Context) {
                 try {
                     socketFactory = getSocketFactory(settings)
                     
-                    // Hostname verification disabled for IPs
+                    // IF we have a custom CA cert OR we are NOT strict, disable hostname verification.
+                    // NOTE: We rely on HostnameInsensitiveSocketFactory patching the SSL parameters.
+                    // We DO NOT set sslHostnameVerifier here because it can cause some libraries 
+                    // to re-enable endpoint identification.
                     if (settings.remoteCaCertUri.isNotEmpty() || !settings.remoteTlsStrict) {
-                        sslHostnameVerifier = HostnameVerifier { _, _ -> true }
-                        log(LogLevel.DEBUG, "Hostname verification disabled")
+                        log(LogLevel.DEBUG, "Hostname verification bypass enabled via SocketFactory")
                     }
                 } catch (e: Exception) {
                     log(LogLevel.ERROR, "Failed to setup TLS factory: ${e.message}")

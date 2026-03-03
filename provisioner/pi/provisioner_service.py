@@ -23,15 +23,11 @@ class ProvisionHandler(http.server.BaseHTTPRequestHandler):
                 mqtt_host = config.get('mqtt_host')
                 mqtt_port = config.get('mqtt_port', 1883)
                 
-                if not ssid or not psk:
-                    self._response(400, {"status": "error", "message": "Missing SSID or PSK"})
-                    return
-                
-                print(f"Received provisioning request for SSID: {ssid}")
+                print(f"Received provisioning request. Fields: {list(config.keys())}")
                 if mqtt_host:
                     print(f"MQTT Broker: {mqtt_host}:{mqtt_port}")
                 
-                self._response(200, {"status": "ok", "message": "Saving WiFi and MQTT config..."})
+                self._response(200, {"status": "ok", "message": "Processing config..."})
                 
                 # Save MQTT config if provided
                 if mqtt_host:
@@ -41,32 +37,36 @@ class ProvisionHandler(http.server.BaseHTTPRequestHandler):
                         json.dump(mqtt_config, f)
                     print(f"MQTT config saved to {mqtt_config_path}")
                 
-                # Remove existing connection with same name (if re-provisioning)
-                subprocess.run(["sudo", "nmcli", "connection", "delete", ssid],
-                               capture_output=True)
-                
-                # Save as a known network with high priority (auto-connects when visible)
-                subprocess.run([
-                    "sudo", "nmcli", "connection", "add",
-                    "type", "wifi",
-                    "ifname", "wlan0",
-                    "con-name", ssid,
-                    "ssid", ssid,
-                    "wifi-sec.key-mgmt", "wpa-psk",
-                    "wifi-sec.psk", psk,
-                    "connection.autoconnect", "yes",
-                    "connection.autoconnect-priority", "10"
-                ])
-                
-                # Disconnect from setup hotspot so Pi switches to site WiFi
-                # Try both possible connection names (manual vs setup script)
-                subprocess.run(["sudo", "nmcli", "connection", "down", "setup"],
-                               capture_output=True)
-                subprocess.run(["sudo", "nmcli", "connection", "down", "AsseTrack-Setup"],
-                               capture_output=True)
-                
-                # Connect to site WiFi now (will work if network is visible)
-                subprocess.Popen(["sudo", "nmcli", "connection", "up", ssid])
+                # Only handle WiFi if both SSID and PSK are provided
+                if ssid and psk:
+                    print(f"Applying WiFi settings for SSID: {ssid}")
+                    # Remove existing connection with same name (if re-provisioning)
+                    subprocess.run(["sudo", "nmcli", "connection", "delete", ssid],
+                                   capture_output=True)
+                    
+                    # Save as a known network with high priority
+                    subprocess.run([
+                        "sudo", "nmcli", "connection", "add",
+                        "type", "wifi",
+                        "ifname", "wlan0",
+                        "con-name", ssid,
+                        "ssid", ssid,
+                        "wifi-sec.key-mgmt", "wpa-psk",
+                        "wifi-sec.psk", psk,
+                        "connection.autoconnect", "yes",
+                        "connection.autoconnect-priority", "10"
+                    ])
+                    
+                    # Disconnect from setup hotspot
+                    subprocess.run(["sudo", "nmcli", "connection", "down", "setup"],
+                                   capture_output=True)
+                    subprocess.run(["sudo", "nmcli", "connection", "down", "AsseTrack-Setup"],
+                                   capture_output=True)
+                    
+                    # Connect to site WiFi
+                    subprocess.Popen(["sudo", "nmcli", "connection", "up", ssid])
+                else:
+                    print("No WiFi credentials provided, skipping network setup.")
                 
             except Exception as e:
                 self._response(500, {"status": "error", "message": str(e)})

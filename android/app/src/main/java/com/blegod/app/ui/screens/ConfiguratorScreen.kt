@@ -396,6 +396,8 @@ fun ScannersTab() {
     // Push-to-All state
     var isPushingAll by remember { mutableStateOf(false) }
     var pushAllResultMsg by remember { mutableStateOf<String?>(null) }
+    var isPushingMqttAll by remember { mutableStateOf(false) }
+    var pushMqttAllResultMsg by remember { mutableStateOf<String?>(null) }
 
     // Shared registration dialog (used for both tablet and discovered scanners)
     var showRegisterScannerDialog by remember { mutableStateOf(false) }
@@ -469,6 +471,37 @@ fun ScannersTab() {
                 val body = org.json.JSONObject().apply {
                     put("ssid", ssid)
                     put("psk", psk)
+                    put("mqtt_host", mqttIp)
+                    put("mqtt_port", mqttPort)
+                }.toString()
+                conn.outputStream.write(body.toByteArray())
+                conn.outputStream.flush()
+                val code = conn.responseCode
+                withContext(Dispatchers.Main) {
+                    if (code == 200) onResult(true, ip)
+                    else onResult(false, "$ip: HTTP $code")
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onResult(false, "$ip: ${e.message}")
+                }
+            }
+        }
+    }
+
+    fun pushMqttToScanner(ip: String, onResult: (Boolean, String) -> Unit) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                val url = java.net.URL("http://$ip:8888/provision")
+                val conn = url.openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.doOutput = true
+                conn.connectTimeout = 5000
+                conn.readTimeout = 5000
+                val mqttIp = getDeviceIpAddress()
+                val mqttPort = if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
+                val body = org.json.JSONObject().apply {
                     put("mqtt_host", mqttIp)
                     put("mqtt_port", mqttPort)
                 }.toString()
@@ -717,6 +750,17 @@ fun ScannersTab() {
                             leadingIcon = { Icon(Icons.Default.Lock, null) },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f), RoundedCornerShape(8.dp)).padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.Dns, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
+                            Column {
+                                Text("Tablet IP (MQTT Host)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                Text(getDeviceIpAddress(), style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                            }
+                        }
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                             if (savedWifiInfoMsg != null) {
                                 Text(savedWifiInfoMsg!!, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(end = 12.dp))
@@ -790,6 +834,37 @@ fun ScannersTab() {
                                 Spacer(Modifier.width(8.dp)); Text("Push WiFi to All (${scanners.size})")
                             }
                         }
+                        
+                        // Push MQTT to All
+                        Button(
+                            onClick = {
+                                isPushingMqttAll = true
+                                pushMqttAllResultMsg = "Pushing MQTT to ${scanners.size} scanner(s)..."
+                                var successCount = 0; var failCount = 0; val total = scanners.size
+                                for (scanner in scanners) {
+                                    pushMqttToScanner(scanner.ip) { success, _ ->
+                                        if (success) successCount++ else failCount++
+                                        if (successCount + failCount == total) {
+                                            isPushingMqttAll = false
+                                            pushMqttAllResultMsg = "✓ MQTT Done: $successCount sent, $failCount failed"
+                                        }
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isPushingMqttAll,
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                            contentPadding = PaddingValues(vertical = 12.dp)
+                        ) {
+                            if (isPushingMqttAll) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = MaterialTheme.colorScheme.onSecondary)
+                                Spacer(Modifier.width(8.dp)); Text("Pushing MQTT...")
+                            } else {
+                                Icon(Icons.Default.SettingsInputAntenna, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp)); Text("Push MQTT to All (${scanners.size})")
+                            }
+                        }
+                        
                         val savedSsid = settings.siteWifiSsid
                         Text(
                             if (savedSsid.isNotBlank()) "Saved SSID: $savedSsid" else "No saved credentials — set Wi-Fi Creds above",
@@ -797,6 +872,9 @@ fun ScannersTab() {
                             color = if (savedSsid.isNotBlank()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.error
                         )
                         pushAllResultMsg?.let { msg ->
+                            Text(msg, color = if (msg.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        }
+                        pushMqttAllResultMsg?.let { msg ->
                             Text(msg, color = if (msg.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -819,9 +897,18 @@ fun ScannersTab() {
                             return@ScannerCard
                         }
                         pushingMac = scanner.mac
-                        scannerPushState = scannerPushState + (scanner.mac to "Pushing...")
+                        scannerPushState = scannerPushState + (scanner.mac to "Pushing Wi-Fi...")
                         pushWifiToScanner(scanner.ip, ssid, psk) { success, msg ->
-                            val result = if (success) "✓ Pushed" else "Failed: $msg"
+                            val result = if (success) "✓ Wi-Fi Pushed" else "Wi-Fi Failed: $msg"
+                            scannerPushState = scannerPushState + (scanner.mac to result)
+                            if (pushingMac == scanner.mac) pushingMac = null
+                        }
+                    },
+                    onPushMqtt = {
+                        pushingMac = scanner.mac
+                        scannerPushState = scannerPushState + (scanner.mac to "Pushing MQTT...")
+                        pushMqttToScanner(scanner.ip) { success, msg ->
+                            val result = if (success) "✓ MQTT Pushed" else "MQTT Failed: $msg"
                             scannerPushState = scannerPushState + (scanner.mac to result)
                             if (pushingMac == scanner.mac) pushingMac = null
                         }
@@ -905,6 +992,7 @@ fun ScannerCard(
     pushResult: String? = null,
     savedSsid: String = "",
     onProvision: () -> Unit,
+    onPushMqtt: () -> Unit,
     onRegister: () -> Unit
 ) {
     val typeColor = when (scanner.type) {
@@ -958,32 +1046,50 @@ fun ScannerCard(
                 }
             }
             Spacer(Modifier.height(4.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                // Button 1: Push Wi-Fi
                 Button(
                     onClick = onProvision,
                     modifier = Modifier.weight(1f),
                     enabled = !isPushing,
-                    contentPadding = PaddingValues(vertical = 10.dp)
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
                 ) {
-                    if (isPushing) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
-                        Spacer(Modifier.width(6.dp))
-                        Text("Pushing")
+                    if (isPushing && pushResult?.contains("Wi-Fi") == true) {
+                        CircularProgressIndicator(modifier = Modifier.size(14.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
                     } else {
-                        Icon(Icons.Default.Wifi, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text(if (savedSsid.isNotBlank()) "Push: $savedSsid" else "Push Wi-Fi")
+                        Icon(Icons.Default.Wifi, null, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Wi-Fi", style = MaterialTheme.typography.labelSmall)
                     }
                 }
+
+                // Button 2: Push MQTT
+                Button(
+                    onClick = onPushMqtt,
+                    modifier = Modifier.weight(1f),
+                    enabled = !isPushing,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                ) {
+                    if (isPushing && pushResult?.contains("MQTT") == true) {
+                        CircularProgressIndicator(modifier = Modifier.size(14.dp), color = MaterialTheme.colorScheme.onSecondary, strokeWidth = 2.dp)
+                    } else {
+                        Icon(Icons.Default.SettingsInputAntenna, null, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("MQTT", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+
+                // Button 3: Register
                 if (!isRegistered) {
                     FilledTonalButton(
                         onClick = onRegister,
-                        modifier = Modifier.weight(1f),
-                        contentPadding = PaddingValues(vertical = 10.dp)
+                        modifier = Modifier.weight(1.1f),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
                     ) {
-                        Icon(Icons.Default.AppRegistration, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Register")
+                        Icon(Icons.Default.AppRegistration, null, modifier = Modifier.size(14.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("Register", style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }
