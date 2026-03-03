@@ -1,9 +1,12 @@
 package com.blegod.app.ui.screens
 
+import android.util.Log
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -67,9 +71,11 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
     var remoteHost by remember { mutableStateOf(settings.remoteHost) }
     var remotePort by remember { mutableStateOf(settings.remotePort.toString()) }
     var remoteTlsEnabled by remember { mutableStateOf(settings.remoteTlsEnabled) }
+    var remoteTlsStrict by remember { mutableStateOf(settings.remoteTlsStrict) }
     var remoteUseWebSocket by remember { mutableStateOf(settings.remoteUseWebSocket) }
     var remoteUsername by remember { mutableStateOf(settings.remoteUsername) }
     var remotePassword by remember { mutableStateOf(settings.remotePassword) }
+    var remoteCaCertUri by remember { mutableStateOf(settings.remoteCaCertUri) }
     var bridgeTopicFilter by remember { mutableStateOf(settings.bridgeTopicFilter) }
 
     var showPassword by remember { mutableStateOf(false) }
@@ -93,32 +99,41 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = {
-                    settings.mqttHost = host
-                    settings.mqttPort = port.toIntOrNull() ?: 1883
-                    settings.mqttTopicPrefix = topicPrefix
-                    settings.mqttQos = qos
-                    settings.mqttTlsEnabled = tlsEnabled
-                    settings.mqttUsername = username
-                    settings.mqttPassword = password
-                    settings.mqttKeepAlive = keepAlive.toIntOrNull() ?: 30
-                    settings.mqttConnectionTimeout = connTimeout.toIntOrNull() ?: 10
-                    settings.scanIntervalMs = scanInterval.toLongOrNull() ?: 2500L
-                    settings.scanDurationMs = scanDuration.toLongOrNull() ?: 2000L
-                    settings.scanPowerMode = scanPowerMode
-                    settings.themeMode = themeMode
-                    settings.scannerMacLabel = scannerMacLabel
-                    settings.mqttPayloadTemplate = payloadTemplate
-                    settings.brokerEnabled = brokerEnabled
-                    settings.brokerPort = brokerPort.toIntOrNull() ?: 1883
-                    settings.brokerUsername = brokerUsername
-                    settings.brokerPassword = brokerPassword
-                    settings.remoteHost = remoteHost
-                    settings.remotePort = remotePort.toIntOrNull() ?: 443
-                    settings.remoteTlsEnabled = remoteTlsEnabled
-                    settings.remoteUseWebSocket = remoteUseWebSocket
-                    settings.remoteUsername = remoteUsername
-                    settings.remotePassword = remotePassword
-                    settings.bridgeTopicFilter = bridgeTopicFilter
+                    if (settings.mqttHost != host) settings.mqttHost = host
+                    val parsedMqttPort = port.toIntOrNull() ?: 1883
+                    if (settings.mqttPort != parsedMqttPort) settings.mqttPort = parsedMqttPort
+                    if (settings.mqttTopicPrefix != topicPrefix) settings.mqttTopicPrefix = topicPrefix
+                    if (settings.mqttQos != qos) settings.mqttQos = qos
+                    if (settings.mqttTlsEnabled != tlsEnabled) settings.mqttTlsEnabled = tlsEnabled
+                    if (settings.mqttUsername != username) settings.mqttUsername = username
+                    if (settings.mqttPassword != password) settings.mqttPassword = password
+                    val parsedKeepAlive = keepAlive.toIntOrNull() ?: 30
+                    if (settings.mqttKeepAlive != parsedKeepAlive) settings.mqttKeepAlive = parsedKeepAlive
+                    val parsedConnTimeout = connTimeout.toIntOrNull() ?: 10
+                    if (settings.mqttConnectionTimeout != parsedConnTimeout) settings.mqttConnectionTimeout = parsedConnTimeout
+                    val parsedScanInterval = scanInterval.toLongOrNull() ?: 2500L
+                    if (settings.scanIntervalMs != parsedScanInterval) settings.scanIntervalMs = parsedScanInterval
+                    val parsedScanDuration = scanDuration.toLongOrNull() ?: 2000L
+                    if (settings.scanDurationMs != parsedScanDuration) settings.scanDurationMs = parsedScanDuration
+                    if (settings.scanPowerMode != scanPowerMode) settings.scanPowerMode = scanPowerMode
+                    if (settings.themeMode != themeMode) settings.themeMode = themeMode
+                    if (settings.scannerMacLabel != scannerMacLabel) settings.scannerMacLabel = scannerMacLabel
+                    if (settings.mqttPayloadTemplate != payloadTemplate) settings.mqttPayloadTemplate = payloadTemplate
+                    if (settings.brokerEnabled != brokerEnabled) settings.brokerEnabled = brokerEnabled
+                    val parsedBrokerPort = brokerPort.toIntOrNull() ?: 1883
+                    if (settings.brokerPort != parsedBrokerPort) settings.brokerPort = parsedBrokerPort
+                    if (settings.brokerUsername != brokerUsername) settings.brokerUsername = brokerUsername
+                    if (settings.brokerPassword != brokerPassword) settings.brokerPassword = brokerPassword
+                    if (settings.remoteHost != remoteHost) settings.remoteHost = remoteHost
+                    val parsedRemotePort = remotePort.toIntOrNull() ?: 443
+                    if (settings.remotePort != parsedRemotePort) settings.remotePort = parsedRemotePort
+                    if (settings.remoteTlsEnabled != remoteTlsEnabled) settings.remoteTlsEnabled = remoteTlsEnabled
+                    if (settings.remoteTlsStrict != remoteTlsStrict) settings.remoteTlsStrict = remoteTlsStrict
+                    if (settings.remoteUseWebSocket != remoteUseWebSocket) settings.remoteUseWebSocket = remoteUseWebSocket
+                    if (settings.remoteUsername != remoteUsername) settings.remoteUsername = remoteUsername
+                    if (settings.remotePassword != remotePassword) settings.remotePassword = remotePassword
+                    if (settings.remoteCaCertUri != remoteCaCertUri) settings.remoteCaCertUri = remoteCaCertUri
+                    if (settings.bridgeTopicFilter != bridgeTopicFilter) settings.bridgeTopicFilter = bridgeTopicFilter
                     showSavedSnackbar = true
                     onSettingsSaved()
                 },
@@ -364,7 +379,129 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                 modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Key, null) },
                 visualTransformation = PasswordVisualTransformation()
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(16.dp))
+
+            // ── CA Certificate Picker ────────────────────────────
+            if (remoteTlsEnabled) {
+                Text(
+                    "Security Configuration",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+
+                ToggleCard(
+                    icon = Icons.Default.Security,
+                    title = "Strict Verification",
+                    subtitle = if (remoteCaCertUri.isNotEmpty()) "Forced by custom CA" else "Validate certificates",
+                    checked = remoteTlsStrict || remoteCaCertUri.isNotEmpty(),
+                    enabled = remoteCaCertUri.isEmpty(), // If cert is present, strict is forced
+                    onCheckedChange = { remoteTlsStrict = it }
+                )
+                Spacer(Modifier.height(12.dp))
+
+                val pickerLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.OpenDocument()
+                ) { uri: android.net.Uri? ->
+                    uri?.let {
+                        try {
+                            context.contentResolver.takePersistableUriPermission(it, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            remoteCaCertUri = it.toString()
+                        } catch (e: Exception) {
+                            Log.e("Settings", "Failed to grant URI permission", e)
+                            remoteCaCertUri = it.toString()
+                        }
+                    }
+                }
+
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = when {
+                            remoteCaCertUri.isNotEmpty() -> MaterialTheme.colorScheme.surface
+                            remoteTlsStrict -> MaterialTheme.colorScheme.surface
+                            else -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+                        }
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                when {
+                                    remoteCaCertUri.isNotEmpty() -> Icons.Default.VerifiedUser
+                                    remoteTlsStrict -> Icons.Default.GppGood
+                                    else -> Icons.Default.Warning
+                                },
+                                "Status",
+                                tint = when {
+                                    remoteCaCertUri.isNotEmpty() -> MaterialTheme.colorScheme.primary
+                                    remoteTlsStrict -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.error
+                                }
+                            )
+                            Column(Modifier.weight(1f)) {
+                                Text(
+                                    when {
+                                        remoteCaCertUri.isNotEmpty() -> "Custom CA Certificate Active"
+                                        remoteTlsStrict -> "Strict Mode (System CA)"
+                                        else -> "Using Insecure 'Trust All' Mode"
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    when {
+                                        remoteCaCertUri.isNotEmpty() -> "Only connections verified by this CA will be allowed."
+                                        remoteTlsStrict -> "Compatible with official domains with valid certificates."
+                                        else -> "This ignores all SSL validity checks (vulnerable to MitM)."
+                                    },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        
+                        if (remoteCaCertUri.isNotEmpty()) {
+                            Text(
+                                "URI: $remoteCaCertUri",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                        }
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                            if (remoteCaCertUri.isNotEmpty()) {
+                                TextButton(onClick = { remoteCaCertUri = "" }) {
+                                    Text("Clear Cert", color = MaterialTheme.colorScheme.error)
+                                }
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Button(
+                                onClick = { pickerLauncher.launch(arrayOf("*/*")) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Icon(Icons.Default.UploadFile, null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("Upload ca.crt")
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
 
             OutlinedTextField(
                 value = bridgeTopicFilter, onValueChange = { bridgeTopicFilter = it },
@@ -469,11 +606,11 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
             }
 
             val batteryColor = when {
-                battery.level > 50 -> Color(0xFF4CAF50)
-                battery.level > 20 -> Color(0xFFFFC107)
+                battery.level > 50 -> MaterialTheme.colorScheme.primary
+                battery.level > 20 -> MaterialTheme.colorScheme.tertiary
                 else               -> MaterialTheme.colorScheme.error
             }
-            val progressColor = if (battery.isCharging) Color(0xFF4CAF50) else batteryColor
+            val progressColor = if (battery.isCharging) MaterialTheme.colorScheme.primary else batteryColor
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -553,12 +690,12 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                     InfoRowWithIcon(
                         Icons.Default.Radar, "BLE Scanner",
                         if (serviceStatus.isScanning) "Running" else "Stopped",
-                        if (serviceStatus.isScanning) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+                        if (serviceStatus.isScanning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
                     InfoRowWithIcon(
                         Icons.Default.CloudQueue, "MQTT",
                         if (serviceStatus.isMqttConnected) "Connected" else "Disconnected",
-                        if (serviceStatus.isMqttConnected) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+                        if (serviceStatus.isMqttConnected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
 
                     HorizontalDivider(
@@ -580,8 +717,8 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                         Icons.Default.Memory, "Memory",
                         "$usedMb MB / $totalMb MB",
                         when {
-                            usedMb.toFloat() / totalMb < 0.6f -> Color(0xFF4CAF50)
-                            usedMb.toFloat() / totalMb < 0.85f -> Color(0xFFFFC107)
+                            usedMb.toFloat() / totalMb < 0.6f -> MaterialTheme.colorScheme.primary
+                            usedMb.toFloat() / totalMb < 0.85f -> MaterialTheme.colorScheme.tertiary
                             else -> MaterialTheme.colorScheme.error
                         }
                     )
@@ -657,9 +794,13 @@ private fun ToggleCard(
     title: String,
     subtitle: String,
     checked: Boolean,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.5f), 
+        shape = RoundedCornerShape(16.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -676,7 +817,7 @@ private fun ToggleCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+            Switch(checked = checked, onCheckedChange = if (enabled) onCheckedChange else null, enabled = enabled)
         }
     }
 }

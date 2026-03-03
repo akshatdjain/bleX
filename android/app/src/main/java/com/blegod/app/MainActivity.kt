@@ -73,6 +73,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Force maximum display refresh rate (e.g., 90Hz/120Hz) for smooth Compose animations
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            windowManager.defaultDisplay?.supportedModes?.maxByOrNull { it.refreshRate }?.let { maxMode ->
+                window.attributes = window.attributes.apply { 
+                    preferredDisplayModeId = maxMode.modeId 
+                }
+                Log.i(TAG, "Forced refresh rate to ${maxMode.refreshRate}Hz")
+            }
+        }
+
         if (hasAllPermissions()) {
             requestBatteryOptimizationExemption()
             startServiceAndUI()

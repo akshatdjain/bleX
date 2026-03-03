@@ -12,6 +12,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
+import java.security.cert.X509Certificate
+import javax.net.ssl.*
 import javax.net.ssl.SSLSocketFactory
 
 /**
@@ -134,7 +136,20 @@ class MqttManager(private val context: Context) {
                     }
 
                     if (settings.mqttTlsEnabled) {
-                        socketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
+                        try {
+                            socketFactory = getSocketFactory(settings)
+                            
+                            // IF we have a custom CA cert OR we are NOT strict, disable hostname verification.
+                            // This is necessary because raw IP addresses usually don't match cert CNs perfectly
+                            // in Android's default HostnameVerifier.
+                            if (settings.remoteCaCertUri.isNotEmpty() || !settings.remoteTlsStrict) {
+                                sslHostnameVerifier = HostnameVerifier { _, _ -> true }
+                                log(LogLevel.DEBUG, "Hostname verification disabled (Custom CA or Unsafe mode)")
+                            }
+                        } catch (e: Exception) {
+                            log(LogLevel.ERROR, "Failed to setup TLS factory: ${e.message}")
+                            Log.e(TAG, "Failed to setup TLS factory", e)
+                        }
                     }
                 } else if (settings.brokerUsername.isNotEmpty()) {
                     // Use broker credentials for local connection
@@ -147,13 +162,18 @@ class MqttManager(private val context: Context) {
 
             mqttClient?.connect(options, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken?) {
-                    // connectComplete callback will handle setting flags
-                    log(LogLevel.INFO, "MQTT connect initiated successfully")
+                    isConnected = true
+                    isConnecting.set(false)
+                    log(LogLevel.INFO, "Direct MQTT connection successful")
                 }
                 override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    isConnected = false
                     isConnecting.set(false)
-                    log(LogLevel.ERROR, "MQTT connect failed: ${exception?.message}")
-                    // Paho auto-reconnect will retry — do NOT call connect() again here
+                    val errorDetail = when(exception) {
+                        is MqttException -> "MqttException (${exception.reasonCode}): ${exception.message} -> ${exception.cause?.message ?: "no cause"}"
+                        else -> exception?.message ?: "unknown error"
+                    }
+                    log(LogLevel.ERROR, "Direct MQTT connect failed: $errorDetail")
                 }
             })
 
@@ -161,6 +181,98 @@ class MqttManager(private val context: Context) {
             isConnecting.set(false)
             log(LogLevel.ERROR, "Failed to create/connect MQTT client: ${e.message}")
         }
+    }
+
+    private fun getSocketFactory(settings: SettingsManager): SSLSocketFactory {
+        val caCertUri = settings.remoteCaCertUri
+        
+        // Use custom CA if provided
+        if (caCertUri.isNotEmpty()) {
+            return try {
+                val cf = java.security.cert.CertificateFactory.getInstance("X.509")
+                val caInput: java.io.InputStream = context.contentResolver.openInputStream(android.net.Uri.parse(caCertUri))
+                    ?: throw java.io.FileNotFoundException("Could not open certificate stream")
+
+                val ca: java.security.cert.X509Certificate = caInput.use { cf.generateCertificate(it) as java.security.cert.X509Certificate }
+                log(LogLevel.DEBUG, "Loaded CA: ${ca.subjectDN}")
+
+                val keyStoreType = java.security.KeyStore.getDefaultType()
+                val keyStore = java.security.KeyStore.getInstance(keyStoreType).apply {
+                    load(null, null)
+                    setCertificateEntry("ca", ca)
+                }
+
+                val tmfAlgorithm = javax.net.ssl.TrustManagerFactory.getDefaultAlgorithm()
+                val tmf = javax.net.ssl.TrustManagerFactory.getInstance(tmfAlgorithm).apply {
+                    init(keyStore)
+                }
+                log(LogLevel.DEBUG, "TrustManagers initialized: ${tmf.trustManagers.size}")
+
+                val sslContext = javax.net.ssl.SSLContext.getInstance("TLS").apply {
+                    init(null, tmf.trustManagers, java.security.SecureRandom())
+                }
+                HostnameInsensitiveSocketFactory(sslContext.socketFactory)
+            } catch (e: Exception) {
+                log(LogLevel.ERROR, "CA Cert Load Error: ${e.message}")
+                Log.e(TAG, "Failed to load CA certificate from URI: $caCertUri", e)
+                if (settings.remoteTlsStrict) getSecureSystemSocketFactory() else getUnsafeSocketFactory()
+            }
+        }
+
+        // No custom CA - Check Strict Mode
+        return if (settings.remoteTlsStrict) {
+            getSecureSystemSocketFactory() // Uses system default (Works for Domains)
+        } else {
+            getUnsafeSocketFactory() // Bypasses checks (Works for Self-signed IPs)
+        }
+    }
+
+    private fun getSecureSystemSocketFactory(): SSLSocketFactory {
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, null, java.security.SecureRandom())
+        return HostnameInsensitiveSocketFactory(sslContext.socketFactory)
+    }
+
+    private fun getUnsafeSocketFactory(): SSLSocketFactory {
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+        return HostnameInsensitiveSocketFactory(sslContext.socketFactory)
+    }
+
+    /**
+     * Specialized SSLSocketFactory that disables Endpoint Identification.
+     * This is CRITICAL for raw IP addresses which usually fail the 
+     * default "HTTPS" hostname verification even if the certificate is trusted.
+     */
+    private class HostnameInsensitiveSocketFactory(private val delegate: SSLSocketFactory) : SSLSocketFactory() {
+        override fun getDefaultCipherSuites(): Array<String> = delegate.defaultCipherSuites
+        override fun getSupportedCipherSuites(): Array<String> = delegate.supportedCipherSuites
+
+        private fun patch(socket: java.net.Socket): java.net.Socket {
+            if (socket is SSLSocket) {
+                try {
+                    val params = socket.sslParameters
+                    params.endpointIdentificationAlgorithm = ""
+                    socket.sslParameters = params
+                } catch (e: Exception) {
+                    Log.w("BleGod.SSL", "Failed to disable endpoint ID", e)
+                }
+            }
+            return socket
+        }
+
+        override fun createSocket(s: java.net.Socket?, host: String?, port: Int, autoClose: Boolean): java.net.Socket = patch(delegate.createSocket(s, host, port, autoClose))
+        override fun createSocket(): java.net.Socket = patch(delegate.createSocket())
+        override fun createSocket(host: String?, port: Int): java.net.Socket = patch(delegate.createSocket(host, port))
+        override fun createSocket(host: String?, port: Int, localHost: java.net.InetAddress?, localPort: Int): java.net.Socket = patch(delegate.createSocket(host, port, localHost, localPort))
+        override fun createSocket(host: java.net.InetAddress?, port: Int): java.net.Socket = patch(delegate.createSocket(host, port))
+        override fun createSocket(address: java.net.InetAddress?, port: Int, localAddress: java.net.InetAddress?, localPort: Int): java.net.Socket = patch(delegate.createSocket(address, port, localAddress, localPort))
     }
 
     /**

@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
@@ -22,6 +23,7 @@ class BleScannerService : Service() {
     companion object {
         private const val TAG = "BleGod.Service"
         const val ACTION_RESTART = "com.blegod.app.ACTION_RESTART_SERVICE"
+        const val ACTION_RESPAWN_NOTIFICATION = "com.blegod.app.ACTION_RESPAWN_NOTIFICATION"
     }
 
     private lateinit var bleScanner: BleScanner
@@ -53,7 +55,9 @@ class BleScannerService : Service() {
         settings = SettingsManager.getInstance(this)
         settings.getPrefs().registerOnSharedPreferenceChangeListener(settingsListener)
 
-        startForeground(AppConfig.NOTIFICATION_ID, buildNotification("Initializing..."))
+        val initRemoteStatus = if (settings.brokerEnabled && settings.remoteHost.isNotEmpty()) "Down" else "--"
+        val notification = buildNotification(false, false, initRemoteStatus)
+        startForeground(AppConfig.NOTIFICATION_ID, notification)
         acquireWakeLock()
 
         // Start embedded MQTT broker (if enabled)
@@ -120,8 +124,21 @@ class BleScannerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_RESTART) {
-            log(LogLevel.INFO, "Service restarted via alarm")
+        when (intent?.action) {
+            ACTION_RESPAWN_NOTIFICATION -> {
+                log(LogLevel.DEBUG, "Notification swiped - respawning")
+                val remoteStatus = if (mqttBridge?.isRemoteConnected == true) "Up" else if (settings.remoteHost.isEmpty()) "--" else "Down"
+                
+                val notification = buildNotification(
+                    bleScanner.isScanning,
+                    embeddedBroker?.isRunning == true,
+                    remoteStatus
+                )
+                startForeground(AppConfig.NOTIFICATION_ID, notification)
+            }
+            ACTION_RESTART -> {
+                log(LogLevel.INFO, "Service restarted via alarm")
+            }
         }
         return START_STICKY
     }
@@ -157,67 +174,7 @@ class BleScannerService : Service() {
 
     // ── Notification ──────────────────────────────────────────────
 
-    private fun buildNotification(statusText: String): Notification {
-        // Tapping notification opens the app
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        val pendingIntent = if (intent != null) {
-            android.app.PendingIntent.getActivity(
-                this, 0, intent,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-            )
-        } else null
-
-        val notification = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
-            .setContentTitle("BleGod Scanner")
-            .setContentText(statusText)
-            .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
-            .setOngoing(true)
-            .setSilent(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .apply { if (pendingIntent != null) setContentIntent(pendingIntent) }
-            .build()
-            
-        notification.flags = notification.flags or 
-            Notification.FLAG_ONGOING_EVENT or 
-            Notification.FLAG_NO_CLEAR or 
-            Notification.FLAG_FOREGROUND_SERVICE
-            
-        return notification
-    }
-
     private var lastNotificationStatus = ""
-
-    private fun buildRichNotification(statusLine: String): Notification {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        val pendingIntent = if (intent != null) {
-            android.app.PendingIntent.getActivity(
-                this, 0, intent,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-            )
-        } else null
-
-        val notification = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
-            .setContentTitle("BleGod Scanner")
-            .setContentText(statusLine)
-            .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
-            .setOngoing(true) // Keeps it un-swipeable on Android 12 and below
-            .setSilent(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .apply { if (pendingIntent != null) setContentIntent(pendingIntent) }
-            .build()
-            
-        // Force it to be absolutely un-swipeable even on Android 14+
-        notification.flags = notification.flags or 
-            Notification.FLAG_ONGOING_EVENT or 
-            Notification.FLAG_NO_CLEAR or 
-            Notification.FLAG_FOREGROUND_SERVICE
-            
-        return notification
-    }
 
     private fun startNotificationUpdater() {
         notificationUpdateJob = serviceScope.launch {
@@ -225,18 +182,21 @@ class BleScannerService : Service() {
             delay(1000)
             while (isActive) {
                 try {
-                    val bleStatus = if (bleScanner.isScanning) "On" else "Off"
-                    val brokerStatus = if (embeddedBroker?.isRunning == true) "On" else "Off"
+                    val currentIsScanning = bleScanner.isScanning
+                    val currentBrokerRunning = embeddedBroker?.isRunning == true
                     val remoteStatus = if (mqttBridge?.isRemoteConnected == true) "Up" else if (settings.remoteHost.isEmpty()) "--" else "Down"
+                    val currentBeacons = totalBeaconsScanned
 
-                    val statusLine = "BLE: $bleStatus  |  Broker: $brokerStatus  |  Remote: $remoteStatus"
+                    val stateKey = "$currentIsScanning|$currentBrokerRunning|$remoteStatus|$currentBeacons"
 
                     // ONLY update the notification if the status actually changed.
-                    // On Android 13/14, users can legitimately swipe FGS notifications away.
-                    // If we aggressively notify() every 5 seconds, it aggressively respawns.
-                    if (statusLine != lastNotificationStatus) {
-                        lastNotificationStatus = statusLine
-                        val notification = buildRichNotification(statusLine)
+                    if (stateKey != lastNotificationStatus) {
+                        lastNotificationStatus = stateKey
+                        val notification = buildNotification(
+                            currentIsScanning,
+                            currentBrokerRunning,
+                            remoteStatus
+                        )
                         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
                         manager.notify(AppConfig.NOTIFICATION_ID, notification)
                     }
@@ -354,52 +314,126 @@ class BleScannerService : Service() {
         ScanRepository.addLog(level, "Service", message)
     }
 
+    private var settingsChangeJob: Job? = null
+    private var pendingRestartMqtt = false
+    private var pendingRestartBridge = false
+    private var pendingRestartScanner = false
+
     private fun handleSettingsChange(key: String?) {
         key ?: return
         log(LogLevel.INFO, "Settings changed: $key")
 
-        serviceScope.launch {
-            when {
-                key.startsWith("mqtt_") || key == "broker_enabled" -> {
-                    // Critical MQTT / Broker change -> Full reconnect
-                    log(LogLevel.INFO, "Restarting MQTT/Broker due to config change")
-                    mqttBridge?.stop()
-                    mqttManager.disconnect()
-                    embeddedBroker?.stop()
-                    
-                    delay(500)
-                    
-                    if (settings.brokerEnabled) {
-                        embeddedBroker = EmbeddedBroker(this@BleScannerService)
-                        embeddedBroker?.start()
-                        delay(1000)
-                    }
-                    
-                    mqttManager.connect()
-                    
-                    if (settings.brokerEnabled && settings.remoteHost.isNotEmpty()) {
-                        mqttBridge = MqttBridge(this@BleScannerService)
-                        mqttBridge?.start()
-                    }
-                }
-                key.startsWith("remote_") || key == "bridge_topic_filter" -> {
-                    // Only bridge config changed
-                    log(LogLevel.INFO, "Restarting Bridge due to remote config change")
-                    mqttBridge?.stop()
-                    delay(500)
-                    if (settings.brokerEnabled && settings.remoteHost.isNotEmpty()) {
-                        mqttBridge = MqttBridge(this@BleScannerService)
-                        mqttBridge?.start()
-                    }
-                }
-                key.startsWith("scan_") -> {
-                    // Scanning parameters changed
-                    log(LogLevel.INFO, "Restarting Scanner with new parameters")
-                    bleScanner.stopScanning()
-                    delay(500)
-                    bleScanner.startScanning()
-                }
+        // Accumulate pending actions
+        when {
+            key.startsWith("mqtt_") || key == "broker_enabled" -> {
+                pendingRestartMqtt = true
+                pendingRestartBridge = true
+            }
+            key.startsWith("remote_") || key == "bridge_topic_filter" -> {
+                pendingRestartBridge = true
+            }
+            key.startsWith("scan_") -> {
+                pendingRestartScanner = true
             }
         }
+
+        // Debounce the actual restart
+        // If 40 keys are saved instantly, this cancels and resets 40 times, 
+        // waiting 1500ms after the last save before actually restarting things.
+        settingsChangeJob?.cancel()
+        settingsChangeJob = serviceScope.launch {
+            delay(1500)
+
+            if (pendingRestartMqtt) {
+                log(LogLevel.INFO, "Debounced: Restarting MQTT/Broker")
+                mqttBridge?.stop()
+                mqttManager.disconnect()
+                embeddedBroker?.stop()
+                
+                delay(1000)
+                
+                if (settings.brokerEnabled) {
+                    embeddedBroker = EmbeddedBroker(this@BleScannerService)
+                    embeddedBroker?.start()
+                    delay(1000)
+                }
+                
+                mqttManager.connect()
+                
+                if (settings.brokerEnabled && settings.remoteHost.isNotEmpty()) {
+                    mqttBridge = MqttBridge(this@BleScannerService)
+                    mqttBridge?.start()
+                }
+            } else if (pendingRestartBridge) {
+                log(LogLevel.INFO, "Debounced: Restarting Bridge")
+                mqttBridge?.stop()
+                delay(500)
+                if (settings.brokerEnabled && settings.remoteHost.isNotEmpty()) {
+                    mqttBridge = MqttBridge(this@BleScannerService)
+                    mqttBridge?.start()
+                }
+            }
+
+            if (pendingRestartScanner) {
+                log(LogLevel.INFO, "Debounced: Restarting Scanner")
+                bleScanner.stopScanning()
+                delay(500)
+                bleScanner.startScanning()
+            }
+
+            // Reset flags
+            pendingRestartMqtt = false
+            pendingRestartBridge = false
+            pendingRestartScanner = false
+        }
+    }
+
+    // ── Notification Builder ──────────────────────────────────────
+    private fun buildNotification(
+        isScanning: Boolean,
+        isMqttConnected: Boolean,
+        remoteStatus: String
+    ): Notification {
+        val swipeIntent = Intent(this, ServiceRestartReceiver::class.java).apply {
+            action = ACTION_RESPAWN_NOTIFICATION
+        }
+        val swipePendingIntent = PendingIntent.getBroadcast(
+            this, 0, swipeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val intent = packageManager.getLaunchIntentForPackage(packageName)
+        val pendingIntent = if (intent != null) {
+            PendingIntent.getActivity(
+                this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else null
+
+        val singleLineStatus = "BLE: ${if (isScanning) "Active" else "Inactive"} | MQTT: ${if (isMqttConnected) "Up" else "Down"} | Remote: $remoteStatus"
+
+        val builder = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
+            .setContentTitle("Scanner Status")
+            .setContentText(singleLineStatus)
+            .setOngoing(true)
+            .setSilent(true)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setDeleteIntent(swipePendingIntent)
+
+        if (pendingIntent != null) {
+            builder.setContentIntent(pendingIntent)
+        }
+
+        val notification = builder.build()
+        notification.flags = notification.flags or
+                Notification.FLAG_ONGOING_EVENT or
+                Notification.FLAG_NO_CLEAR or
+                Notification.FLAG_FOREGROUND_SERVICE
+
+        return notification
     }
 }

@@ -159,6 +159,16 @@ class SettingsManager(context: Context) {
         get() = prefs.getString("bridge_topic_filter", "#") ?: "#"
         set(value) = prefs.edit().putString("bridge_topic_filter", value).apply()
 
+    /** If true, enforce strict SSL verification (fails on self-signed IPs without a CA cert) */
+    var remoteTlsStrict: Boolean
+        get() = prefs.getBoolean("remote_tls_strict", false)
+        set(value) = prefs.edit().putBoolean("remote_tls_strict", value).apply()
+
+    /** URI of a custom CA certificate file for remote server validation */
+    var remoteCaCertUri: String
+        get() = prefs.getString("remote_ca_cert_uri", "") ?: ""
+        set(value) = prefs.edit().putString("remote_ca_cert_uri", value).apply()
+
     // ── Site WiFi Credentials (for provisioning) ─────────────────
 
     var siteWifiSsid: String

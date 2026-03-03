@@ -47,6 +47,9 @@
     <!-- Android 13+: Required to show any notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!-- Android 16+: Required for Live Update (Rich Ongoing) notifications -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+
     <!-- Declare that this app requires BLE hardware -->
     <uses-feature
         android:name="android.hardware.bluetooth_le"

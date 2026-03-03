@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -18,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -163,6 +166,7 @@ fun HotspotTab() {
     // Poll hotspot status every 1.5s
     // getWifiApState() returns: 10=DISABLED, 11=DISABLING, 12=ENABLING, 13=ENABLED
     var isHotspotActive by remember { mutableStateOf(false) }
+    var expandedCredentials by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         while (true) {
             isHotspotActive = try {
@@ -219,7 +223,7 @@ fun HotspotTab() {
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = if (isHotspotActive)
-                        Color(0xFF4CAF50).copy(alpha = 0.12f)
+                        MaterialTheme.colorScheme.primaryContainer
                     else
                         MaterialTheme.colorScheme.surfaceVariant
                 )
@@ -238,7 +242,7 @@ fun HotspotTab() {
                                 .size(48.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (isHotspotActive) Color(0xFF4CAF50).copy(alpha = 0.2f)
+                                    if (isHotspotActive) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                                     else MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                                 ),
                             contentAlignment = Alignment.Center
@@ -246,7 +250,7 @@ fun HotspotTab() {
                             Icon(
                                 Icons.Default.WifiTethering,
                                 null,
-                                tint = if (isHotspotActive) Color(0xFF4CAF50)
+                                tint = if (isHotspotActive) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.outline,
                                 modifier = Modifier.size(28.dp)
                             )
@@ -257,14 +261,14 @@ fun HotspotTab() {
                                 if (isHotspotActive) "Active ✓" else "Inactive",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
-                                color = if (isHotspotActive) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
+                                color = if (isHotspotActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                     // Pulsing dot
                     if (isHotspotActive) {
                         Box(
-                            modifier = Modifier.size(12.dp).clip(CircleShape).background(Color(0xFF4CAF50))
+                            modifier = Modifier.size(12.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary)
                         )
                     }
                 }
@@ -274,33 +278,41 @@ fun HotspotTab() {
         item {
             // Required Credentials Info
             OutlinedCard(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable { expandedCredentials = !expandedCredentials },
                 border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(modifier = Modifier.padding(16.dp).animateContentSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Info, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
-                        Text("Setup Credentials", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Info, null, modifier = Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                            Text("Setup Credentials", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        }
+                        Icon(if (expandedCredentials) Icons.Default.ExpandLess else Icons.Default.ExpandMore, null, tint = MaterialTheme.colorScheme.outline)
                     }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                        Text("SSID", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                        Text("setup", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
-                    }
-                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                        Text("Password", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                        Text("setup@1234", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
-                    }
-                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                        Text("Port (Provision)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                        Text("8888", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
-                    }
-                    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                        Text("Port (Discovery)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                        Text("UDP 9000", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                    if (expandedCredentials) {
+                        Spacer(Modifier.height(4.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        Spacer(Modifier.height(4.dp))
+                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                            Text("SSID", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text("setup", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        }
+                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                            Text("Password", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text("setup@1234", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        }
+                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                            Text("Port (Provision)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text("8888", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        }
+                        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                            Text("Port (Discovery)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
+                            Text("UDP 9000", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                        }
                     }
                 }
             }
@@ -357,36 +369,29 @@ fun ScannersTab() {
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
 
-    // Attempt to read real BT MAC — Android blocked BluetoothAdapter.getAddress() since API 23.
-    // Try OEM Settings.Secure keys first (works on most Samsung/OEM tablets without root).
+    // Use ANDROID_ID as a stable, crash-free, universal device identifier.
+    // Modern Android strictly blocks reading the true hardware MAC address for privacy.
+    // Attempting to bypass this via Reflection causes SecurityExceptions on Android 13/14+.
     val tabletMac = remember {
         val cr = context.contentResolver
-        // 1. Samsung / OEM common key
-        android.provider.Settings.Secure.getString(cr, "bluetooth_address")
-            ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
-        // 2. Alternate OEM key
-        ?: android.provider.Settings.Secure.getString(cr, "bluetooth_addr")
-            ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
-        // 3. Standard API (blocked on Android 6+ but worth trying)
-        ?: try {
-            android.bluetooth.BluetoothAdapter.getDefaultAdapter()?.address
-                ?.takeIf { it.isNotBlank() && it != "02:00:00:00:00:00" }
-        } catch (_: Exception) { null }
-        // 4. Last resort: format ANDROID_ID as a unique identifier
-        ?: android.provider.Settings.Secure.getString(cr, android.provider.Settings.Secure.ANDROID_ID)
-            ?.chunked(2)?.take(6)?.joinToString(":")?.uppercase()
-        ?: "unknown"
+        val aid = android.provider.Settings.Secure.getString(cr, android.provider.Settings.Secure.ANDROID_ID)
+            ?: "0000000000000000"
+        
+        // Format the 64-bit hex ID to look like a MAC address (XX:XX:XX:XX:XX:XX)
+        aid.chunked(2).take(6).joinToString(":").uppercase()
     }
-    val isRealMac = remember(tabletMac) { tabletMac.matches(Regex("([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}")) }
+    val isRealMac = remember(tabletMac) { tabletMac.matches(Regex("([0-9A-F]{2}:){5}[0-9A-F]{2}")) }
     val tabletModel = remember { android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercaseChar() } + " " + android.os.Build.MODEL }
 
-    // WiFi Push Dialog State
-    var showPushDialog by remember { mutableStateOf(false) }
-    var selectedScanner by remember { mutableStateOf<DiscoveredScanner?>(null) }
+    // Global WiFi Settings State
+    var showWifiSettings by remember { mutableStateOf(false) }
+    var savedWifiInfoMsg by remember { mutableStateOf<String?>(null) }
     var siteWifiSsid by remember { mutableStateOf(settings.siteWifiSsid) }
     var siteWifiPsk by remember { mutableStateOf(settings.siteWifiPsk) }
-    var isPushing by remember { mutableStateOf(false) }
-    var pushResultMsg by remember { mutableStateOf<String?>(null) }
+
+    // Per-scanner push state: Map<Mac, String?>
+    var scannerPushState by remember { mutableStateOf(mapOf<String, String?>()) }
+    var pushingMac by remember { mutableStateOf<String?>(null) }
 
     // Push-to-All state
     var isPushingAll by remember { mutableStateOf(false) }
@@ -434,11 +439,19 @@ fun ScannersTab() {
         return "192.168.43.1"
     }
 
-    // Load registered scanners on mount
-    LaunchedEffect(Unit) {
-        ApiService.configuredBaseUrl = settings.apiBaseUrl
-        dbScanners = try { ApiService.getScanners() } catch (_: Exception) { emptyList() }
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    fun refreshScanners() {
+        scope.launch {
+            isRefreshing = true
+            ApiService.configuredBaseUrl = settings.apiBaseUrl
+            dbScanners = try { ApiService.getScanners() } catch (_: Exception) { emptyList() }
+            isRefreshing = false
+        }
     }
+
+    // Load registered scanners on mount
+    LaunchedEffect(Unit) { refreshScanners() }
 
     // Reusable push function — now includes MQTT broker IP and port
     fun pushWifiToScanner(ip: String, ssid: String, psk: String, onResult: (Boolean, String) -> Unit) {
@@ -474,84 +487,6 @@ fun ScannersTab() {
         }
     }
 
-    // WiFi push dialog (single scanner) — now shows MQTT broker info
-    if (showPushDialog && selectedScanner != null) {
-        AlertDialog(
-            onDismissRequest = { if (!isPushing) showPushDialog = false },
-            icon = { Icon(Icons.Default.Wifi, null) },
-            title = { Text("Push WiFi + MQTT") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        "Push WiFi and MQTT broker config to ${selectedScanner!!.name} (${selectedScanner!!.ip})",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    OutlinedTextField(
-                        value = siteWifiSsid,
-                        onValueChange = { siteWifiSsid = it },
-                        label = { Text("Site WiFi SSID") },
-                        singleLine = true,
-                        leadingIcon = { Icon(Icons.Default.Wifi, null) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = siteWifiPsk,
-                        onValueChange = { siteWifiPsk = it },
-                        label = { Text("Password") },
-                        singleLine = true,
-                        leadingIcon = { Icon(Icons.Default.Lock, null) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    // Show MQTT broker info that will be sent
-                    val mqttIp = getDeviceIpAddress()
-                    val mqttPort = if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(modifier = Modifier.padding(10.dp)) {
-                            Text("MQTT Broker (auto-detected)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-                            Text("$mqttIp:$mqttPort", style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    pushResultMsg?.let { msg ->
-                        Text(
-                            msg,
-                            color = if (msg.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (siteWifiSsid.isBlank() || siteWifiPsk.isBlank()) {
-                            pushResultMsg = "Please fill all fields"
-                            return@Button
-                        }
-                        settings.siteWifiSsid = siteWifiSsid
-                        settings.siteWifiPsk = siteWifiPsk
-                        isPushing = true
-                        pushResultMsg = "Pushing WiFi + MQTT..."
-                        pushWifiToScanner(selectedScanner!!.ip, siteWifiSsid, siteWifiPsk) { success, msg ->
-                            pushResultMsg = if (success) "✓ WiFi + MQTT config sent!" else "Failed: $msg"
-                            isPushing = false
-                        }
-                    },
-                    enabled = !isPushing
-                ) {
-                    if (isPushing) CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                    else Text("Push")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { if (!isPushing) showPushDialog = false }) { Text("Cancel") }
-            }
-        )
-    }
 
     // ── Tablet Registration Dialog ──
     if (showRegisterTabletDialog) {
@@ -579,7 +514,7 @@ fun ScannersTab() {
                         modifier = Modifier.fillMaxWidth()
                     )
                     registerTabletResult?.let {
-                        Text(it, color = if (it.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        Text(it, color = if (it.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                     }
                 }
             },
@@ -631,7 +566,7 @@ fun ScannersTab() {
                         modifier = Modifier.fillMaxWidth()
                     )
                     registerScannerResult?.let {
-                        Text(it, color = if (it.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        Text(it, color = if (it.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                     }
                 }
             },
@@ -667,11 +602,17 @@ fun ScannersTab() {
     }
 
     // Always show the full list — tablet card is always at top
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    @OptIn(ExperimentalMaterial3Api::class)
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        onRefresh = { refreshScanners() },
+        modifier = Modifier.fillMaxSize()
     ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
         // ── This Tablet Section ──
         item {
             Text(
@@ -699,26 +640,96 @@ fun ScannersTab() {
         // ── Network Scanners Section ──
         item { Spacer(Modifier.height(4.dp)) }
         item {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "NETWORK SCANNERS",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.outline,
-                    letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
-                )
-                if (scanners.isNotEmpty()) {
-                    Surface(
-                        shape = RoundedCornerShape(10.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "NETWORK SCANNERS",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.outline,
+                        letterSpacing = androidx.compose.ui.unit.TextUnit(1.5f, androidx.compose.ui.unit.TextUnitType.Sp)
+                    )
+                    if (scanners.isNotEmpty()) {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Text(
+                                "${scanners.size}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+
+                FilledTonalButton(
+                    onClick = { showWifiSettings = !showWifiSettings },
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Icon(if (showWifiSettings) Icons.Default.ExpandLess else Icons.Default.Wifi, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Wi-Fi Creds", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
+
+        item {
+            AnimatedVisibility(
+                visible = showWifiSettings,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Icon(Icons.Default.Router, null, tint = MaterialTheme.colorScheme.primary)
+                            Text("Scanner Wi-Fi Setup", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        }
                         Text(
-                            "${scanners.size}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 7.dp, vertical = 2.dp)
+                            "Provide the Wi-Fi credentials scanners should connect to. This will be saved and used when you push to individual scanners.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
                         )
+                        OutlinedTextField(
+                            value = siteWifiSsid,
+                            onValueChange = { siteWifiSsid = it },
+                            label = { Text("Site Wi-Fi SSID") },
+                            singleLine = true,
+                            leadingIcon = { Icon(Icons.Default.Wifi, null) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = siteWifiPsk,
+                            onValueChange = { siteWifiPsk = it },
+                            label = { Text("Password") },
+                            singleLine = true,
+                            leadingIcon = { Icon(Icons.Default.Lock, null) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                            if (savedWifiInfoMsg != null) {
+                                Text(savedWifiInfoMsg!!, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(end = 12.dp))
+                            }
+                            Button(onClick = {
+                                settings.siteWifiSsid = siteWifiSsid
+                                settings.siteWifiPsk = siteWifiPsk
+                                savedWifiInfoMsg = "✓ Saved"
+                                scope.launch { delay(2000); savedWifiInfoMsg = null; showWifiSettings = false }
+                            }) {
+                                Text("Save Credentials")
+                            }
+                        }
                     }
                 }
             }
@@ -781,12 +792,12 @@ fun ScannersTab() {
                         }
                         val savedSsid = settings.siteWifiSsid
                         Text(
-                            if (savedSsid.isNotBlank()) "Saved SSID: $savedSsid" else "No saved credentials — push to a scanner first",
+                            if (savedSsid.isNotBlank()) "Saved SSID: $savedSsid" else "No saved credentials — set Wi-Fi Creds above",
                             style = MaterialTheme.typography.labelSmall,
                             color = if (savedSsid.isNotBlank()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.error
                         )
                         pushAllResultMsg?.let { msg ->
-                            Text(msg, color = if (msg.startsWith("✓")) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                            Text(msg, color = if (msg.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -797,12 +808,23 @@ fun ScannersTab() {
                 ScannerCard(
                     scanner = scanner,
                     isRegistered = isRegistered,
+                    isPushing = pushingMac == scanner.mac,
+                    pushResult = scannerPushState[scanner.mac],
+                    savedSsid = settings.siteWifiSsid,
                     onProvision = {
-                        selectedScanner = scanner
-                        siteWifiSsid = settings.siteWifiSsid
-                        siteWifiPsk = settings.siteWifiPsk
-                        pushResultMsg = null
-                        showPushDialog = true
+                        val ssid = settings.siteWifiSsid
+                        val psk = settings.siteWifiPsk
+                        if (ssid.isBlank() || psk.isBlank()) {
+                            scannerPushState = scannerPushState + (scanner.mac to "Setup Wi-Fi Creds first ↑")
+                            return@ScannerCard
+                        }
+                        pushingMac = scanner.mac
+                        scannerPushState = scannerPushState + (scanner.mac to "Pushing...")
+                        pushWifiToScanner(scanner.ip, ssid, psk) { success, msg ->
+                            val result = if (success) "✓ Pushed" else "Failed: $msg"
+                            scannerPushState = scannerPushState + (scanner.mac to result)
+                            if (pushingMac == scanner.mac) pushingMac = null
+                        }
                     },
                     onRegister = {
                         registerScannerTarget = scanner
@@ -815,19 +837,20 @@ fun ScannersTab() {
         }
     }
 }
+}
 
 // ─── Tablet Card ────────────────────────────────────────────────────────────
 
 @Composable
 fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegister: () -> Unit) {
-    val tabletColor = Color(0xFF00897B) // teal — distinct from Pi purple and ESP orange
+    val tabletColor = MaterialTheme.colorScheme.tertiary
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (!isRegistered)
                 MaterialTheme.colorScheme.surface
             else
-                Color(0xFF00897B).copy(alpha = 0.06f)
+                tabletColor.copy(alpha = 0.06f)
         )
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -845,8 +868,8 @@ fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegi
                     Text(modelName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
                 if (isRegistered) {
-                    Surface(shape = RoundedCornerShape(6.dp), color = Color(0xFF4CAF50).copy(alpha = 0.12f)) {
-                        Text("Registered ✓", color = Color(0xFF4CAF50), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
+                    Surface(shape = RoundedCornerShape(6.dp), color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
+                        Text("Registered ✓", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
                     }
                 }
             }
@@ -875,10 +898,18 @@ fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegi
 }
 
 @Composable
-fun ScannerCard(scanner: DiscoveredScanner, isRegistered: Boolean, onProvision: () -> Unit, onRegister: () -> Unit) {
+fun ScannerCard(
+    scanner: DiscoveredScanner,
+    isRegistered: Boolean,
+    isPushing: Boolean = false,
+    pushResult: String? = null,
+    savedSsid: String = "",
+    onProvision: () -> Unit,
+    onRegister: () -> Unit
+) {
     val typeColor = when (scanner.type) {
-        "pi" -> Color(0xFF7B61FF)
-        "esp32" -> Color(0xFFFF9800)
+        "pi" -> MaterialTheme.colorScheme.tertiary
+        "esp32" -> MaterialTheme.colorScheme.secondary
         else -> MaterialTheme.colorScheme.primary
     }
     val typeLabel = when (scanner.type) {
@@ -906,12 +937,12 @@ fun ScannerCard(scanner: DiscoveredScanner, isRegistered: Boolean, onProvision: 
                     if (isRegistered) {
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = Color(0xFF4CAF50).copy(alpha = 0.15f)
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                         ) {
-                            Text("Registered ✓", color = Color(0xFF4CAF50), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
+                            Text("Registered ✓", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
                         }
                     }
-                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(Color(0xFF4CAF50)))
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary))
                 }
             }
             Text(
@@ -920,17 +951,29 @@ fun ScannerCard(scanner: DiscoveredScanner, isRegistered: Boolean, onProvision: 
                 color = MaterialTheme.colorScheme.outline,
                 fontFamily = FontFamily.Monospace
             )
-            Text("Last seen: ${(System.currentTimeMillis() - scanner.lastSeenMs) / 1000}s ago", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Last seen: ${(System.currentTimeMillis() - scanner.lastSeenMs) / 1000}s ago", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                if (pushResult != null) {
+                    Text(pushResult, color = if (pushResult.startsWith("✓")) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                }
+            }
             Spacer(Modifier.height(4.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onProvision,
                     modifier = Modifier.weight(1f),
+                    enabled = !isPushing,
                     contentPadding = PaddingValues(vertical = 10.dp)
                 ) {
-                    Icon(Icons.Default.Wifi, null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text("Push WiFi + MQTT")
+                    if (isPushing) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                        Spacer(Modifier.width(6.dp))
+                        Text("Pushing")
+                    } else {
+                        Icon(Icons.Default.Wifi, null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(if (savedSsid.isNotBlank()) "Push: $savedSsid" else "Push Wi-Fi")
+                    }
                 }
                 if (!isRegistered) {
                     FilledTonalButton(
@@ -981,9 +1024,12 @@ fun ZonesTab() {
     var assignAction by remember { mutableStateOf<Triple<Int, Int, Boolean>?>(null) } // zoneId, scannerId, isAssign
     var assignLabel by remember { mutableStateOf("") }
 
+    var isRefreshing by remember { mutableStateOf(false) }
+
     fun refreshData() {
         scope.launch {
-            isLoading = true
+            if (!isRefreshing) isLoading = true
+            isRefreshing = true
             errorMsg = null
             ApiService.configuredBaseUrl = settings.apiBaseUrl
             try {
@@ -993,6 +1039,7 @@ fun ZonesTab() {
                 errorMsg = "API error: ${e.message}"
             }
             isLoading = false
+            isRefreshing = false
         }
     }
 
@@ -1180,13 +1227,28 @@ fun ZonesTab() {
                     Spacer(Modifier.height(12.dp))
                     Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                 }
+                Spacer(Modifier.height(16.dp))
+                Button(onClick = { refreshData() }) {
+                    Icon(Icons.Default.Refresh, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Refresh")
+                }
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            @OptIn(ExperimentalMaterial3Api::class)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { refreshData() },
+                modifier = Modifier.fillMaxSize()
             ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        Text("Zones", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    }
                 errorMsg?.let { msg ->
                     item {
                         ElevatedCard(
@@ -1230,6 +1292,7 @@ fun ZonesTab() {
             }
         }
     }
+}
 }
 
 @Composable
@@ -1395,12 +1458,15 @@ fun AssetsTab() {
     var registerName by remember { mutableStateOf("") }
     var registerError by remember { mutableStateOf<String?>(null) }
 
+    var isRefreshing by remember { mutableStateOf(false) }
+
     fun refreshAssets() {
         scope.launch {
+            isRefreshing = true
             ApiService.configuredBaseUrl = settings.apiBaseUrl
             registeredAssets = try { ApiService.getAssets() } catch (e: Exception) { emptyList() }
-            // Sync to ScanRepository so ScannerScreen can resolve names
             ScanRepository.setRegisteredAssets(registeredAssets)
+            isRefreshing = false
         }
     }
 
@@ -1460,6 +1526,7 @@ fun AssetsTab() {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        Text("Assets", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp))
         // Search bar
         OutlinedTextField(
             value = filter,
@@ -1488,17 +1555,24 @@ fun AssetsTab() {
                 Text("Start the BLE scanner from the main tab.\nActive beacons will appear here.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         } else {
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+            @OptIn(ExperimentalMaterial3Api::class)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { refreshAssets() },
+                modifier = Modifier.fillMaxSize()
             ) {
-                item {
-                    Text(
-                        "${filtered.size} of ${beacons.size} beacons",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    item {
+                        Text(
+                            "${filtered.size} of ${beacons.size} beacons",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 items(filtered, key = { it.mac }) { beacon ->
                     val registered = registeredMacs[beacon.mac.uppercase()]
                     BeaconAssetCard(
@@ -1522,6 +1596,7 @@ fun AssetsTab() {
         }
     }
 }
+}
 
 @Composable
 fun BeaconAssetCard(
@@ -1531,9 +1606,9 @@ fun BeaconAssetCard(
     onDelete: (Int) -> Unit
 ) {
     val rssiColor = when {
-        beacon.rssi > -60 -> Color(0xFF4CAF50)
-        beacon.rssi > -80 -> Color(0xFFFFC107)
-        else -> Color(0xFFF44336)
+        beacon.rssi > -60 -> MaterialTheme.colorScheme.primary
+        beacon.rssi > -80 -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.error
     }
     val isRegistered = registeredAsset != null
 

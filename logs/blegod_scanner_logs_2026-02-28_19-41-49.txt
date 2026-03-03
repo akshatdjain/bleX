@@ -1,0 +1,111 @@
+BleGod Scanner Logs — Exported 2026-02-28 19:41:49.868
+============================================================
+
+2026-02-28 19:38:56.651  INFO   [Service]  Service CREATED
+2026-02-28 19:38:56.722  INFO   [Service]  Broker ready after 0ms
+2026-02-28 19:38:56.744  INFO   [MQTT]  Created new MQTT client
+2026-02-28 19:38:56.744  INFO   [MQTT]  Connecting to tcp://127.0.0.1:1883 as blegod_122114c6
+2026-02-28 19:38:56.758  INFO   [Scanner]  BLE Scanning STARTED (iBeacon + Eddystone only)
+2026-02-28 19:38:56.759  INFO   [Scanner]  Mode: BALANCED, Interval: 2500ms, Duration: 2000ms
+2026-02-28 19:38:56.761  INFO   [Service]  UDP discovery started on port 9000
+2026-02-28 19:38:57.079  INFO   [MQTT]  MQTT connect initiated successfully
+2026-02-28 19:38:57.079  INFO   [MQTT]  MQTT CONNECTED to tcp://127.0.0.1:1883
+2026-02-28 19:39:33.061  INFO   [Service]  Settings changed: api_base_url
+2026-02-28 19:39:56.763  DEBUG  [Service]  Watchdog: lastScan=147ms ago, mqtt=true
+2026-02-28 19:40:34.381  DEBUG  [Scanner]  Scan cycle: 1 beacons found
+2026-02-28 19:40:34.394  DEBUG  [Service]  Cycle #1: 1 beacons → MQTT
+2026-02-28 19:40:56.770  DEBUG  [Service]  Watchdog: lastScan=2248ms ago, mqtt=true
+2026-02-28 19:41:04.712  INFO   [Service]  Settings changed: mqtt_host
+2026-02-28 19:41:04.712  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.712  INFO   [Service]  Settings changed: mqtt_port
+2026-02-28 19:41:04.713  INFO   [Service]  Settings changed: mqtt_topic_prefix
+2026-02-28 19:41:04.713  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.713  INFO   [Service]  Settings changed: mqtt_qos
+2026-02-28 19:41:04.713  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.714  INFO   [Service]  Settings changed: mqtt_tls_enabled
+2026-02-28 19:41:04.714  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.714  INFO   [Service]  Settings changed: mqtt_username
+2026-02-28 19:41:04.714  INFO   [Service]  Settings changed: mqtt_password
+2026-02-28 19:41:04.714  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.714  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.714  INFO   [Service]  Settings changed: mqtt_keep_alive
+2026-02-28 19:41:04.715  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.716  INFO   [Service]  Settings changed: mqtt_connection_timeout
+2026-02-28 19:41:04.716  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:04.716  INFO   [Service]  Settings changed: scan_interval_ms
+2026-02-28 19:41:04.717  INFO   [Service]  Settings changed: scan_duration_ms
+2026-02-28 19:41:04.717  INFO   [Service]  Settings changed: scan_power_mode
+2026-02-28 19:41:04.717  INFO   [Service]  Settings changed: theme_mode
+2026-02-28 19:41:04.718  INFO   [Service]  Settings changed: scanner_mac_label
+2026-02-28 19:41:04.718  INFO   [Service]  Settings changed: mqtt_payload_template
+2026-02-28 19:41:04.718  INFO   [Service]  Settings changed: broker_enabled
+2026-02-28 19:41:04.719  INFO   [Service]  Settings changed: broker_port
+2026-02-28 19:41:04.719  INFO   [Service]  Settings changed: broker_username
+2026-02-28 19:41:04.719  INFO   [Service]  Settings changed: broker_password
+2026-02-28 19:41:04.720  INFO   [Service]  Settings changed: remote_host
+2026-02-28 19:41:04.720  INFO   [Service]  Settings changed: remote_port
+2026-02-28 19:41:04.720  INFO   [Service]  Settings changed: remote_tls_enabled
+2026-02-28 19:41:04.721  INFO   [Service]  Settings changed: remote_use_websocket
+2026-02-28 19:41:04.721  INFO   [Service]  Settings changed: remote_username
+2026-02-28 19:41:04.721  INFO   [Service]  Settings changed: remote_password
+2026-02-28 19:41:04.721  INFO   [Service]  Settings changed: bridge_topic_filter
+2026-02-28 19:41:06.781  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:06.781  INFO   [Service]  Restarting Scanner with new parameters
+2026-02-28 19:41:06.781  INFO   [Service]  Restarting Scanner with new parameters
+2026-02-28 19:41:06.781  INFO   [Service]  Restarting Scanner with new parameters
+2026-02-28 19:41:06.781  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting MQTT/Broker due to config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Scanner]  BLE Scanning STOPPED
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Scanner]  BLE Scanning STOPPED
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.782  INFO   [Service]  Restarting Bridge due to remote config change
+2026-02-28 19:41:06.783  INFO   [Scanner]  BLE Scanning STOPPED
+2026-02-28 19:41:07.310  INFO   [Scanner]  BLE Scanning STARTED (iBeacon + Eddystone only)
+2026-02-28 19:41:07.310  INFO   [Scanner]  BLE Scanning STARTED (iBeacon + Eddystone only)
+2026-02-28 19:41:07.310  INFO   [Scanner]  Mode: BALANCED, Interval: 2500ms, Duration: 2000ms
+2026-02-28 19:41:07.311  INFO   [Scanner]  Mode: BALANCED, Interval: 2500ms, Duration: 2000ms
+2026-02-28 19:41:07.317  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:08.305  INFO   [MQTT]  Created new MQTT client
+2026-02-28 19:41:08.306  INFO   [MQTT]  Connecting to tcp://127.0.0.1:1883 as blegod_122114c6
+2026-02-28 19:41:08.636  INFO   [MQTT]  MQTT connect initiated successfully
+2026-02-28 19:41:08.636  INFO   [MQTT]  MQTT CONNECTED to tcp://127.0.0.1:1883
+2026-02-28 19:41:09.852  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:12.318  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:12.432  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:14.855  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:14.882  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:17.377  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:17.433  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:19.886  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:19.893  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:22.382  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:22.435  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:24.894  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:24.951  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:27.436  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:27.437  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:29.954  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:29.963  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:32.438  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:32.739  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:34.965  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:34.996  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:37.510  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:37.741  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:39.999  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:40.023  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:41.007  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:42.518  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:42.554  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:45.030  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:45.054  ERROR  [Scanner]  BLE scan failed with error code: 1
+2026-02-28 19:41:46.017  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:47.563  INFO   [Scanner]  Retrying scan after failure...
+2026-02-28 19:41:47.634  ERROR  [Scanner]  BLE scan failed with error code: 1
+
+Total entries: 106

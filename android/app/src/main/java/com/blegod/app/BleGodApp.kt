@@ -1,6 +1,7 @@
 package com.blegod.app
 
 import android.app.Application
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
@@ -42,14 +43,15 @@ class BleGodApp : Application() {
     private fun createNotificationChannels() {
         val notificationManager = getSystemService(NotificationManager::class.java)
 
-        // Silent foreground service channel
+        // Persistent Foreground Service channel (Must be default or higher for AOD rendering)
         val serviceChannel = NotificationChannel(
             CHANNEL_ID,
             CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_DEFAULT // Changed from LOW to bypass AOD suppression
         ).apply {
             description = "Continuous BLE beacon scanning service"
             setShowBadge(false)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC // CRITICAL for Android 14+ AOD
         }
         notificationManager.createNotificationChannel(serviceChannel)
 

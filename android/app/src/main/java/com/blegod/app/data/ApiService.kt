@@ -26,8 +26,8 @@ object ApiService {
         val url = URL("${baseUrl()}$path")
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "GET"
-        conn.connectTimeout = 8000
-        conn.readTimeout = 8000
+        conn.connectTimeout = 15000
+        conn.readTimeout = 15000
         conn.inputStream.bufferedReader().use { it.readText() }
     }
 
@@ -37,8 +37,8 @@ object ApiService {
         conn.requestMethod = "POST"
         conn.setRequestProperty("Content-Type", "application/json")
         conn.doOutput = true
-        conn.connectTimeout = 8000
-        conn.readTimeout = 8000
+        conn.connectTimeout = 15000
+        conn.readTimeout = 15000
         conn.outputStream.write(body.toString().toByteArray())
         conn.outputStream.flush()
         val resp = conn.inputStream.bufferedReader().use { it.readText() }
@@ -51,8 +51,8 @@ object ApiService {
         conn.requestMethod = "PUT"
         conn.setRequestProperty("Content-Type", "application/json")
         conn.doOutput = true
-        conn.connectTimeout = 8000
-        conn.readTimeout = 8000
+        conn.connectTimeout = 15000
+        conn.readTimeout = 15000
         conn.outputStream.write(body.toString().toByteArray())
         conn.outputStream.flush()
         val resp = conn.inputStream.bufferedReader().use { it.readText() }
@@ -63,8 +63,8 @@ object ApiService {
         val url = URL("${baseUrl()}$path")
         val conn = url.openConnection() as HttpURLConnection
         conn.requestMethod = "DELETE"
-        conn.connectTimeout = 8000
-        conn.readTimeout = 8000
+        conn.connectTimeout = 15000
+        conn.readTimeout = 15000
         val resp = conn.inputStream.bufferedReader().use { it.readText() }
         JSONObject(resp)
     }

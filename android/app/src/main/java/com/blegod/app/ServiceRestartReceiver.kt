@@ -35,17 +35,22 @@ class ServiceRestartReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.i(TAG, "═══════════════════════════════════════")
-        Log.i(TAG, "  Restart broadcast received")
-        Log.i(TAG, "  Action: ${intent.action}")
-        Log.i(TAG, "═══════════════════════════════════════")
+        val action = intent.action
+        Log.i(TAG, "Broadcast received: $action")
 
         // Start the scanner service
         val serviceIntent = Intent(context, BleScannerService::class.java).apply {
-            action = BleScannerService.ACTION_RESTART
+            this.action = when (action) {
+                BleScannerService.ACTION_RESPAWN_NOTIFICATION -> BleScannerService.ACTION_RESPAWN_NOTIFICATION
+                else -> BleScannerService.ACTION_RESTART
+            }
         }
-        context.startForegroundService(serviceIntent)
-
-        Log.i(TAG, "Service restart requested via ServiceRestartReceiver")
+        
+        try {
+            context.startForegroundService(serviceIntent)
+            Log.i(TAG, "Service signaled with action: ${serviceIntent.action}")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to start service: ${e.message}")
+        }
     }
 }
