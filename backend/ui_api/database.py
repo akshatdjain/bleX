@@ -8,7 +8,7 @@ DB_NAME=asset_tracking
 DB_USER=postgres
 DB_PASS=LYzxeJ2xrSKfzM2f
 '''
-DATABASE_URL = "postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@localhost/asset_tracking"
+DATABASE_URL = "postgresql+asyncpg://"
 # DATABASE_URL = "postgresql+asyncpg://user:pass@localhost/dbname"
 
 
