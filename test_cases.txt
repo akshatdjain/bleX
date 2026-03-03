@@ -1,103 +1,95 @@
-BleGod - Comprehensive System Test Cases
-========================================
-Test Environment: Android Tablet/Smartphone (Target API 35 / Android 16 compatible)
-Pre-requisites: APK installed, 1 or more BLE Scanners (e.g. ESP32-S3), 1 or more BLE Beacons to detect.
+BleGod - Professional System Test Protocol (v2.1)
+===================================================
 
---- CATEGORY: PERMISSIONS & INITIALIZATION ---
+This protocol defines 15 "Heavy Testing" cases designed to stress the provisioning, MQTT bridge, and registration architecture of the BleGod system.
 
-Test Case 1: Fresh Install & Permission Flow
-- Action: Install the app for the first time and launch it.
-- Expected Output: The app should systematically ask for Bluetooth, Location (Fine/Coarse), Nearby Devices, and Notification permissions. Denying Location should show a rationale dialog explaining why BLE needs Location. The Scanning service should not start until permissions are granted.
+---
 
-Test Case 2: Tablet Reboot Auto-Start
-- Action: Once the app is running and permissions are granted, completely reboot the Android device. Do not manually open the app.
-- Expected Output: The BootReceiver should trigger automatically. After the device boots, the persistent "Scanner Status" notification should appear on the lock screen/notification panel, proving the scanning service started in the background automatically.
+### CATEGORY 1: DISCRETE PROVISIONING (HEAVY)
 
---- CATEGORY: HARDWARE TOGGLES & INTERRUPTIONS ---
+TEST CASE 1: Individual MQTT-Only Push (Minimal Payload)
+- Action: On the Scanners tab, find a connected scanner. Tap the "MQTT" action button only.
+- Logic: The App sends ONLY `mqtt_host` and `mqtt_port`.
+- Practical Expectation: The scanner's `provisioner_service.py` receives the JSON, saves it to `~/mqtt_config.json`, and returns 200 OK. The scanner MUST NOT reset its Wi-Fi connection or drop from the network.
 
-Test Case 3: Bluetooth Toggle Mid-Scan
-- Action: While the app is actively scanning and finding beacons, swipe down and turn Bluetooth entirely OFF from the Quick Settings menu. Wait 10 seconds, then turn it back ON.
-- Expected Output: The app's watchdog should detect the BLE failure. The UI should show scanning halted. Once BT is flipped back on, the app should automatically recover, restart the BLE scanner, and resume updating the UI and MQTT broker without requiring an app restart.
+TEST CASE 2: Individual Full Wi-Fi Push (Complete Payload)
+- Action: Enter valid Wi-Fi SSID/PSK in "Wi-Fi Creds". Tap "Wi-Fi" action button on a scanner card.
+- Logic: The App sends `ssid`, `psk`, `mqtt_host`, and `mqtt_port`.
+- Practical Expectation: The scanner deletes its current connection, creates a new `nmcli` connection, and switches from the 'setup' hotspot to the new site Wi-Fi. It MUST also save the MQTT host.
 
-Test Case 4: Wi-Fi Toggle & Offline Resilience
-- Action: With the Local MQTT Broker enabled, publish beacons. Turn Wi-Fi completely OFF.
-- Expected Output: The UI should warn that the network adapter is down. The Local MQTT Broker should remain running on the localhost interface `127.0.0.1`. The app should queue or discard remote MQTT payloads gracefully without crashing, and restore remote connection silently when Wi-Fi is restored.
+TEST CASE 3: Bulk "Push MQTT to All" Stress Test
+- Action: Discover 5+ scanners via the tablet hotspot. Tap "Push MQTT to All".
+- Heavy Testing Aspect: Verify the tablet's IO scope handles 5 parallel HTTP POST requests without ANR or dropping any payload.
+- Practical Expectation: All 5 scanners should simultaneously report "200 OK" and update their internal broker settings without rebooting.
 
---- CATEGORY: BACKGROUND & PERSISTENCE ---
+TEST CASE 4: Bulk "Push Wi-Fi to All" Network Transition
+- Action: With multiple scanners discovered, tap "Push Wi-Fi to All".
+- Heavy Testing Aspect: This triggers multiple scanners to leave the 'setup' AP at once.
+- Practical Expectation: Monitors the tablet's connection pool. Scanners should gracefully exit the 'setup' network. Check the site router to ensure all scanners appear there within 30 seconds.
 
-Test Case 5: Persistent Notification Un-Swipeable Test
-- Action: Lock the screen. Wake it up to view the lock screen. Try to swipe away the "Scanner Status" notification. Then unlock the phone, pull down the notification shade, and try to swipe it away again.
-- Expected Output: The notification should be strictly un-swipeable and persistent (spoofing CATEGORY_CALL behavior). It should display as a single horizontal line "BLE: Active | MQTT: Up | Remote: Down/Up".
+---
 
-Test Case 6: App Killed via Recent Apps (Self-Healing)
-- Action: Open the app, ensure scanning is active. Press the recent apps button and swipe the BleGod app completely away (force kill via UI). Lock the screen.
-- Expected Output: The notification might briefly disappear. Within 5 to 10 seconds, the ServiceRestartReceiver MUST catch the death and automatically respawn the foreground service. The notification will reappear, and background scanning will resume without user intervention.
+### CATEGORY 2: MQTT ARCHITECTURE & DYNAMICS
 
-Test Case 7: Doze Mode & Battery Optimization
-- Action: Start the scanner, lock the screen, unplug the tablet from power, and leave it sitting completely still on a desk for 3+ hours to force Android into Deep Doze mode.
-- Expected Output: The WakeLock and Foreground Service should prevent the CPU from sleeping. Upon waking the device, the total beacons scanned counter should accurately reflect 3 hours of constant scanning, and the MQTT broker should have continuous logs. Check Android battery stats to ensure it shows foreground usage, not a crash.
+TEST CASE 5: Dynamic Host Resolution (Hotspot Re-entry)
+- Action: Change the tablet's hotspot name or reconnect to a different router (changing Tablet IP). Open the Configurator.
+- Check: Verify the "Tablet IP (MQTT Host)" display updates to the new IP.
+- Action: Push "MQTT" to a scanner.
+- Practical Expectation: The scanner MUST update its target broker IP to the new Tablet IP instantly.
 
---- CATEGORY: MQTT & NETWORK ---
+TEST CASE 6: MQTT Payload Loopback & UI Latency
+- Action: Place a beacon next to a provisioned scanner.
+- Loop: Beacon -> Scanner -> MQTT -> Tablet Broker -> App UI.
+- Heavy Testing Aspect: Check the "RSSI" value in the UI. Move the beacon.
+- Practical Expectation: The UI should update within <500ms. If Kalman filtering is enabled, the value should smooth out without jumping.
 
-Test Case 8: Embedded Broker Toggle
-- Action: Go to Settings Tab. Toggle "Enable Embedded MQTT Broker" OFF. Look at the persistent notification. Then toggle it ON again.
-- Expected Output: Turning it OFF should cleanly stop the Moquette broker and the notification should instantly update to "MQTT: Down". Turning it ON should restart it on port 1883 and update the notification to "MQTT: Up".
+TEST CASE 7: Broker Failure & Reconnect Watchdog
+- Action: On the Tablet, toggle "Enable Embedded Broker" to OFF while scanners are active. Wait 1 minute, then toggle ON.
+- Practical Expectation: Scanners should log "Connect failed, retrying...". Once the broker is ON, scanners MUST auto-reconnect using the `connect_mqtt_forever` loops without manual intervention.
 
-Test Case 9: Remote Broker Auto-Reconnect
-- Action: Configure a remote MQTT broker with intentional invalid credentials, save. Then change to valid credentials.
-- Expected Output: The MqttBridge should attempt to connect, fail, and log an error. Upon entering the correct credentials, the watchdog should automatically retry and successfully establish the bridge, pushing data to the remote server.
+---
 
---- CATEGORY: PROVISIONING & SCANNERS TAB ---
+### CATEGORY 3: REGISTRATION & PERSISTENCE
 
-Test Case 10: Tablet Self-Registration
-- Action: Navigate to the Configurator -> Scanners Tab. Look at the top section labeled "This Tablet".
-- Expected Output: The card should correctly display the Tablet's underlying hardware model and its Bluetooth MAC Address. Tapping "Register" should save it to the local SQLite database and change the status badge to "Registered".
+TEST CASE 8: Multi-Identity Conflict (MAC Spoofing Check)
+- Action: Try to register a scanner with a name, then try to register another scanner using the SAME MAC address but a different name.
+- Practical Expectation: The Backend API (FastAPI) should handle the conflict. Depending on implementation, it should either update the existing record or return a 400 error. The UI must display the result badge correctly.
 
-Test Case 11: Network Scanner UDP Discovery
-- Action: Power on an ESP32-S3 configured to broadcast UDP to the tablet's IP on port 8888. Navigate to the Scanners Tab.
-- Expected Output: The UI should automatically discover the new scanner, listing its IP and MAC address dynamically in the "Network Scanners" list without needing a manual refresh.
+TEST CASE 9: Tablet Hub Identity Preservation
+- Action: Register "This Tablet" in the Scanners tab. Uninstall the app, reinstall it, and check the "This Tablet" card.
+- Practical Expectation: Because the app uses ANDROID_ID, it should generate the same MAC-like ID. The status should reflect the registration status on the server, not just local storage.
 
-Test Case 12: Pull-to-Refresh Scanners
-- Action: While on the Scanners tab, wait for scanners to list. Physically power off an ESP32 scanner. Wait 20 seconds, then perform a swipe-down Pull-to-Refresh on the screen.
-- Expected Output: The tablet should flush the stale 15-second cache. The powered-off scanner should disappear from the UI list cleanly.
+TEST CASE 10: Scanner Name Overflow & UI Clipping
+- Action: Register a scanner with an extremely long name (50+ characters).
+- Heavy Testing Aspect: Check the ScannerCard layout.
+- Practical Expectation: The name should use `TextOverflow.Ellipsis` and not break the 3-button layout or push the buttons off-screen.
 
-Test Case 13: Push Wi-Fi Credentials Pixel-Style
-- Action: Tap the "Wi-Fi Config" button next to a discovered Network Scanner. Enter an SSID and Password, then submit.
-- Expected Output: A UDP payload containing `wifi_ssid`, `wifi_pass`, `mqtt_ip` (tablet's IP), and `mqtt_port` (1883) should be dispatched to the target scanner. Verify on the scanner's serial output that it received the credentials and connected to the tablet's hotspot.
+---
 
---- CATEGORY: CONFIGURATOR & ZONES ---
+### CATEGORY 4: SECURITY & NETWORKING (TLS/SSL)
 
-Test Case 14: Zone Creation & DB Persistence
-- Action: Go to the Configurator -> Zones Tab. Create 3 new zones (e.g., "Hallway", "Kitchen", "Lobby"). Force close the app, and reopen it.
-- Expected Output: The zones must persist in the SQLite database and reload correctly when navigating back to the Zones tab.
+TEST CASE 11: TLS 1.3 Handshake Resilience
+- Action: Enable TLS on the broker, upload a custom `ca.crt` to the app. Point a scanner to the TLS port.
+- Practical Expectation: Verify `HostnameInsensitiveSocketFactory` allows the connection even if the certificate's CN doesn't match the raw IP (which is common in local IoT).
 
-Test Case 15: Assigning Beacons to Zones
-- Action: In the Zones tab, drag/assign a newly discovered raw beacon MAC address to the "Kitchen" zone. Name it "Keys".
-- Expected Output: The beacon should immediately disappear from the "Unassigned" pool. Future scans in the Scanner Tab should now resolve this MAC address to the friendly name "Keys - Kitchen".
+TEST CASE 12: Invalid Port & Connection Timeout
+- Action: Manually change the MQTT port to a blocked port (e.g., 9999) in settings and push to a scanner.
+- Practical Expectation: The App should report a "HTTP Timeout" or "Connection Refused" error badge on the card rather than hanging indefinitely.
 
-Test Case 16: Cascading Zone Deletion
-- Action: Delete the "Kitchen" zone created in Test 15. Accept the confirmation dialog.
-- Expected Output: The zone is deleted. The beacon "Keys" should be automatically orphaned and thrown back into the "Unassigned" raw MAC address pool.
+---
 
-Test Case 17: Zone Chips Scroll & Layout
-- Action: Create 15 different zones with long names.
-- Expected Output: The zone selection row at the top of the Zones tab should gracefully horizontally scroll. Selected zones should highlight in the Material 3 primary color, matching the app's dynamic theme.
+### CATEGORY 5: AGING & LOAD TESTS
 
---- CATEGORY: EDGE CASES & STRESS TESTS ---
+TEST CASE 13: 10-Scanner "Heartbeat" Flood
+- Action: Connect 10 scanners to the tablet. Each scanner sends a heartbeat + beacon data every 1s.
+- Heavy Testing Aspect: Monitor the Tablet's Moquette broker memory usage.
+- Practical Expectation: The Hub must remain responsive, and the persistent notification must stay active without being killed by the OS (Low Memory Killer).
 
-Test Case 18: High Volume Beacon Stress Test
-- Action: Place the tablet in an extremely busy BLE environment (e.g., an office with 100+ BLE beacons/devices, or simulate it using a BLE spoofer). Let it run for 10 minutes.
-- Expected Output: The app should not freeze (ANR). The RecyclerView in the Scanner tab should remain smooth (maintaining 90Hz/120Hz refresh rates) because the BLE parsing and DB sorting are happening asynchronously on Dispatchers.IO.
+TEST CASE 14: Wi-Fi "Zombie" Recovery (Safety Fallback)
+- Action: Provision a scanner with WRONG Wi-Fi credentials.
+- Practical Expectation: The scanner's `check_zombie_fallback` (Zombie Protection) should detect the loss of connectivity and, after the threshold, return the Wi-Fi interface to the 'setup' hotspot so it can be re-provisioned.
 
-Test Case 19: Screen Rotation & Configuration Changes
-- Action: While staring at the Scanners Tab with incoming live data, rapidly rotate the tablet from Portrait to Landscape and back 5 times.
-- Expected Output: The UI state should survive the configuration changes cleanly without duplicating data, crashing, or restarting the background BLE Scanner Service.
-
-Test Case 20: Long Duration Soak Test (24 Hours)
-- Action: Plug the tablet into a charger, clear all app data, set it up, start scanning, and leave it running untouched for exactly 24 hours.
-- Expected Output: 
-   1) No OutOfMemory (OOM) crashes. 
-   2) The local database sizes should remain manageable.
-   3) The total scan count should be in the millions.
-   4) CPU usage should have remained stable (no memory leaks).
-   5) MQTT connection to remote (if set) should have auto-healed through any overnight ISP router drops.
+TEST CASE 15: Configuration Change Survival (Rotation Stress)
+- Action: While a "Push to All" action is in progress (progress bar visible), rotate the tablet 180 degrees.
+- Heavy Testing Aspect: Kotlin `rememberCoroutineScope()` and `ViewModel` survival.
+- Practical Expectation: The push operation MUST CONTINUE in the background, and the result dialog/toast MUST appear correctly in the new orientation without crashing the UI thread.
