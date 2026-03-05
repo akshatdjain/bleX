@@ -218,6 +218,7 @@ class BleScannerService : Service() {
                 ScanRepository.updateServiceStatus(
                     isScanning = true,
                     isMqttConnected = mqttManager.isConnected,
+                    isLocationEnabled = bleScanner.isLocationEnabled,
                     scanCycleCount = scanCycleCount,
                     totalBeaconsScanned = totalBeaconsScanned,
                     messagesPublished = mqttManager.totalMessagesPublished,

@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.ParcelUuid
 import android.util.Log
 import com.blegod.app.data.LogLevel
@@ -44,9 +45,27 @@ class BleScanner(private val context: Context) {
 
     var isScanning = false
         private set
+    var isLocationEnabled = false
+        private set
     private var scanJob: Job? = null
     private var restartJob: Job? = null
+    private var locationCheckJob: Job? = null
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+    private val locationManager: LocationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    /** Samsung/OnePlus require Location Services ON for BLE scans to return results. */
+    fun checkLocationServices(): Boolean {
+        isLocationEnabled = try {
+            locationManager.isLocationEnabled
+        } catch (_: Exception) {
+            // Fallback for older APIs
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }
+        return isLocationEnabled
+    }
 
     private val currentScanResults = ConcurrentHashMap<String, BeaconData>()
 
@@ -228,6 +247,11 @@ class BleScanner(private val context: Context) {
             return
         }
 
+        // Samsung/OnePlus: BLE scan silently returns 0 results if Location is OFF
+        if (!checkLocationServices()) {
+            log(LogLevel.WARN, "⚠ Location Services are OFF — BLE scanning will NOT work on Samsung/OnePlus. Please enable Location.")
+        }
+
         val filter = IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         context.registerReceiver(bluetoothStateReceiver, filter)
 
@@ -249,6 +273,11 @@ class BleScanner(private val context: Context) {
         scanJob = scope.launch {
             while (isActive) {
                 try {
+                    // Re-check location every cycle — auto-recover when user enables it
+                    if (!checkLocationServices()) {
+                        delay(AppConfig.SCAN_INTERVAL_MS)
+                        continue
+                    }
                     startScanInternal()
                     delay(AppConfig.SCAN_DURATION_MS)
                     stopScanInternal()

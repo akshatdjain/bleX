@@ -369,17 +369,55 @@ fun ScannersTab() {
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
 
-    // Use ANDROID_ID as a stable, crash-free, universal device identifier.
-    // Modern Android strictly blocks reading the true hardware MAC address for privacy.
-    // Attempting to bypass this via Reflection causes SecurityExceptions on Android 13/14+.
-    val tabletMac = remember {
-        val cr = context.contentResolver
-        val aid = android.provider.Settings.Secure.getString(cr, android.provider.Settings.Secure.ANDROID_ID)
-            ?: "0000000000000000"
-        
-        // Format the 64-bit hex ID to look like a MAC address (XX:XX:XX:XX:XX:XX)
-        aid.chunked(2).take(6).joinToString(":").uppercase()
+    // Read actual Wi-Fi or Cellular MAC address from NetworkInterface.
+    // Android 6+ returns 02:00:00:00:00:00 from WifiInfo, so we read from /sys interface.
+    fun getNetworkMac(): Pair<String, String> {
+        try {
+            // Try Wi-Fi first (wlan0)
+            val wlanIface = java.net.NetworkInterface.getByName("wlan0")
+            if (wlanIface != null) {
+                val hwAddr = wlanIface.hardwareAddress
+                if (hwAddr != null && hwAddr.isNotEmpty()) {
+                    val mac = hwAddr.joinToString(":") { String.format("%02X", it) }
+                    if (mac != "02:00:00:00:00:00") return Pair(mac, "Wi-Fi")
+                }
+            }
+            // Try cellular (rmnet0, rmnet_data0, etc.)
+            val cellInterfaces = listOf("rmnet0", "rmnet_data0", "ccmni0", "seth_w0")
+            for (ifName in cellInterfaces) {
+                val iface = java.net.NetworkInterface.getByName(ifName)
+                if (iface != null) {
+                    val hwAddr = iface.hardwareAddress
+                    if (hwAddr != null && hwAddr.isNotEmpty()) {
+                        val mac = hwAddr.joinToString(":") { String.format("%02X", it) }
+                        if (mac != "02:00:00:00:00:00") return Pair(mac, "Cellular")
+                    }
+                }
+            }
+            // Fallback: enumerate all interfaces
+            val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val iface = interfaces.nextElement()
+                if (iface.isLoopback || iface.name.startsWith("lo")) continue
+                val hwAddr = iface.hardwareAddress ?: continue
+                if (hwAddr.isEmpty()) continue
+                val mac = hwAddr.joinToString(":") { String.format("%02X", it) }
+                if (mac != "02:00:00:00:00:00") return Pair(mac, iface.name)
+            }
+        } catch (_: Exception) {}
+        // Ultimate fallback: use ANDROID_ID formatted as MAC
+        val aid = android.provider.Settings.Secure.getString(
+            context.contentResolver, android.provider.Settings.Secure.ANDROID_ID
+        ) ?: "0000000000000000"
+        return Pair(aid.chunked(2).take(6).joinToString(":").uppercase(), "AndroidID")
     }
+
+    val networkMacResult = remember { getNetworkMac() }
+    var tabletMac by remember { mutableStateOf(networkMacResult.first) }
+    var networkType by remember { mutableStateOf(networkMacResult.second) }
+    var showReRegisterBanner by remember { mutableStateOf(false) }
+    var previousMac by remember { mutableStateOf(networkMacResult.first) }
+
     val isRealMac = remember(tabletMac) { tabletMac.matches(Regex("([0-9A-F]{2}:){5}[0-9A-F]{2}")) }
     val tabletModel = remember { android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercaseChar() } + " " + android.os.Build.MODEL }
 
@@ -415,6 +453,23 @@ fun ScannersTab() {
     // Registered scanners from API (to show status)
     var dbScanners by remember { mutableStateOf<List<ApiService.ApiScanner>>(emptyList()) }
     val registeredMacs = remember(dbScanners) { dbScanners.map { it.macId.uppercase() }.toSet() }
+
+    // Monitor network changes — re-read MAC every 5 seconds
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(5000)
+            val (newMac, newType) = getNetworkMac()
+            if (newMac != tabletMac) {
+                previousMac = tabletMac
+                tabletMac = newMac
+                networkType = newType
+                // Only show re-register banner if already registered with old MAC
+                if (registeredMacs.contains(previousMac.uppercase())) {
+                    showReRegisterBanner = true
+                }
+            }
+        }
+    }
 
     val scope = rememberCoroutineScope()
 
@@ -559,7 +614,7 @@ fun ScannersTab() {
                         scope.launch {
                             try {
                                 ApiService.configuredBaseUrl = settings.apiBaseUrl
-                                ApiService.registerScanner(tabletMac, registerTabletName.trim().ifBlank { tabletModel }, "android")
+                                ApiService.upsertScanner(tabletMac, registerTabletName.trim().ifBlank { tabletModel }, "android")
                                 registerTabletResult = "✓ Registered!"
                                 dbScanners = try { ApiService.getScanners() } catch (_: Exception) { dbScanners }
                                 isRegisteringTablet = false
@@ -661,6 +716,7 @@ fun ScannersTab() {
             ThisTabletCard(
                 modelName = tabletModel,
                 mac = tabletMac,
+                networkType = networkType,
                 isRegistered = isTabletRegistered,
                 onRegister = {
                     registerTabletName = tabletModel
@@ -668,6 +724,50 @@ fun ScannersTab() {
                     showRegisterTabletDialog = true
                 }
             )
+        }
+
+        // ── Network Change Re-Register Banner ──
+        if (showReRegisterBanner) {
+            item {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.WarningAmber, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(22.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "Network Changed",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                            Text(
+                                "New MAC detected ($networkType). Please re-register to update your identity.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        FilledTonalButton(
+                            onClick = {
+                                registerTabletName = tabletModel
+                                registerTabletResult = null
+                                showRegisterTabletDialog = true
+                                showReRegisterBanner = false
+                            },
+                            contentPadding = PaddingValues(horizontal = 12.dp)
+                        ) {
+                            Text("Re-Register")
+                        }
+                    }
+                }
+            }
         }
 
         // ── Network Scanners Section ──
@@ -929,7 +1029,7 @@ fun ScannersTab() {
 // ─── Tablet Card ────────────────────────────────────────────────────────────
 
 @Composable
-fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegister: () -> Unit) {
+fun ThisTabletCard(modelName: String, mac: String, networkType: String = "Wi-Fi", isRegistered: Boolean, onRegister: () -> Unit) {
     val tabletColor = MaterialTheme.colorScheme.tertiary
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -960,7 +1060,20 @@ fun ThisTabletCard(modelName: String, mac: String, isRegistered: Boolean, onRegi
                     }
                 }
             }
-            Text(mac, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, fontFamily = FontFamily.Monospace)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(mac, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline, fontFamily = FontFamily.Monospace)
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Text(
+                        networkType,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                    )
+                }
+            }
             if (!isRegistered) {
                 Spacer(Modifier.height(2.dp))
                 Text(

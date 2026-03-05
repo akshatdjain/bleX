@@ -1,7 +1,7 @@
 // Root build.gradle.kts — declares plugin versions for the whole project
 plugins {
     // Android Gradle Plugin — DO NOT apply here, just declare the version
-    id("com.android.application") version "8.7.3" apply false
+    id("com.android.application") version "8.13.2" apply false
 
     // Kotlin Android plugin
     id("org.jetbrains.kotlin.android") version "2.1.0" apply false

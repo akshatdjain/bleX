@@ -76,6 +76,7 @@ object ScanRepository {
     fun updateServiceStatus(
         isScanning: Boolean = _serviceStatus.value.isScanning,
         isMqttConnected: Boolean = _serviceStatus.value.isMqttConnected,
+        isLocationEnabled: Boolean = _serviceStatus.value.isLocationEnabled,
         scanCycleCount: Long = _serviceStatus.value.scanCycleCount,
         totalBeaconsScanned: Long = _serviceStatus.value.totalBeaconsScanned,
         messagesPublished: Long = _serviceStatus.value.messagesPublished,
@@ -87,6 +88,7 @@ object ScanRepository {
         _serviceStatus.value = ServiceStatus(
             isScanning = isScanning,
             isMqttConnected = isMqttConnected,
+            isLocationEnabled = isLocationEnabled,
             scanCycleCount = scanCycleCount,
             totalBeaconsScanned = totalBeaconsScanned,
             messagesPublished = messagesPublished,
@@ -183,6 +185,7 @@ object ScanRepository {
 data class ServiceStatus(
     val isScanning: Boolean = false,
     val isMqttConnected: Boolean = false,
+    val isLocationEnabled: Boolean = true,
     val scanCycleCount: Long = 0,
     val totalBeaconsScanned: Long = 0,
     val messagesPublished: Long = 0,

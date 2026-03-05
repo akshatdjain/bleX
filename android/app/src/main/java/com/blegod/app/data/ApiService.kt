@@ -207,6 +207,15 @@ object ApiService {
         })
     }
 
+    /** Upsert: register or update a scanner by MAC (overwrite existing entry). */
+    suspend fun upsertScanner(mac: String, name: String?, type: String?): JSONObject {
+        return httpPut("/api/scanners/by-mac/${mac.uppercase()}", JSONObject().apply {
+            put("mac_id", mac.uppercase())
+            if (name != null) put("name", name)
+            if (type != null) put("type", type)
+        })
+    }
+
     suspend fun deleteScanner(scannerId: Int): JSONObject {
         return httpDelete("/api/scanners/$scannerId")
     }

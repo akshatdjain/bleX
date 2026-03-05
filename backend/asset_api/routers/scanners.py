@@ -55,3 +55,29 @@ async def delete_scanner(scanner_id: int, db: AsyncSession = Depends(get_db)):
     await db.delete(scanner)
     await db.commit()
     return {"ok": True}
+
+
+@router.put("/by-mac/{mac}")
+async def upsert_scanner(mac: str, payload: ScannerIn, db: AsyncSession = Depends(get_db)):
+    """Register or update a scanner by MAC address (upsert behavior)."""
+    normalized_mac = mac.upper()
+    result = await db.execute(
+        select(MstScanner).where(MstScanner.mac_id == normalized_mac)
+    )
+    existing = result.scalars().first()
+    if existing:
+        # Update existing entry
+        if payload.name is not None:
+            existing.name = payload.name
+        if payload.type is not None:
+            existing.type = payload.type
+        await db.commit()
+        await db.refresh(existing)
+        return {"ok": True, "id": existing.id, "mac_id": existing.mac_id, "updated": True}
+    else:
+        # Create new entry
+        scanner = MstScanner(mac_id=normalized_mac, name=payload.name, type=payload.type)
+        db.add(scanner)
+        await db.commit()
+        await db.refresh(scanner)
+        return {"ok": True, "id": scanner.id, "mac_id": scanner.mac_id, "updated": False}
