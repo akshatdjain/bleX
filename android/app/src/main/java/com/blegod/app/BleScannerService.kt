@@ -32,6 +32,7 @@ class BleScannerService : Service() {
     private var embeddedBroker: EmbeddedBroker? = null
     private var mqttBridge: MqttBridge? = null
     private var udpDiscovery: UdpDiscoveryManager? = null
+    private var alertManager: AlertNotificationManager? = null
 
     private val settingsListener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         handleSettingsChange(key)
@@ -115,6 +116,9 @@ class BleScannerService : Service() {
         udpDiscovery = UdpDiscoveryManager(this)
         udpDiscovery?.start()
         log(LogLevel.INFO, "UDP discovery started on port ${UdpDiscoveryManager.UDP_PORT}")
+
+        // Initialize alert notification manager
+        alertManager = AlertNotificationManager(this)
 
         // Update initial status
         ScanRepository.updateServiceStatus(
@@ -215,6 +219,7 @@ class BleScannerService : Service() {
             while (isActive) {
                 delay(2_000)
                 val battery = BatteryMonitor.getStats(this@BleScannerService)
+                val isWifiUp = isNetworkAvailable()
                 ScanRepository.updateServiceStatus(
                     isScanning = true,
                     isMqttConnected = mqttManager.isConnected,
@@ -227,8 +232,25 @@ class BleScannerService : Service() {
                     isCharging = battery.isCharging,
                     startTime = serviceStartTime
                 )
+
+                // Check alert conditions
+                alertManager?.checkAndAlert(
+                    batteryLevel = battery.level,
+                    isCharging = battery.isCharging,
+                    isBleScanning = bleScanner.isScanning,
+                    isMqttConnected = mqttManager.isConnected,
+                    isWifiConnected = isWifiUp
+                )
             }
         }
+    }
+
+    /** Quick network availability check */
+    private fun isNetworkAvailable(): Boolean {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val net = cm.activeNetwork ?: return false
+        val caps = cm.getNetworkCapabilities(net) ?: return false
+        return caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     // ── Watchdog ──────────────────────────────────────────────────

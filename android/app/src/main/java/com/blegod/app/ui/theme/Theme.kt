@@ -5,13 +5,55 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import com.blegod.app.data.SettingsManager
 
+// ── Google Fonts Provider ───────────────────────────────────────
+private val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = com.blegod.app.R.array.com_google_android_gms_fonts_certs
+)
+
+// ── Inter Font Family ───────────────────────────────────────────
+private val InterFont = GoogleFont("Inter")
+val InterFontFamily = FontFamily(
+    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Light),
+    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Normal),
+    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.SemiBold),
+    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Bold)
+)
+
+// ── Custom Typography ───────────────────────────────────────────
+private val BleGodTypography = Typography().let { base ->
+    Typography(
+        displayLarge = base.displayLarge.copy(fontFamily = InterFontFamily),
+        displayMedium = base.displayMedium.copy(fontFamily = InterFontFamily),
+        displaySmall = base.displaySmall.copy(fontFamily = InterFontFamily),
+        headlineLarge = base.headlineLarge.copy(fontFamily = InterFontFamily),
+        headlineMedium = base.headlineMedium.copy(fontFamily = InterFontFamily),
+        headlineSmall = base.headlineSmall.copy(fontFamily = InterFontFamily),
+        titleLarge = base.titleLarge.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.SemiBold),
+        titleMedium = base.titleMedium.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Medium),
+        titleSmall = base.titleSmall.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Medium),
+        bodyLarge = base.bodyLarge.copy(fontFamily = InterFontFamily),
+        bodyMedium = base.bodyMedium.copy(fontFamily = InterFontFamily),
+        bodySmall = base.bodySmall.copy(fontFamily = InterFontFamily),
+        labelLarge = base.labelLarge.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Medium),
+        labelMedium = base.labelMedium.copy(fontFamily = InterFontFamily, fontWeight = FontWeight.Medium),
+        labelSmall = base.labelSmall.copy(fontFamily = InterFontFamily)
+    )
+}
+
 /**
- * BleGod Theme — Material You with dynamic wallpaper-based colors.
- *
- * Now respects the user's dark/light mode preference from Settings.
- * SYSTEM = follow system default, DARK = always dark, LIGHT = always light.
+ * BleGod Theme — Material You with:
+ *  - Dynamic wallpaper-based colors
+ *  - Google Fonts (Inter) for premium typography
+ *  - Respects user dark/light mode preference
  */
 @Composable
 fun BleGodTheme(
@@ -34,7 +76,7 @@ fun BleGodTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography(),
+        typography = BleGodTypography,
         content = content
     )
 }
