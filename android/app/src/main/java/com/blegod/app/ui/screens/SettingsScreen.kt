@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -78,19 +79,13 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { padding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         if (isTablet) {
             // ── TABLET: Split-view ──────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
+            Row(modifier = Modifier.fillMaxSize()) {
                 Surface(
-                    modifier = Modifier.fillMaxHeight().width(260.dp),
-                    color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                    modifier = Modifier.fillMaxHeight().width(290.dp),
+                    color = Color.Transparent
                 ) {
                     SettingsCategoryList(
                         selected = selectedCategory,
@@ -132,7 +127,7 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                     }
                 },
                 label = "SettingsNavigation",
-                modifier = Modifier.fillMaxSize().padding(padding)
+                modifier = Modifier.fillMaxSize()
             ) { category ->
                 if (category == null) {
                     SettingsCategoryList(
@@ -154,6 +149,12 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                 }
             }
         }
+        
+        // Snackbar positioning
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp)
+        )
     }
 }
 
@@ -167,71 +168,91 @@ private fun SettingsCategoryList(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()) // Minimal vertical padding
-            .padding(top = 4.dp, bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 12.dp, horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Removed duplicate "Settings" big text, the TopAppBar handles it
+        var searchQuery by remember { mutableStateOf("") }
 
-        SettingsCategory.entries.forEach { category ->
-            val isSelected = category == selected
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp), // Padding constraint moved to item level
-                shape = RoundedCornerShape(24.dp),
-                color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer
-                else Color.Transparent, // We'll let the background handle color, but items will just have large padding
-                onClick = { onSelect(category) }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 20.dp), // Taller items
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    // Icon inside a circle background
+        // "Search settings" functional bar
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(26.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
+        ) {
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Search settings", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                )
+            )
+        }
+
+        // Define groups
+        val groups = listOf(
+            listOf(SettingsCategory.BATTERY, SettingsCategory.APPEARANCE, SettingsCategory.SERVICE_HEALTH, SettingsCategory.NOTIFICATIONS, SettingsCategory.DEVICE_INFO),
+            listOf(SettingsCategory.PUBLISHING, SettingsCategory.LOCAL_BROKER, SettingsCategory.BEACON_DISCOVERY),
+            listOf(SettingsCategory.REMOTE_SERVER, SettingsCategory.IDENTITY_PAYLOAD, SettingsCategory.LOGS)
+        )
+
+        val filteredGroups = groups.map { group ->
+            group.filter { category ->
+                category.label.contains(searchQuery, ignoreCase = true) || category.subtitle.contains(searchQuery, ignoreCase = true)
+            }
+        }.filter { it.isNotEmpty() }
+
+        filteredGroups.forEachIndexed { groupIndex, group ->
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                group.forEach { category ->
+                    val isSelected = category == selected
                     Surface(
-                        shape = RoundedCornerShape(percent = 50),
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.3f),
+                        onClick = { onSelect(category) }
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(
-                                category.icon, null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(24.dp)
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(percent = 50),
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        category.icon, null,
+                                        tint = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    category.label,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            category.label,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer
-                            else MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            category.subtitle,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    // Add a tiny chevron for non-tablet screens
-                    if (!LocalConfiguration.current.let { it.screenWidthDp >= 600 }) {
-                        Icon(
-                            Icons.Default.ChevronRight, null,
-                            tint = MaterialTheme.colorScheme.outlineVariant,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
                 }
+            }
+            if (groupIndex < filteredGroups.lastIndex) {
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
@@ -290,16 +311,17 @@ private fun AppearancePanel(settings: SettingsManager) {
         expanded = themeExpanded,
         onExpandedChange = { themeExpanded = !themeExpanded }
     ) {
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = when (themeMode) {
                 "DARK" -> "Dark"; "LIGHT" -> "Light"; else -> "System Default"
             },
             onValueChange = {},
             readOnly = true,
-            label = { Text("Theme") },
+            label = "Theme",
+            isTop = true, isBottom = true,
+            icon = Icons.Default.DarkMode,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = themeExpanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            leadingIcon = { Icon(Icons.Default.DarkMode, null) }
+            modifier = Modifier.menuAnchor()
         )
         ExposedDropdownMenu(expanded = themeExpanded, onDismissRequest = { themeExpanded = false }) {
             listOf("SYSTEM" to "System Default", "DARK" to "Dark", "LIGHT" to "Light").forEach { (mode, label) ->
@@ -348,21 +370,22 @@ private fun PublishingPanel(settings: SettingsManager, onSaved: () -> Unit) {
         }
     }
 
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = topicPrefix, onValueChange = { topicPrefix = it },
-        label = { Text("Topic Prefix") }, singleLine = true,
-        placeholder = { Text("blegod/scans") },
-        modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Topic, null) }
+        label = "Topic Prefix",
+        icon = Icons.Default.Topic,
+        isTop = true, isBottom = false
     )
 
     var qosExpanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = qosExpanded, onExpandedChange = { qosExpanded = !qosExpanded }) {
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = "QoS $qos — ${qosLabel(qos)}", onValueChange = {},
-            readOnly = true, label = { Text("Quality of Service") },
+            readOnly = true, label = "Quality of Service",
+            icon = Icons.Default.VerifiedUser,
+            isTop = false, isBottom = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = qosExpanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-            leadingIcon = { Icon(Icons.Default.VerifiedUser, null) }
+            modifier = Modifier.menuAnchor()
         )
         ExposedDropdownMenu(expanded = qosExpanded, onDismissRequest = { qosExpanded = false }) {
             listOf(0, 1, 2).forEach { level ->
@@ -377,26 +400,27 @@ private fun PublishingPanel(settings: SettingsManager, onSaved: () -> Unit) {
         }
     }
 
-    // Direct MQTT (only when broker disabled)
     if (!brokerEnabled) {
         SectionDivider("Direct MQTT Connection")
 
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = host, onValueChange = { host = it },
-            label = { Text("Broker Host") }, placeholder = { Text("mqtt.example.com") },
-            singleLine = true, modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.Dns, null) }
+            label = "Broker Host",
+            icon = Icons.Default.Dns,
+            isTop = true, isBottom = false
         )
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = port, onValueChange = { port = it.filter { c -> c.isDigit() } },
-            label = { Text("Port") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Tag, null) }
+            label = "Port",
+            icon = Icons.Default.Tag,
+            isTop = false, isBottom = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        ToggleCard(
+        SettingToggleItem(
             icon = Icons.Default.Lock, title = "TLS / SSL",
             subtitle = "Encrypt MQTT traffic",
             checked = tlsEnabled,
+            isTop = false, isBottom = true,
             onCheckedChange = {
                 tlsEnabled = it
                 settings.mqttTlsEnabled = it // ← auto-save
@@ -405,15 +429,17 @@ private fun PublishingPanel(settings: SettingsManager, onSaved: () -> Unit) {
 
         SectionDivider("Authentication (Optional)")
 
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = username, onValueChange = { username = it },
-            label = { Text("Username") }, singleLine = true,
-            modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.AccountCircle, null) }
+            label = "Username",
+            icon = Icons.Default.AccountCircle,
+            isTop = true, isBottom = false
         )
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = password, onValueChange = { password = it },
-            label = { Text("Password") }, singleLine = true,
-            modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Key, null) },
+            label = "Password",
+            icon = Icons.Default.Key,
+            isTop = false, isBottom = false,
             trailingIcon = {
                 IconButton(onClick = { showPassword = !showPassword }) {
                     Icon(
@@ -424,20 +450,18 @@ private fun PublishingPanel(settings: SettingsManager, onSaved: () -> Unit) {
             },
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedTextField(
-                value = keepAlive, onValueChange = { keepAlive = it.filter { c -> c.isDigit() } },
-                label = { Text("Keep Alive (s)") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = connTimeout, onValueChange = { connTimeout = it.filter { c -> c.isDigit() } },
-                label = { Text("Timeout (s)") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f)
-            )
-        }
+        SettingTextFieldItem(
+            value = keepAlive, onValueChange = { keepAlive = it.filter { c -> c.isDigit() } },
+            label = "Keep Alive (s)",
+            isTop = false, isBottom = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+        SettingTextFieldItem(
+            value = connTimeout, onValueChange = { connTimeout = it.filter { c -> c.isDigit() } },
+            label = "Timeout (s)",
+            isTop = false, isBottom = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
     }
 }
 
@@ -458,10 +482,11 @@ private fun LocalBrokerPanel(settings: SettingsManager, onSaved: () -> Unit) {
         }
     }
 
-    ToggleCard(
+    SettingToggleItem(
         icon = Icons.Default.Hub, title = "Embedded Broker",
         subtitle = "Run MQTT broker on this device",
         checked = brokerEnabled,
+        isTop = true, isBottom = !brokerEnabled,
         onCheckedChange = {
             brokerEnabled = it
             settings.brokerEnabled = it // ← auto-save (major change, saves immediately)
@@ -470,22 +495,24 @@ private fun LocalBrokerPanel(settings: SettingsManager, onSaved: () -> Unit) {
 
     AnimatedVisibility(visible = brokerEnabled) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Spacer(Modifier.height(4.dp))
-            OutlinedTextField(
+            SettingTextFieldItem(
                 value = brokerPort, onValueChange = { brokerPort = it.filter { c -> c.isDigit() } },
-                label = { Text("Broker Port") }, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Tag, null) }
+                label = "Broker Port",
+                icon = Icons.Default.Tag,
+                isTop = false, isBottom = false,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            OutlinedTextField(
+            SettingTextFieldItem(
                 value = brokerUsername, onValueChange = { brokerUsername = it },
-                label = { Text("Broker Username (Optional)") }, singleLine = true,
-                modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.AccountCircle, null) }
+                label = "Broker Username (Optional)",
+                icon = Icons.Default.AccountCircle,
+                isTop = false, isBottom = false
             )
-            OutlinedTextField(
+            SettingTextFieldItem(
                 value = brokerPassword, onValueChange = { brokerPassword = it },
-                label = { Text("Broker Password (Optional)") }, singleLine = true,
-                modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Key, null) },
+                label = "Broker Password (Optional)",
+                icon = Icons.Default.Key,
+                isTop = false, isBottom = true,
                 visualTransformation = PasswordVisualTransformation()
             )
         }
@@ -524,12 +551,11 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
     // ── API Base URL (for Configurator) ────────────────────
     SectionDivider("API Endpoint")
 
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = apiBaseUrl, onValueChange = { apiBaseUrl = it },
-        label = { Text("API Base URL") },
-        placeholder = { Text("http://192.168.1.100:8000") },
-        singleLine = true, modifier = Modifier.fillMaxWidth(),
-        leadingIcon = { Icon(Icons.Default.Api, null) },
+        label = "API Base URL",
+        icon = Icons.Default.Api,
+        isTop = true, isBottom = true,
         supportingText = { Text("Used by Configurator for zones, scanners, assets") }
     )
 
@@ -538,51 +564,52 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
     // ── MQTT Upstream ──────────────────────────────────────
     SectionDivider("MQTT Upstream")
 
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = remoteHost, onValueChange = { remoteHost = it },
-        label = { Text("MQTT Host") }, placeholder = { Text("mqtt.yourdomain.com") },
-        singleLine = true, modifier = Modifier.fillMaxWidth(),
-        leadingIcon = { Icon(Icons.Default.Language, null) }
+        label = "MQTT Host",
+        icon = Icons.Default.Language,
+        isTop = true, isBottom = false
     )
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = remotePort, onValueChange = { remotePort = it.filter { c -> c.isDigit() } },
-        label = { Text("MQTT Port") }, singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Tag, null) }
+        label = "MQTT Port",
+        icon = Icons.Default.Tag,
+        isTop = false, isBottom = false,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ToggleCard(
-            icon = Icons.Default.Lock, title = "TLS",
-            subtitle = "Encrypt traffic",
-            checked = remoteTlsEnabled,
-            onCheckedChange = {
-                remoteTlsEnabled = it
-                settings.remoteTlsEnabled = it
-            }
-        )
-    }
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ToggleCard(
-            icon = Icons.Default.Webhook, title = "WebSocket",
-            subtitle = "Use WSS protocol",
-            checked = remoteUseWebSocket,
-            onCheckedChange = {
-                remoteUseWebSocket = it
-                settings.remoteUseWebSocket = it
-            }
-        )
-    }
+    SettingToggleItem(
+        icon = Icons.Default.Lock, title = "TLS",
+        subtitle = "Encrypt traffic",
+        checked = remoteTlsEnabled,
+        isTop = false, isBottom = false,
+        onCheckedChange = {
+            remoteTlsEnabled = it
+            settings.remoteTlsEnabled = it
+        }
+    )
+    SettingToggleItem(
+        icon = Icons.Default.Webhook, title = "WebSocket",
+        subtitle = "Use WSS protocol",
+        checked = remoteUseWebSocket,
+        isTop = false, isBottom = false,
+        onCheckedChange = {
+            remoteUseWebSocket = it
+            settings.remoteUseWebSocket = it
+        }
+    )
 
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = remoteUsername, onValueChange = { remoteUsername = it },
-        label = { Text("Remote Username") }, singleLine = true,
-        modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.AccountCircle, null) }
+        label = "Remote Username",
+        icon = Icons.Default.AccountCircle,
+        isTop = false, isBottom = false
     )
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = remotePassword, onValueChange = { remotePassword = it },
-        label = { Text("Remote Password") }, singleLine = true,
-        modifier = Modifier.fillMaxWidth(), leadingIcon = { Icon(Icons.Default.Key, null) },
+        label = "Remote Password",
+        icon = Icons.Default.Key,
+        isTop = false, isBottom = true,
         visualTransformation = PasswordVisualTransformation()
     )
 
@@ -591,11 +618,12 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SectionDivider("Security Configuration")
 
-            ToggleCard(
+            SettingToggleItem(
                 icon = Icons.Default.Security, title = "Strict Verification",
                 subtitle = if (remoteCaCertUri.isNotEmpty()) "Forced by custom CA" else "Validate certificates",
                 checked = remoteTlsStrict || remoteCaCertUri.isNotEmpty(),
                 enabled = remoteCaCertUri.isEmpty(),
+                isTop = true, isBottom = false,
                 onCheckedChange = {
                     remoteTlsStrict = it
                     settings.remoteTlsStrict = it
@@ -620,14 +648,18 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
 
             ElevatedCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(
+                    topStart = 4.dp, topEnd = 4.dp,
+                    bottomStart = 24.dp, bottomEnd = 24.dp
+                ),
                 colors = CardDefaults.elevatedCardColors(
                     containerColor = when {
                         remoteCaCertUri.isNotEmpty() -> MaterialTheme.colorScheme.surface
                         remoteTlsStrict -> MaterialTheme.colorScheme.surface
-                        else -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+                        else -> MaterialTheme.colorScheme.errorContainer
                     }
-                )
+                ),
+                elevation = CardDefaults.elevatedCardElevation(0.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -706,12 +738,13 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
         }
     }
 
-    OutlinedTextField(
+    SectionDivider("Flow Control")
+    SettingTextFieldItem(
         value = bridgeTopicFilter, onValueChange = { bridgeTopicFilter = it },
-        label = { Text("Bridge Topic Filter") }, placeholder = { Text("# (forward all)") },
-        singleLine = true, modifier = Modifier.fillMaxWidth(),
-        leadingIcon = { Icon(Icons.Default.FilterAlt, null) },
-        supportingText = { Text("Which local topics to forward upstream") }
+        label = "Bridge Topic Filter",
+        icon = Icons.Default.FilterAlt,
+        isTop = true, isBottom = true,
+        supportingText = { Text("Which local topics to forward upstream (# to forward all)") }
     )
 }
 
@@ -730,39 +763,47 @@ private fun BeaconDiscoveryPanel(settings: SettingsManager, onSaved: () -> Unit)
         }
     }
 
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = scanInterval, onValueChange = { scanInterval = it.filter { c -> c.isDigit() } },
-            label = { Text("Interval (ms)") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f)
+            label = "Scan Interval (ms)",
+            icon = Icons.Default.Timer,
+            isTop = true, isBottom = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-        OutlinedTextField(
+        SettingTextFieldItem(
             value = scanDuration, onValueChange = { scanDuration = it.filter { c -> c.isDigit() } },
-            label = { Text("Duration (ms)") }, singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f)
+            label = "Scan Duration (ms)",
+            icon = Icons.Default.HourglassBottom,
+            isTop = false, isBottom = false,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
-    }
 
-    Spacer(Modifier.height(4.dp))
-    Text("Scan Power Mode", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-    Spacer(Modifier.height(4.dp))
-
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        listOf("LOW_POWER" to "Low Power", "BALANCED" to "Balanced", "LOW_LATENCY" to "Low Latency")
-            .forEachIndexed { index, (mode, label) ->
-                SegmentedButton(
-                    selected = scanPowerMode == mode,
-                    onClick = {
-                        scanPowerMode = mode
-                        settings.scanPowerMode = mode // ← auto-save
-                    },
-                    shape = SegmentedButtonDefaults.itemShape(index = index, count = 3)
-                ) {
-                    Text(label, style = MaterialTheme.typography.labelSmall)
-                }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(
+            topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp
+        ),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Scan Power Mode", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Spacer(Modifier.height(8.dp))
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                listOf("LOW_POWER" to "Low Power", "BALANCED" to "Balanced", "LOW_LATENCY" to "Low Latency")
+                    .forEachIndexed { index, (mode, label) ->
+                        SegmentedButton(
+                            selected = scanPowerMode == mode,
+                            onClick = {
+                                scanPowerMode = mode
+                                settings.scanPowerMode = mode // ← auto-save
+                            },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = 3)
+                        ) {
+                            Text(label, style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
             }
+        }
     }
 }
 
@@ -781,27 +822,42 @@ private fun IdentityPayloadPanel(settings: SettingsManager, onSaved: () -> Unit)
         }
     }
 
-    OutlinedTextField(
+    SettingTextFieldItem(
         value = scannerMacLabel, onValueChange = { scannerMacLabel = it },
-        label = { Text("Scanner MAC Label") },
-        placeholder = { Text("Leave empty to use Device ID") },
-        singleLine = true, modifier = Modifier.fillMaxWidth(),
-        leadingIcon = { Icon(Icons.Default.Fingerprint, null) },
+        label = "Scanner MAC Label",
+        icon = Icons.Default.Fingerprint,
+        isTop = true, isBottom = true,
         supportingText = { Text("Current ID: ${AppConfig.getDeviceId(context)}") }
     )
 
     SectionDivider("MQTT Payload Template")
 
-    OutlinedTextField(
-        value = payloadTemplate, onValueChange = { payloadTemplate = it },
-        label = { Text("JSON Template") },
-        modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
-        textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-        maxLines = 15,
-        supportingText = {
-            Text("Available: \${SCANNER_MAC}, \${BEACON_MAC}, \${RSSI}, \${TX_POWER}, \${TIMESTAMP_UTC}, \${BEACON_TYPE}, \${IBEACON_UUID}, \${IBEACON_MAJOR}, \${IBEACON_MINOR}, \${NAME}")
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
+    ) {
+        Column(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) {
+            TextField(
+                value = payloadTemplate, onValueChange = { payloadTemplate = it },
+                label = { Text("JSON Template") },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
+                textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                maxLines = 15,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    disabledIndicatorColor = Color.Transparent
+                ),
+                supportingText = {
+                    Text("Available: \${SCANNER_MAC}, \${BEACON_MAC}, \${RSSI}, \${TX_POWER}, \${TIMESTAMP_UTC}, \${BEACON_TYPE}, \${IBEACON_UUID}, \${IBEACON_MAJOR}, \${IBEACON_MINOR}, \${NAME}")
+                }
+            )
         }
-    )
+    }
     TextButton(onClick = { payloadTemplate = SettingsManager.DEFAULT_PAYLOAD_TEMPLATE }) {
         Icon(Icons.Default.RestartAlt, null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.width(6.dp))
@@ -895,16 +951,11 @@ private fun BatteryPanel() {
 private fun BatteryListCard(title: String, subtitle: String, isTop: Boolean = false, isBottom: Boolean = false) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(
-            topStart = if (isTop) 24.dp else 4.dp,
-            topEnd = if (isTop) 24.dp else 4.dp,
-            bottomStart = if (isBottom) 24.dp else 4.dp,
-            bottomEnd = if (isBottom) 24.dp else 4.dp
-        ),
+        shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             Text(
                 title,
@@ -928,12 +979,10 @@ private fun ServiceHealthPanel() {
     val usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
     val totalMb = runtime.maxMemory() / (1024 * 1024)
 
-    ElevatedCard(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-        )
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             InfoRowWithIcon(Icons.Default.Timer, "Uptime",
@@ -971,18 +1020,16 @@ private fun ServiceHealthPanel() {
 private fun DeviceInfoPanel() {
     val context = LocalContext.current
 
-    ElevatedCard(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-        )
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             InfoRow("Device ID", AppConfig.getDeviceId(context))
             InfoRow("Android", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             InfoRow("Model", "${Build.MANUFACTURER} ${Build.MODEL}")
-            InfoRow("App Version", "3.0.0")
+            InfoRow("App Version", "3.0.1")
         }
     }
 
@@ -1000,12 +1047,10 @@ private fun DeviceInfoPanel() {
 private fun NotificationsPanel() {
     val context = LocalContext.current
 
-    ElevatedCard(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-        )
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
@@ -1057,11 +1102,12 @@ private fun NotificationsPanel() {
 @Composable
 private fun LogsPanel(settings: SettingsManager) {
     var logsShown by remember { mutableStateOf(settings.logsVisible) }
-    ToggleCard(
+    SettingToggleItem(
         icon = Icons.Default.Terminal,
         title = "Show Logs in Menu",
         subtitle = "Display Logs option in the navigation drawer",
         checked = logsShown,
+        isTop = true, isBottom = true,
         onCheckedChange = {
             logsShown = it
             settings.logsVisible = it // ← auto-save
@@ -1080,31 +1126,76 @@ private fun SectionDivider(title: String) {
 }
 
 @Composable
-private fun ToggleCard(
-    icon: ImageVector, title: String, subtitle: String,
+private fun SettingToggleItem(
+    icon: ImageVector, title: String, subtitle: String = "",
     checked: Boolean, enabled: Boolean = true,
+    isTop: Boolean = false, isBottom: Boolean = false,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    ElevatedCard(
+    Surface(
         modifier = Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.5f),
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+        onClick = { if (enabled) onCheckedChange(!checked) }
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                Column {
-                    Text(title, style = MaterialTheme.typography.bodyLarge)
-                    Text(subtitle, style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                if (subtitle.isNotEmpty()) {
+                    Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
             Switch(checked = checked, onCheckedChange = if (enabled) onCheckedChange else null, enabled = enabled)
         }
+    }
+}
+
+@Composable
+private fun SettingTextFieldItem(
+    value: String, onValueChange: (String) -> Unit,
+    label: String, icon: ImageVector? = null,
+    isTop: Boolean = false, isBottom: Boolean = false,
+    modifier: Modifier = Modifier,
+    supportingText: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    readOnly: Boolean = false,
+    singleLine: Boolean = true,
+    minLines: Int = 1
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f)
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            leadingIcon = icon?.let { { Icon(it, null) } },
+            trailingIcon = trailingIcon,
+            supportingText = supportingText,
+            singleLine = singleLine,
+            minLines = minLines,
+            readOnly = readOnly,
+            keyboardOptions = keyboardOptions,
+            visualTransformation = visualTransformation,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            ),
+            modifier = Modifier.fillMaxWidth().padding(bottom = if (supportingText != null) 16.dp else 4.dp, top = 4.dp)
+        )
     }
 }
 

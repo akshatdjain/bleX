@@ -275,9 +275,6 @@ fun ZonesTab() {
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    item {
-                        Text("Zones", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
-                    }
                     errorMsg?.let { msg ->
                         item {
                             ElevatedCard(

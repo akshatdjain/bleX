@@ -33,15 +33,6 @@ fun DrawerContent(
     logsVisible: Boolean,
     onNavigate: (String) -> Unit
 ) {
-    var configuratorExpanded by remember { mutableStateOf(
-        currentRoute.startsWith("config/")
-    ) }
-    val arrowRotation by animateFloatAsState(
-        targetValue = if (configuratorExpanded) 90f else 0f,
-        animationSpec = tween(250),
-        label = "arrow"
-    )
-
     ModalDrawerSheet(
         drawerShape = RoundedCornerShape(0.dp, 16.dp, 16.dp, 0.dp),
         modifier = Modifier.width(280.dp)
@@ -98,58 +89,13 @@ fun DrawerContent(
 
             Spacer(Modifier.height(4.dp))
 
-            // ── Configurator (expandable) ───────
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Build, contentDescription = null) },
-                label = { Text("Configurator") },
+            // ── Configurator ────────────────────
+            DrawerItem(
+                icon = Icons.Default.Build,
+                label = "Configurator",
                 selected = currentRoute.startsWith("config/"),
-                onClick = { configuratorExpanded = !configuratorExpanded },
-                badge = {
-                    Icon(
-                        Icons.Default.ChevronRight,
-                        contentDescription = "Expand",
-                        modifier = Modifier
-                            .size(20.dp)
-                            .rotate(arrowRotation)
-                    )
-                },
-                shape = RoundedCornerShape(28.dp),
-                modifier = Modifier.height(52.dp)
+                onClick = { onNavigate("config/hotspot") }
             )
-
-            // ── Configurator sub‑items ──────────
-            AnimatedVisibility(
-                visible = configuratorExpanded,
-                enter = expandVertically(animationSpec = tween(250)),
-                exit = shrinkVertically(animationSpec = tween(200))
-            ) {
-                Column(modifier = Modifier.padding(start = 20.dp)) {
-                    DrawerSubItem(
-                        icon = Icons.Default.WifiTethering,
-                        label = "Hotspot",
-                        selected = currentRoute == "config/hotspot",
-                        onClick = { onNavigate("config/hotspot") }
-                    )
-                    DrawerSubItem(
-                        icon = Icons.Default.Router,
-                        label = "Scanners",
-                        selected = currentRoute == "config/scanners",
-                        onClick = { onNavigate("config/scanners") }
-                    )
-                    DrawerSubItem(
-                        icon = Icons.Default.Map,
-                        label = "Zones",
-                        selected = currentRoute == "config/zones",
-                        onClick = { onNavigate("config/zones") }
-                    )
-                    DrawerSubItem(
-                        icon = Icons.Default.Inventory2,
-                        label = "Assets",
-                        selected = currentRoute == "config/assets",
-                        onClick = { onNavigate("config/assets") }
-                    )
-                }
-            }
 
             // ── Logs (conditional) ──────────────
             if (logsVisible) {
@@ -166,7 +112,7 @@ fun DrawerContent(
 
             // ── Footer ─────────────────────────
             Text(
-                "v3.0.0",
+                "v3.0.1",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier

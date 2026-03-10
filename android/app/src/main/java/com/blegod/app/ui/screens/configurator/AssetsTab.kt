@@ -110,7 +110,6 @@ fun AssetsTab() {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Assets", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp))
         // Search bar
         OutlinedTextField(
             value = filter,

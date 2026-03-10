@@ -24,9 +24,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -261,31 +265,75 @@ fun BleGodNavHost() {
     ) {
         Scaffold(
             topBar = {
+                var configDropdownExpanded by remember { mutableStateOf(false) }
                 TopAppBar(
                     title = {
-                        Text(
-                            when {
-                                currentRoute == "scanner" -> "Dashboard"
-                                currentRoute == "settings" || currentRoute.startsWith("settings/") -> "Settings"
-                                currentRoute == "config/hotspot" -> "Hotspot"
-                                currentRoute == "config/scanners" -> "Scanners"
-                                currentRoute == "config/zones" -> "Zones"
-                                currentRoute == "config/assets" -> "Assets"
-                                currentRoute == "logs" -> "Logs"
-                                else -> "BleGod"
+                        if (currentRoute.startsWith("config/")) {
+                            Box {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clickable { configDropdownExpanded = true }
+                                        .padding(vertical = 8.dp, horizontal = 4.dp)
+                                ) {
+                                    Text(
+                                        when (currentRoute) {
+                                            "config/hotspot" -> "Hotspot"
+                                            "config/scanners" -> "Scanners"
+                                            "config/zones" -> "Zones"
+                                            "config/assets" -> "Assets"
+                                            else -> "Configurator"
+                                        },
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        contentDescription = "Select Config Page"
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = configDropdownExpanded,
+                                    onDismissRequest = { configDropdownExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Hotspot", fontWeight = if(currentRoute=="config/hotspot") FontWeight.Bold else FontWeight.Normal) },
+                                        onClick = { configDropdownExpanded = false; navController.navigate("config/hotspot") }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Scanners", fontWeight = if(currentRoute=="config/scanners") FontWeight.Bold else FontWeight.Normal) },
+                                        onClick = { configDropdownExpanded = false; navController.navigate("config/scanners") }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Zones", fontWeight = if(currentRoute=="config/zones") FontWeight.Bold else FontWeight.Normal) },
+                                        onClick = { configDropdownExpanded = false; navController.navigate("config/zones") }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Assets", fontWeight = if(currentRoute=="config/assets") FontWeight.Bold else FontWeight.Normal) },
+                                        onClick = { configDropdownExpanded = false; navController.navigate("config/assets") }
+                                    )
+                                }
                             }
-                        )
+                        } else {
+                            Text(
+                                when {
+                                    currentRoute == "scanner" -> "Dashboard"
+                                    currentRoute == "settings" || currentRoute.startsWith("settings/") -> "Settings"
+                                    currentRoute == "logs" -> "Logs"
+                                    else -> "BleGod"
+                                }
+                            )
+                        }
                     },
                     navigationIcon = {
                         IconButton(onClick = {
-                            if (currentRoute != "scanner" && currentRoute != "settings" && currentRoute != "logs") {
+                            if (currentRoute != "scanner" && currentRoute != "settings" && currentRoute != "logs" && !currentRoute.startsWith("config/")) {
                                 navController.popBackStack()
                             } else {
                                 scope.launch { drawerState.open() }
                             }
                         }) {
                             Icon(
-                                if (currentRoute == "scanner" || currentRoute == "settings" || currentRoute == "logs")
+                                if (currentRoute == "scanner" || currentRoute == "settings" || currentRoute == "logs" || currentRoute.startsWith("config/"))
                                     Icons.Default.Menu
                                 else Icons.Default.ArrowBack,
                                 contentDescription = "Navigation"
