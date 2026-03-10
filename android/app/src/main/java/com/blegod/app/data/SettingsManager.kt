@@ -2,6 +2,7 @@ package com.blegod.app.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * SettingsManager — Persistent storage for MQTT, scan, theme, and payload configuration.
@@ -68,10 +69,15 @@ class SettingsManager(context: Context) {
 
     // ── Theme Settings ───────────────────────────────────────────
 
+    val themeModeFlow = MutableStateFlow(prefs.getString("theme_mode", "SYSTEM") ?: "SYSTEM")
+
     /** Theme mode: SYSTEM, DARK, LIGHT */
     var themeMode: String
         get() = prefs.getString("theme_mode", "SYSTEM") ?: "SYSTEM"
-        set(value) = prefs.edit().putString("theme_mode", value).apply()
+        set(value) {
+            prefs.edit().putString("theme_mode", value).apply()
+            themeModeFlow.value = value
+        }
 
     // ── Scanner Identity ─────────────────────────────────────────
 
@@ -181,10 +187,15 @@ class SettingsManager(context: Context) {
 
     // ── UI Visibility Settings ────────────────────────────────────
 
+    val logsVisibleFlow = MutableStateFlow(prefs.getBoolean("logs_visible", true))
+
     /** Whether the Logs item is visible in the navigation drawer */
     var logsVisible: Boolean
         get() = prefs.getBoolean("logs_visible", true)
-        set(value) = prefs.edit().putBoolean("logs_visible", value).apply()
+        set(value) {
+            prefs.edit().putBoolean("logs_visible", value).apply()
+            logsVisibleFlow.value = value
+        }
 
     // ── API Configuration ────────────────────────────────────────
 

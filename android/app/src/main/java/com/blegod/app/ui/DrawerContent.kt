@@ -81,7 +81,7 @@ fun DrawerContent(
             // ── Scanner (Home) ──────────────────
             DrawerItem(
                 icon = Icons.Default.BluetoothSearching,
-                label = "Scanner",
+                label = "Dashboard",
                 selected = currentRoute == "scanner",
                 onClick = { onNavigate("scanner") }
             )

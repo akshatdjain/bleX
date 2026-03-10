@@ -62,6 +62,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="BleGod"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         tools:targetApi="35">
 

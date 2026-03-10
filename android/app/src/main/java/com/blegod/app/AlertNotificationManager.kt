@@ -126,11 +126,33 @@ class AlertNotificationManager(private val context: Context) {
 
         lastFireTimes[id] = now
 
+        // Create an intent that will open MainActivity and navigate to a specific route
+        val intent = android.content.Intent(context, MainActivity::class.java).apply {
+            flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            // Map the notification ID to a specific settings/config route
+            val route = when (id) {
+                NOTIF_BATTERY_LOW -> "settings" // Battery panel is in Settings
+                NOTIF_BLE_DOWN -> "settings" // Beacon Discovery panel is in Settings
+                NOTIF_MQTT_DOWN -> "settings" // Local/Remote MQTT is in Settings
+                NOTIF_SERVER_DOWN -> "settings"
+                else -> "scanner"
+            }
+            putExtra("navigate_to", route)
+        }
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            id, // Use the notification ID as the requestCode
+            intent,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(icon)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent) // Tap to open app
             .setAutoCancel(true)
             .setVibrate(longArrayOf(0, 200, 100, 200))
             .build()

@@ -37,7 +37,10 @@ import com.blegod.app.ui.DrawerContent
 import com.blegod.app.ui.screens.LogScreen
 import com.blegod.app.ui.screens.ScannerScreen
 import com.blegod.app.ui.screens.SettingsScreen
-import com.blegod.app.ui.screens.ConfiguratorScreen
+import com.blegod.app.ui.screens.configurator.AssetsTab
+import com.blegod.app.ui.screens.configurator.HotspotTab
+import com.blegod.app.ui.screens.configurator.ScannersTab
+import com.blegod.app.ui.screens.configurator.ZonesTab
 import com.blegod.app.ui.theme.BleGodTheme
 import kotlinx.coroutines.launch
 
@@ -166,7 +169,21 @@ fun BleGodNavHost() {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
-    val logsVisible by remember { derivedStateOf { settings.logsVisible } }
+    val logsVisible by settings.logsVisibleFlow.collectAsState()
+
+    // Handle deep link routing from Intent
+    LaunchedEffect(Unit) {
+        val activity = context as? android.app.Activity
+        val navigateTo = activity?.intent?.getStringExtra("navigate_to")
+        if (navigateTo != null) {
+            navController.navigate(navigateTo) {
+                popUpTo("scanner") { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
+            activity.intent?.removeExtra("navigate_to") // Clear so we don't re-navigate on rotation
+        }
+    }
 
     // Bluetooth check dialog
     var showBluetoothDialog by remember { mutableStateOf(false) }
@@ -200,6 +217,28 @@ fun BleGodNavHost() {
         )
     }
 
+    // Configurator first-time pop-up
+    var hasSeenConfigPopup by remember { mutableStateOf(settings.getPrefs().getBoolean("has_seen_config", false)) }
+    if (currentRoute.startsWith("config/") && !hasSeenConfigPopup) {
+        AlertDialog(
+            onDismissRequest = {
+                hasSeenConfigPopup = true
+                settings.getPrefs().edit().putBoolean("has_seen_config", true).apply()
+            },
+            icon = { Icon(Icons.Default.Build, contentDescription = null) },
+            title = { Text("Welcome to Configurator") },
+            text = { Text("Here you can easily edit, rename, add, and delete your Zones, Assets, and Scanners. Simply configure the settings to personalize your BLE network.") },
+            confirmButton = {
+                Button(onClick = {
+                    hasSeenConfigPopup = true
+                    settings.getPrefs().edit().putBoolean("has_seen_config", true).apply()
+                }) {
+                    Text("Okay")
+                }
+            }
+        )
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -226,7 +265,7 @@ fun BleGodNavHost() {
                     title = {
                         Text(
                             when {
-                                currentRoute == "scanner" -> "Scanner"
+                                currentRoute == "scanner" -> "Dashboard"
                                 currentRoute == "settings" || currentRoute.startsWith("settings/") -> "Settings"
                                 currentRoute == "config/hotspot" -> "Hotspot"
                                 currentRoute == "config/scanners" -> "Scanners"
@@ -251,6 +290,41 @@ fun BleGodNavHost() {
                                 else Icons.Default.ArrowBack,
                                 contentDescription = "Navigation"
                             )
+                        }
+                    },
+                    actions = {
+                        if (currentRoute.startsWith("config/")) {
+                            var showInfo by remember { mutableStateOf(false) }
+                            IconButton(onClick = { showInfo = true }) {
+                                Icon(Icons.Default.Info, contentDescription = "Info")
+                            }
+                            if (showInfo) {
+                                AlertDialog(
+                                    onDismissRequest = { showInfo = false },
+                                    icon = { Icon(Icons.Default.Info, contentDescription = null) },
+                                    title = {
+                                        Text(when(currentRoute) {
+                                            "config/hotspot" -> "Hotspot Info"
+                                            "config/scanners" -> "Scanners Info"
+                                            "config/zones" -> "Zones Info"
+                                            "config/assets" -> "Assets Info"
+                                            else -> "Info"
+                                        })
+                                    },
+                                    text = {
+                                        Text(when(currentRoute) {
+                                            "config/hotspot" -> "The Hotspot enables you to connect to the scanners over Wi-Fi, allowing you to seamlessly share and provision data across your entire network."
+                                            "config/scanners" -> "Manage your physical scanner hardware. You can securely assign static IPs, check their connection health, or push setting over-the-air updates."
+                                            "config/zones" -> "Organize your scanners into different physical sections or zones. This helps in pinpointing where a particular beacon is broadcasting from."
+                                            "config/assets" -> "Assign memorable human-readable tags and icons to specific beacon MAC addresses, making it dramatically easier to track your items."
+                                            else -> ""
+                                        })
+                                    },
+                                    confirmButton = {
+                                        TextButton(onClick = { showInfo = false }) { Text("Got it") }
+                                    }
+                                )
+                            }
                         }
                     }
                 )
@@ -278,10 +352,10 @@ fun BleGodNavHost() {
             ) {
                 composable("scanner") { ScannerScreen() }
                 composable("settings") { SettingsScreen() }
-                composable("config/hotspot") { ConfiguratorScreen(initialTab = 0) }
-                composable("config/scanners") { ConfiguratorScreen(initialTab = 1) }
-                composable("config/zones") { ConfiguratorScreen(initialTab = 2) }
-                composable("config/assets") { ConfiguratorScreen(initialTab = 3) }
+                composable("config/hotspot") { HotspotTab() }
+                composable("config/scanners") { ScannersTab() }
+                composable("config/zones") { ZonesTab() }
+                composable("config/assets") { AssetsTab() }
                 composable("logs") { LogScreen() }
             }
         }

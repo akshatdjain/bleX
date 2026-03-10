@@ -4,6 +4,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -61,8 +63,9 @@ fun BleGodTheme(
 ) {
     val context = LocalContext.current
     val settings = remember { SettingsManager.getInstance(context) }
+    val themeMode by settings.themeModeFlow.collectAsState()
 
-    val isDark = when (settings.themeMode) {
+    val isDark = when (themeMode) {
         "DARK" -> true
         "LIGHT" -> false
         else -> isSystemInDarkTheme()

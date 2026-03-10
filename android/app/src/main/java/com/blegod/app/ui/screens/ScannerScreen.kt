@@ -50,6 +50,15 @@ fun ScannerScreen() {
     val status by ScanRepository.serviceStatus.collectAsState()
     var selectedBeacon by remember { mutableStateOf<BeaconData?>(null) }
 
+    // Live timer for "last seen" updates
+    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            currentTime = System.currentTimeMillis()
+        }
+    }
+
     // Sort & Filter state
     var sortMode by remember { mutableStateOf(SortMode.RSSI) }
     var filterMode by remember { mutableStateOf(FilterMode.ALL) }
@@ -244,6 +253,7 @@ fun ScannerScreen() {
                             beacon = beacon,
                             displayName = registeredName ?: beacon.name ?: "Unknown Device",
                             isRegistered = registeredName != null,
+                            currentTime = currentTime,
                             onClick = { selectedBeacon = beacon }
                         )
                     }
@@ -394,10 +404,11 @@ private fun BeaconCard(
     beacon: BeaconData,
     displayName: String,
     isRegistered: Boolean,
+    currentTime: Long,
     onClick: () -> Unit
 ) {
     val signalStrength = getSignalStrength(beacon.rssi)
-    val timeSince = getTimeSince(beacon.timestamp)
+    val timeSince = getTimeSince(beacon.timestamp, currentTime)
 
     ElevatedCard(
         modifier = Modifier
@@ -652,8 +663,8 @@ private fun getSignalStrength(rssi: Int): SignalStrength = when {
     else -> SignalStrength.WEAK
 }
 
-private fun getTimeSince(timestamp: Long): String {
-    val diff = System.currentTimeMillis() - timestamp
+private fun getTimeSince(timestamp: Long, currentTime: Long): String {
+    val diff = currentTime - timestamp
     return when {
         diff < 1000 -> "Just now"
         diff < 60_000 -> "${diff / 1000}s ago"
