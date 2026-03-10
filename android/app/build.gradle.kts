@@ -16,9 +16,19 @@ android {
         versionName = "2.0.2"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("blegod-release.jks")
+            storePassword = "blegod123"
+            keyAlias = "blegod"
+            keyPassword = "blegod123"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

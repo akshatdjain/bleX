@@ -1,15 +1,39 @@
 """
 Runtime registration — master and scanner heartbeats → site.json.
+Also provides the scanner→zone map for the master engine.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from pathlib import Path
 from threading import Lock
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 import json
 import os
 
+from database import get_db
+from models import MstScanner, MstZoneScanner, MstZone
+
 router = APIRouter(prefix="/api/runtime", tags=["Runtime"])
+
+
+# ─── Scanner → Zone Map (for master engine) ──────────────────────────────────
+
+@router.get("/scanner-zone-map")
+async def get_scanner_zone_map(db: AsyncSession = Depends(get_db)):
+    """
+    Returns {scanner_mac: zone_id} mapping.
+    The master engine calls this on boot to know which scanner belongs to which zone.
+    """
+    stmt = (
+        select(MstScanner.mac_id, MstZone.id)
+        .join(MstZoneScanner, MstZoneScanner.mst_scanner_id == MstScanner.id)
+        .join(MstZone, MstZone.id == MstZoneScanner.mst_zone_id)
+    )
+    result = await db.execute(stmt)
+    mapping = {row.mac_id.upper(): row.id for row in result}
+    return {"scanner_zone_map": mapping}
 
 # ─── Config ──────────────────────────────────────────────────────────────────
 
