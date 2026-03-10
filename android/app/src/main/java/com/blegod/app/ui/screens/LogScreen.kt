@@ -39,59 +39,27 @@ fun LogScreen() {
 
     val currentLogs = if (selectedTab == 0) scannerLogs else brokerLogs
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text("Logs", style = MaterialTheme.typography.titleLarge)
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Tab row
+        TabRow(selectedTabIndex = selectedTab) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = {
                         Text(
-                            "${currentLogs.size} entries",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            "$title (${if (index == 0) scannerLogs.size else brokerLogs.size})",
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = {
-                        saveLogs(context, currentLogs, tabs[selectedTab])
-                    }) {
-                        Icon(Icons.Default.Save, "Save logs")
-                    }
-                    IconButton(onClick = {
-                        if (selectedTab == 0) ScanRepository.clearLogs()
-                        else ScanRepository.clearBrokerLogs()
-                    }) {
-                        Icon(Icons.Default.DeleteSweep, "Clear logs")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Tab row
-            TabRow(selectedTabIndex = selectedTab) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = {
-                            Text(
-                                "$title (${if (index == 0) scannerLogs.size else brokerLogs.size})",
-                                style = MaterialTheme.typography.labelMedium
-                            )
-                        }
-                    )
-                }
+                )
             }
-
-            // Log list
-            LogList(logs = currentLogs)
         }
+
+        // Log list
+        LogList(logs = currentLogs)
     }
 }
 

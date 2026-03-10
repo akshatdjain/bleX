@@ -179,6 +179,13 @@ class SettingsManager(context: Context) {
         get() = prefs.getString("site_wifi_psk", "") ?: ""
         set(value) = prefs.edit().putString("site_wifi_psk", value).apply()
 
+    // ── UI Visibility Settings ────────────────────────────────────
+
+    /** Whether the Logs item is visible in the navigation drawer */
+    var logsVisible: Boolean
+        get() = prefs.getBoolean("logs_visible", true)
+        set(value) = prefs.edit().putBoolean("logs_visible", value).apply()
+
     // ── API Configuration ────────────────────────────────────────
 
     var apiBaseUrl: String

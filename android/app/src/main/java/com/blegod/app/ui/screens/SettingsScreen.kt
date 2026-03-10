@@ -92,9 +92,6 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Settings", style = MaterialTheme.typography.titleLarge) })
-        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -741,9 +738,26 @@ fun SettingsScreen(onSettingsSaved: () -> Unit = {}) {
                     InfoRow("Device ID",  AppConfig.getDeviceId(context))
                     InfoRow("Android",    "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
                     InfoRow("Model",      "${Build.MANUFACTURER} ${Build.MODEL}")
-                    InfoRow("App Version","3.2.0")
+                    InfoRow("App Version","3.0.0")
                 }
             }
+
+            Spacer(Modifier.height(24.dp))
+
+            // ── Logs Visibility ───────────────────────────────────
+            SectionHeader(icon = Icons.Default.Terminal, title = "Logs")
+
+            var logsShown by remember { mutableStateOf(settings.logsVisible) }
+            ToggleCard(
+                icon = Icons.Default.Terminal,
+                title = "Show Logs in Menu",
+                subtitle = "Display Logs option in the navigation drawer",
+                checked = logsShown,
+                onCheckedChange = {
+                    logsShown = it
+                    settings.logsVisible = it
+                }
+            )
 
             Spacer(Modifier.height(40.dp))
 

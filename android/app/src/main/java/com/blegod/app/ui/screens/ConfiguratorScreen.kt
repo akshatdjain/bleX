@@ -47,8 +47,8 @@ private const val TAG = "ConfiguratorScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConfiguratorScreen() {
-    var selectedTab by remember { mutableIntStateOf(0) }
+fun ConfiguratorScreen(initialTab: Int = 0) {
+    var selectedTab by remember { mutableIntStateOf(initialTab) }
     val tabTitles = listOf("Hotspot", "Scanners", "Zones", "Assets")
     val tabIcons = listOf(
         Icons.Default.Wifi,
@@ -94,60 +94,34 @@ fun ConfiguratorScreen() {
         )
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column(
-                        modifier = Modifier.pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = { showApiConfig = true }
-                            )
-                        }
-                    ) {
-                        Text("Configurator", fontWeight = FontWeight.Bold)
-                        Text(
-                            "Zero-Touch Provisioning",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+    Column(modifier = Modifier.fillMaxSize()) {
+        PrimaryTabRow(selectedTabIndex = selectedTab) {
+            tabTitles.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    icon = { Icon(tabIcons[index], null, modifier = Modifier.size(18.dp)) },
+                    text = { Text(title, style = MaterialTheme.typography.labelMedium) }
                 )
-            )
-        }
-    ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            PrimaryTabRow(selectedTabIndex = selectedTab) {
-                tabTitles.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        icon = { Icon(tabIcons[index], null, modifier = Modifier.size(18.dp)) },
-                        text = { Text(title, style = MaterialTheme.typography.labelMedium) }
-                    )
-                }
             }
+        }
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                AnimatedContent(
-                    targetState = selectedTab,
-                    transitionSpec = {
-                        if (targetState > initialState)
-                            slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                        else
-                            slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                    },
-                    label = "TabContent"
-                ) { tab ->
-                    when (tab) {
-                        0 -> HotspotTab()
-                        1 -> ScannersTab()
-                        2 -> ZonesTab()
-                        3 -> AssetsTab()
-                    }
+        Box(modifier = Modifier.fillMaxSize()) {
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    if (targetState > initialState)
+                        slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                    else
+                        slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                },
+                label = "TabContent"
+            ) { tab ->
+                when (tab) {
+                    0 -> HotspotTab()
+                    1 -> ScannersTab()
+                    2 -> ZonesTab()
+                    3 -> AssetsTab()
                 }
             }
         }

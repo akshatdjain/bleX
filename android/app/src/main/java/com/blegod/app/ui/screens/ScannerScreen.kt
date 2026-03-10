@@ -81,138 +81,171 @@ fun ScannerScreen() {
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text("BleGod Scanner", style = MaterialTheme.typography.titleLarge)
-                        Text(
-                            "${sortedBeacons.size} devices nearby",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                actions = {
-                    // Sort button
-                    Box {
-                        IconButton(onClick = { sortMenuExpanded = true }) {
-                            Icon(Icons.Default.Sort, "Sort")
-                        }
-                        DropdownMenu(
-                            expanded = sortMenuExpanded,
-                            onDismissRequest = { sortMenuExpanded = false }
-                        ) {
-                            SortMode.entries.forEach { mode ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            if (sortMode == mode) {
-                                                Icon(Icons.Default.Check, null,
-                                                    modifier = Modifier.size(18.dp),
-                                                    tint = MaterialTheme.colorScheme.primary)
-                                                Spacer(Modifier.width(8.dp))
-                                            }
-                                            Text(mode.label)
-                                        }
-                                    },
-                                    onClick = { sortMode = mode; sortMenuExpanded = false }
-                                )
-                            }
-                        }
-                    }
-                    StatusChip(status)
-                }
-            )
-        }
-    ) { padding ->
-        Column(
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // BLE status + sort row
+        Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Stats bar
-            StatsBar(status)
+            // Device count
+            Text(
+                "${sortedBeacons.size} devices",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-            // Location Services OFF banner — critical for Samsung/OnePlus
-            if (!status.isLocationEnabled) {
-                val ctx = LocalContext.current
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Sort button
+                Box {
+                    IconButton(onClick = { sortMenuExpanded = true }) {
+                        Icon(Icons.Default.Sort, "Sort")
+                    }
+                    DropdownMenu(
+                        expanded = sortMenuExpanded,
+                        onDismissRequest = { sortMenuExpanded = false }
+                    ) {
+                        SortMode.entries.forEach { mode ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (sortMode == mode) {
+                                            Icon(Icons.Default.Check, null,
+                                                modifier = Modifier.size(18.dp),
+                                                tint = MaterialTheme.colorScheme.primary)
+                                            Spacer(Modifier.width(8.dp))
+                                        }
+                                        Text(mode.label)
+                                    }
+                                },
+                                onClick = { sortMode = mode; sortMenuExpanded = false }
+                            )
+                        }
+                    }
+                }
+
+                // BLE Active/Inactive chip
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.errorContainer,
-                    shape = RoundedCornerShape(0.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (status.isScanning)
+                        MaterialTheme.colorScheme.primaryContainer
+                    else
+                        MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier.height(32.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Icon(
-                            Icons.Default.LocationOff,
+                            if (status.isScanning) Icons.Default.BluetoothSearching
+                            else Icons.Default.BluetoothDisabled,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(16.dp),
+                            tint = if (status.isScanning)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.error
                         )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                "Location Services OFF",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                            Text(
-                                "BLE scanning requires Location to be enabled (Samsung/OnePlus)",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
-                            )
-                        }
-                        FilledTonalButton(
-                            onClick = {
-                                ctx.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                })
-                            },
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError
-                            )
-                        ) {
-                            Text("Enable", style = MaterialTheme.typography.labelSmall)
-                        }
+                        Text(
+                            if (status.isScanning) "BLE Active" else "BLE Inactive",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (status.isScanning)
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            else
+                                MaterialTheme.colorScheme.onErrorContainer
+                        )
                     }
                 }
             }
+        }
 
-            // Filter chips
-            FilterChipRow(filterMode) { filterMode = it }
-
-            // Beacon list with pull-to-refresh
-            if (sortedBeacons.isEmpty()) {
-                EmptyState(status.isScanning)
-            } else {
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    onRefresh = { isRefreshing = true },
-                    modifier = Modifier.fillMaxSize()
+        // Location Services OFF banner — critical for Samsung/OnePlus
+        if (!status.isLocationEnabled) {
+            val ctx = LocalContext.current
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.errorContainer,
+                shape = RoundedCornerShape(0.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    Icon(
+                        Icons.Default.LocationOff,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Location Services OFF",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Text(
+                            "BLE scanning requires Location to be enabled",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                        )
+                    }
+                    FilledTonalButton(
+                        onClick = {
+                            ctx.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            })
+                        },
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        )
                     ) {
-                        items(sortedBeacons, key = { it.mac }) { beacon ->
-                            val registeredName = ScanRepository.getAssetName(beacon.mac)
-                            BeaconCard(
-                                beacon = beacon,
-                                displayName = registeredName ?: beacon.name ?: "Unknown Device",
-                                isRegistered = registeredName != null,
-                                onClick = { selectedBeacon = beacon }
-                            )
-                        }
+                        Text("Enable", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+        }
+
+        // Filter chips
+        FilterChipRow(filterMode) { filterMode = it }
+
+        // Beacon list with pull-to-refresh
+        if (sortedBeacons.isEmpty()) {
+            EmptyState(status.isScanning)
+        } else {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = { isRefreshing = true },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(sortedBeacons, key = { it.mac }) { beacon ->
+                        val registeredName = ScanRepository.getAssetName(beacon.mac)
+                        BeaconCard(
+                            beacon = beacon,
+                            displayName = registeredName ?: beacon.name ?: "Unknown Device",
+                            isRegistered = registeredName != null,
+                            onClick = { selectedBeacon = beacon }
+                        )
                     }
                 }
             }
