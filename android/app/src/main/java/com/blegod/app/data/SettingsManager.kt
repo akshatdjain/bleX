@@ -175,6 +175,11 @@ class SettingsManager(context: Context) {
         get() = prefs.getString("remote_ca_cert_uri", "") ?: ""
         set(value) = prefs.edit().putString("remote_ca_cert_uri", value).apply()
 
+    /** Upstream publish interval in seconds (0 = instant) */
+    var upstreamPublishIntervalS: Int
+        get() = prefs.getInt("upstream_publish_interval_s", 0)
+        set(value) = prefs.edit().putInt("upstream_publish_interval_s", value).apply()
+
     // ── Site WiFi Credentials (for provisioning) ─────────────────
 
     var siteWifiSsid: String

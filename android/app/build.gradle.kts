@@ -12,8 +12,8 @@ android {
         applicationId = "com.blegod.app"
         minSdk = 31
         targetSdk = 35
-        versionCode = 7
-        versionName = "3.0.1"
+        versionCode = 8
+        versionName = "3.0.2"
     }
 
     signingConfigs {

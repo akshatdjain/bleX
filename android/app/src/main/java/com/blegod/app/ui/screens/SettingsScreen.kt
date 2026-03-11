@@ -533,6 +533,7 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
     var remoteCaCertUri by remember { mutableStateOf(settings.remoteCaCertUri) }
     var bridgeTopicFilter by remember { mutableStateOf(settings.bridgeTopicFilter) }
     var apiBaseUrl by remember { mutableStateOf(settings.apiBaseUrl) }
+    var upstreamPublishInterval by remember { mutableStateOf(settings.upstreamPublishIntervalS.toString()) }
 
     // Auto-save text fields on panel exit
     DisposableEffect(Unit) {
@@ -544,6 +545,7 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
             settings.remoteCaCertUri = remoteCaCertUri
             settings.bridgeTopicFilter = bridgeTopicFilter
             settings.apiBaseUrl = apiBaseUrl
+            settings.upstreamPublishIntervalS = upstreamPublishInterval.toIntOrNull() ?: 0
             onSaved()
         }
     }
@@ -743,8 +745,16 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
         value = bridgeTopicFilter, onValueChange = { bridgeTopicFilter = it },
         label = "Bridge Topic Filter",
         icon = Icons.Default.FilterAlt,
-        isTop = true, isBottom = true,
+        isTop = true, isBottom = false,
         supportingText = { Text("Which local topics to forward upstream (# to forward all)") }
+    )
+    SettingTextFieldItem(
+        value = upstreamPublishInterval, onValueChange = { upstreamPublishInterval = it.filter { c -> c.isDigit() } },
+        label = "Upstream Publish Interval (seconds)",
+        icon = Icons.Default.AvTimer,
+        isTop = false, isBottom = true,
+        supportingText = { Text("Delay before publishing to remote server (0 = instant)") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 }
 

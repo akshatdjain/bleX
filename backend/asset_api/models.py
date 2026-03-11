@@ -47,3 +47,12 @@ class MovementLog(Base):
     to_zone_id = Column(Integer)
     deciding_rssi = Column(Numeric(6, 2))
     timestamp_movement = Column(DateTime(timezone=True), nullable=False)
+
+class MstMaster(Base):
+    __tablename__ = "mst_master"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+    mac = Column(Text, nullable=False, unique=True)
+    ip = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

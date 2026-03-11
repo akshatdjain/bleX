@@ -268,7 +268,7 @@ class BleScanner(private val context: Context) {
         val powerModeLabel = settings.scanPowerMode
 
         log(LogLevel.INFO, "BLE Scanning STARTED (iBeacon + Eddystone only)")
-        log(LogLevel.INFO, "Mode: $powerModeLabel, Interval: ${AppConfig.SCAN_INTERVAL_MS}ms, Duration: ${AppConfig.SCAN_DURATION_MS}ms")
+        log(LogLevel.INFO, "Mode: $powerModeLabel, Interval: ${settings.scanIntervalMs}ms, Duration: ${settings.scanDurationMs}ms")
 
         scanJob = scope.launch {
             while (isActive) {
@@ -279,11 +279,11 @@ class BleScanner(private val context: Context) {
                         continue
                     }
                     startScanInternal()
-                    delay(AppConfig.SCAN_DURATION_MS)
+                    delay(settings.scanDurationMs)
                     stopScanInternal()
                     deliverResults()
 
-                    val waitTime = AppConfig.SCAN_INTERVAL_MS - AppConfig.SCAN_DURATION_MS
+                    val waitTime = settings.scanIntervalMs - settings.scanDurationMs
                     if (waitTime > 0) delay(waitTime)
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e

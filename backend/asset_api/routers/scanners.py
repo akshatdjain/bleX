@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models import MstScanner, MstZoneScanner
 from schemas import ScannerIn
+from events import notify_zone_map_changed
 
 router = APIRouter(prefix="/api/scanners", tags=["Scanners"])
 
@@ -54,6 +55,7 @@ async def delete_scanner(scanner_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Scanner not found")
     await db.delete(scanner)
     await db.commit()
+    await notify_zone_map_changed()
     return {"ok": True}
 
 

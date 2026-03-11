@@ -31,6 +31,7 @@ class MqttBridge(private val context: Context) {
     private val offlineQueue = ConcurrentLinkedQueue<Pair<String, String>>()
     private val isStarted = AtomicBoolean(false)
     private val isConnectingRemote = AtomicBoolean(false)
+    private var flushThread: Thread? = null
 
     @Volatile var isLocalConnected: Boolean = false; private set
     @Volatile var isRemoteConnected: Boolean = false; private set
@@ -44,6 +45,7 @@ class MqttBridge(private val context: Context) {
         try {
             connectLocal(settings)
             connectRemote(settings)
+            startFlushThread()
         } catch (e: Exception) {
             log(LogLevel.ERROR, "Bridge start failed: ${e.message}")
             Log.e(TAG, "Bridge start error", e)
@@ -64,6 +66,8 @@ class MqttBridge(private val context: Context) {
                 close()
             }
         } catch (_: Exception) {}
+        flushThread?.interrupt()
+        flushThread = null
         localClient = null
         remoteClient = null
         isLocalConnected = false
@@ -227,18 +231,26 @@ class MqttBridge(private val context: Context) {
 
     private fun handleLocalMessage(topic: String, message: MqttMessage) {
         val payload = String(message.payload)
+        val settings = SettingsManager.getInstance(context)
+        val interval = settings.upstreamPublishIntervalS
 
-        if (isRemoteConnected && remoteClient?.isConnected == true) {
-            try {
-                remoteClient?.publish(topic, message)
-                messagesForwarded++
-                log(LogLevel.DEBUG, "Forwarded: $topic (${payload.length} bytes)")
-            } catch (e: Exception) {
-                log(LogLevel.WARN, "Forward failed, queueing: ${e.message}")
+        if (interval > 0) {
+            // Buffer it, the flush thread will handle it
+            queueMessage(topic, payload)
+        } else {
+            // Direct forwarding
+            if (isRemoteConnected && remoteClient?.isConnected == true) {
+                try {
+                    remoteClient?.publish(topic, message)
+                    messagesForwarded++
+                    log(LogLevel.DEBUG, "Forwarded: $topic (${payload.length} bytes)")
+                } catch (e: Exception) {
+                    log(LogLevel.WARN, "Forward failed, queueing: ${e.message}")
+                    queueMessage(topic, payload)
+                }
+            } else {
                 queueMessage(topic, payload)
             }
-        } else {
-            queueMessage(topic, payload)
         }
     }
 
@@ -251,7 +263,8 @@ class MqttBridge(private val context: Context) {
 
     private fun flushOfflineQueue() {
         var flushed = 0
-        while (offlineQueue.isNotEmpty() && isRemoteConnected) {
+        // We flush the whole queue each time
+        while (offlineQueue.isNotEmpty() && isRemoteConnected && remoteClient?.isConnected == true) {
             val (topic, payload) = offlineQueue.poll() ?: break
             try {
                 val msg = MqttMessage(payload.toByteArray()).apply { qos = 1 }
@@ -260,11 +273,45 @@ class MqttBridge(private val context: Context) {
                 flushed++
             } catch (e: Exception) {
                 log(LogLevel.WARN, "Flush failed: ${e.message}")
+                // If publishing fails, we might still have a connection issue, stop flushing
                 break
             }
         }
         if (flushed > 0) {
-            log(LogLevel.INFO, "Flushed $flushed queued messages to remote")
+            log(LogLevel.INFO, "Flushed $flushed messages to remote server")
+        }
+    }
+
+    private fun startFlushThread() {
+        if (flushThread != null) return
+        flushThread = Thread {
+            log(LogLevel.DEBUG, "Flush thread started")
+            while (isStarted.get()) {
+                try {
+                    val settings = SettingsManager.getInstance(context)
+                    val interval = settings.upstreamPublishIntervalS
+
+                    if (interval > 0) {
+                        Thread.sleep(interval * 1000L)
+                        if (isRemoteConnected && remoteClient?.isConnected == true && offlineQueue.isNotEmpty()) {
+                            flushOfflineQueue()
+                        }
+                    } else {
+                        // If interval is 0, we just sleep a bit to not burn CPU, 
+                        // handleLocalMessage will publish directly
+                        Thread.sleep(2000)
+                    }
+                } catch (e: InterruptedException) {
+                    break
+                } catch (e: Exception) {
+                    Log.e(TAG, "Flush thread error", e)
+                }
+            }
+            log(LogLevel.DEBUG, "Flush thread stopped")
+        }.apply {
+            name = "MqttBridge-Flush"
+            isDaemon = true
+            start()
         }
     }
 

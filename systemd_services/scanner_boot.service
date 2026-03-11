@@ -1,0 +1,19 @@
+[Unit]
+Description=BLE Scanner Boot & API Discovery Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/pi_scanner_files
+ExecStart=/usr/bin/python3 /home/pi/pi_scanner_files/scanner_boot.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+# Allow the script to restart the main scanner service
+PermissionsStartOnly=true
+
+[Install]
+WantedBy=multi-user.target

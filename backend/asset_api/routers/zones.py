@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from models import MstZone, MstZoneScanner, MstScanner
 from schemas import ZoneIn, ZoneScannerIn
+from events import notify_zone_map_changed
 
 router = APIRouter(prefix="/api/zones", tags=["Zones"])
 
@@ -43,6 +44,7 @@ async def create_zone(payload: ZoneIn, db: AsyncSession = Depends(get_db)):
     zone = MstZone(zone_name=payload.zone_name, description=payload.description)
     db.add(zone)
     await db.commit()
+    await notify_zone_map_changed()
     await db.refresh(zone)
     return {"ok": True, "id": zone.id, "zone_name": zone.zone_name}
 
@@ -56,6 +58,7 @@ async def update_zone(zone_id: int, payload: ZoneIn, db: AsyncSession = Depends(
     zone.zone_name = payload.zone_name
     zone.description = payload.description
     await db.commit()
+    await notify_zone_map_changed()
     return {"ok": True, "id": zone.id, "zone_name": zone.zone_name}
 
 
@@ -70,6 +73,7 @@ async def delete_zone(zone_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Zone not found")
     await db.delete(zone)
     await db.commit()
+    await notify_zone_map_changed()
     return {"ok": True}
 
 
@@ -98,6 +102,7 @@ async def assign_scanner_to_zone(
     mapping = MstZoneScanner(mst_zone_id=zone_id, mst_scanner_id=payload.scanner_id)
     db.add(mapping)
     await db.commit()
+    await notify_zone_map_changed()
     return {"ok": True}
 
 
@@ -111,4 +116,5 @@ async def unassign_scanner_from_zone(
         .where(MstZoneScanner.mst_scanner_id == scanner_id)
     )
     await db.commit()
+    await notify_zone_map_changed()
     return {"ok": True}

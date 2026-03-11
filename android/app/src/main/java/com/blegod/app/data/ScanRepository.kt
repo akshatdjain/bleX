@@ -55,8 +55,27 @@ object ScanRepository {
     //  Service → Repository (called by BleScannerService)
     // ══════════════════════════════════════════════════════════════
 
-    fun updateBeacons(beacons: List<BeaconData>) {
-        _beacons.value = beacons.sortedByDescending { it.rssi }
+    private val beaconMap = mutableMapOf<String, BeaconData>()
+    private const val BEACON_TTL_MS = 10000L // 10 seconds memory
+
+    fun updateBeacons(newBeacons: List<BeaconData>) {
+        val now = System.currentTimeMillis()
+        
+        // Update map with new sightings
+        newBeacons.forEach { 
+            beaconMap[it.mac] = it 
+        }
+        
+        // Remove beacons not seen in the last 10 seconds
+        val iterator = beaconMap.entries.iterator()
+        while (iterator.hasNext()) {
+            val entry = iterator.next()
+            if (now - entry.value.timestamp > BEACON_TTL_MS) {
+                iterator.remove()
+            }
+        }
+        
+        _beacons.value = beaconMap.values.sortedByDescending { it.rssi }
     }
 
     fun addOrUpdateScanner(scanner: DiscoveredScanner) {

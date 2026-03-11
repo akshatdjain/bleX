@@ -1,0 +1,16 @@
+[Unit]
+Description=BLE Master Zone Engine
+After=network-online.target master_register.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/master
+ExecStart=/usr/bin/python3 /home/pi/master/master_updated_timestamp.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
