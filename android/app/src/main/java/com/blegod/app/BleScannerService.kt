@@ -435,7 +435,7 @@ class BleScannerService : Service() {
 
         val singleLineStatus = "BLE: ${if (isScanning) "Active" else "Inactive"} | MQTT: ${if (isMqttConnected) "Up" else "Down"} | Remote: $remoteStatus"
 
-        val builder = NotificationCompat.Builder(this, BleGodApp.CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, BleXApp.CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setContentTitle("Scanner Status")
             .setContentText(singleLineStatus)

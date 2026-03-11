@@ -74,7 +74,7 @@ class MqttManager(private val context: Context) {
      */
     private fun fireDisconnectAlert(reason: String?) {
         try {
-            val notification = NotificationCompat.Builder(context, BleGodApp.ALERT_CHANNEL_ID)
+            val notification = NotificationCompat.Builder(context, BleXApp.ALERT_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_notify_error)
                 .setContentTitle("MQTT Disconnected")
                 .setContentText(reason ?: "Connection to broker lost")
