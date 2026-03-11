@@ -128,13 +128,22 @@ class BleScanner(private val context: Context) {
         }
 
         override fun onScanFailed(errorCode: Int) {
+            if (errorCode == 1) { // SCAN_FAILED_ALREADY_STARTED
+                // Just a warning, no need to log as error or retry
+                Log.d(TAG, "Scan already started (Error 1), ignoring")
+                return
+            }
+            
             log(LogLevel.ERROR, "BLE scan failed with error code: $errorCode")
+            // For other actual failures (hardware resources, etc), attempt a clean restart
             scope.launch {
                 delay(5000)
-                log(LogLevel.INFO, "Retrying scan after failure...")
-                stopScanInternal()
-                delay(1000)
-                startScanInternal()
+                if (isScanning) {
+                    log(LogLevel.INFO, "Attempting recovery after scan failure ($errorCode)...")
+                    stopScanInternal()
+                    delay(1000)
+                    startScanInternal()
+                }
             }
         }
     }
@@ -267,28 +276,28 @@ class BleScanner(private val context: Context) {
         val settings = SettingsManager.getInstance(context)
         val powerModeLabel = settings.scanPowerMode
 
-        log(LogLevel.INFO, "BLE Scanning STARTED (iBeacon + Eddystone only)")
-        log(LogLevel.INFO, "Mode: $powerModeLabel, Interval: ${settings.scanIntervalMs}ms, Duration: ${settings.scanDurationMs}ms")
+        log(LogLevel.INFO, "BLE Scanning STARTED (Continuous Mode)")
+        log(LogLevel.INFO, "Mode: $powerModeLabel, Harvest Interval: ${settings.scanIntervalMs}ms")
+
+        // Initial scan start
+        startScanInternal()
 
         scanJob = scope.launch {
             while (isActive) {
                 try {
-                    // Re-check location every cycle — auto-recover when user enables it
-                    if (!checkLocationServices()) {
-                        delay(AppConfig.SCAN_INTERVAL_MS)
-                        continue
-                    }
-                    startScanInternal()
-                    delay(settings.scanDurationMs)
-                    stopScanInternal()
+                    // Harvest results every cycle
+                    delay(settings.scanIntervalMs)
                     deliverResults()
-
-                    val waitTime = settings.scanIntervalMs - settings.scanDurationMs
-                    if (waitTime > 0) delay(waitTime)
+                    
+                    // Periodic check for location
+                    if (!checkLocationServices()) {
+                        log(LogLevel.WARN, "Location Services went OFF, stopping scan")
+                        stopScanInternal()
+                    }
                 } catch (e: kotlinx.coroutines.CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    log(LogLevel.ERROR, "Scan cycle error: ${e.message}")
+                    log(LogLevel.ERROR, "Scan harvest error: ${e.message}")
                     delay(3000)
                 }
             }
@@ -297,9 +306,9 @@ class BleScanner(private val context: Context) {
         restartJob = scope.launch {
             while (isActive) {
                 delay(AppConfig.SCAN_RESTART_INTERVAL_MINUTES * 60 * 1000)
-                log(LogLevel.INFO, "Periodic scan restart (every ${AppConfig.SCAN_RESTART_INTERVAL_MINUTES} min)")
+                log(LogLevel.INFO, "Periodic scan restart (every ${AppConfig.SCAN_RESTART_INTERVAL_MINUTES} min) to prevent Android timeout")
                 stopScanInternal()
-                delay(500)
+                delay(1000)
                 startScanInternal()
             }
         }

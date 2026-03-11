@@ -172,6 +172,7 @@ class MqttBridge(private val context: Context) {
                 password = settings.remotePassword.toCharArray()
             }
             mqttVersion = MqttConnectOptions.MQTT_VERSION_3_1_1
+            maxInflight = 100 // Handle high frequency data better
             
             // TLS for ssl:// or wss:// connections
             if (settings.remoteTlsEnabled) {
@@ -263,7 +264,6 @@ class MqttBridge(private val context: Context) {
 
     private fun flushOfflineQueue() {
         var flushed = 0
-        // We flush the whole queue each time
         while (offlineQueue.isNotEmpty() && isRemoteConnected && remoteClient?.isConnected == true) {
             val (topic, payload) = offlineQueue.poll() ?: break
             try {
@@ -271,9 +271,10 @@ class MqttBridge(private val context: Context) {
                 remoteClient?.publish(topic, msg)
                 messagesForwarded++
                 flushed++
+                // Add a small delay to prevent saturating the outbound pipe
+                Thread.sleep(20) 
             } catch (e: Exception) {
                 log(LogLevel.WARN, "Flush failed: ${e.message}")
-                // If publishing fails, we might still have a connection issue, stop flushing
                 break
             }
         }
@@ -290,16 +291,17 @@ class MqttBridge(private val context: Context) {
                 try {
                     val settings = SettingsManager.getInstance(context)
                     val interval = settings.upstreamPublishIntervalS
-
+                    
+                    // Always try to flush if there's data, but wait if interval is set
                     if (interval > 0) {
                         Thread.sleep(interval * 1000L)
-                        if (isRemoteConnected && remoteClient?.isConnected == true && offlineQueue.isNotEmpty()) {
-                            flushOfflineQueue()
-                        }
                     } else {
-                        // If interval is 0, we just sleep a bit to not burn CPU, 
-                        // handleLocalMessage will publish directly
-                        Thread.sleep(2000)
+                        // High speed mode: check every 100ms
+                        Thread.sleep(100)
+                    }
+                    
+                    if (isRemoteConnected && remoteClient?.isConnected == true && offlineQueue.isNotEmpty()) {
+                        flushOfflineQueue()
                     }
                 } catch (e: InterruptedException) {
                     break
