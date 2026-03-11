@@ -9,19 +9,19 @@ import android.util.Log
 import kotlin.system.exitProcess
 
 /**
- * BleGodApp — The Application class.
+ * BleXApp — The Application class.
  *
  * Creates notification channels and registers a global crash handler
  * to auto-restart the service on any uncaught exception.
  */
-class BleGodApp : Application() {
+class BleXApp : Application() {
 
     companion object {
-        const val TAG = "BleGod"
-        const val CHANNEL_ID = "blegod_scanner_channel"
+        const val TAG = "BleX"
+        const val CHANNEL_ID = "blex_scanner_channel"
         const val CHANNEL_NAME = "BLE Scanner Service"
-        const val ALERT_CHANNEL_ID = "blegod_alerts_channel"
-        const val ALERT_CHANNEL_NAME = "BleGod Alerts"
+        const val ALERT_CHANNEL_ID = "blex_alerts_channel"
+        const val ALERT_CHANNEL_NAME = "BleX Alerts"
     }
 
     override fun onCreate() {
@@ -31,7 +31,7 @@ class BleGodApp : Application() {
         registerCrashHandler()
 
         Log.i(TAG, "═══════════════════════════════════════")
-        Log.i(TAG, "  BleGod Application Started")
+        Log.i(TAG, "  BleX Application Started")
         Log.i(TAG, "═══════════════════════════════════════")
     }
 

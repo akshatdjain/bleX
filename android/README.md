@@ -1,6 +1,6 @@
-# BleGod Android Controller
+# BleX Android Controller
 
-The central control unit of the BleGod ecosystem. This application manages the fleet of scanners and provides the primary user interface for asset tracking.
+The central control unit of the BleX ecosystem. This application manages the fleet of scanners and provides the primary user interface for asset tracking.
 
 ## 🌟 Key Components
 
@@ -30,4 +30,4 @@ The reactive data layer that manages:
 - **Min SDK**: 24 (Android 7.0).
 
 ---
-*Part of the BleGod Suite.*
+*Part of the BleX Suite.*

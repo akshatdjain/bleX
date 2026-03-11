@@ -28,7 +28,7 @@ import javax.net.ssl.SSLSocketFactory
 class MqttManager(private val context: Context) {
 
     companion object {
-        private const val TAG = "BleGod.MQTT"
+        private const val TAG = "BleX.MQTT"
     }
 
     private var mqttClient: MqttAsyncClient? = null
@@ -110,7 +110,7 @@ class MqttManager(private val context: Context) {
 
         try {
             val brokerUrl = settings.getBrokerUrl()
-            val clientId = "blegod_${AppConfig.getDeviceId(context)}"
+            val clientId = "blex_${AppConfig.getDeviceId(context)}"
 
             // Only create a new client if we don't have one
             if (mqttClient == null) {

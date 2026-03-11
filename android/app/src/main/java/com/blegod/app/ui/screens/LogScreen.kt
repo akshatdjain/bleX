@@ -152,7 +152,7 @@ private fun saveLogs(context: Context, logs: List<LogEntry>, tabName: String) {
     try {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.getDefault())
         val logDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault())
-        val filename = "blegod_${tabName.lowercase()}_logs_${dateFormat.format(Date())}.txt"
+        val filename = "blex_${tabName.lowercase()}_logs_${dateFormat.format(Date())}.txt"
 
         val dir = android.os.Environment.getExternalStoragePublicDirectory(
             android.os.Environment.DIRECTORY_DOWNLOADS
@@ -161,7 +161,7 @@ private fun saveLogs(context: Context, logs: List<LogEntry>, tabName: String) {
         val file = File(dir, filename)
 
         val content = buildString {
-            appendLine("BleGod $tabName Logs — Exported ${logDateFormat.format(Date())}")
+            appendLine("BleX $tabName Logs — Exported ${logDateFormat.format(Date())}")
             appendLine("=".repeat(60))
             appendLine()
             for (entry in logs) {

@@ -1039,18 +1039,11 @@ private fun DeviceInfoPanel() {
             InfoRow("Device ID", AppConfig.getDeviceId(context))
             InfoRow("Android", "${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             InfoRow("Model", "${Build.MANUFACTURER} ${Build.MODEL}")
-            InfoRow("App Version", "3.0.1")
+            InfoRow("App Version", "3.0.3")
         }
     }
 
-    Spacer(Modifier.height(24.dp))
-    Text(
-        "engineered in silence by akshat",
-        modifier = Modifier.fillMaxWidth(),
-        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
-        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-        textAlign = TextAlign.Center
-    )
+
 }
 
 @Composable

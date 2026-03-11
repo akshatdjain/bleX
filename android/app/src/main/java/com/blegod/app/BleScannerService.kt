@@ -21,7 +21,7 @@ import kotlinx.coroutines.*
 class BleScannerService : Service() {
 
     companion object {
-        private const val TAG = "BleGod.Service"
+        private const val TAG = "BleX.Service"
         const val ACTION_RESTART = "com.blegod.app.ACTION_RESTART_SERVICE"
         const val ACTION_RESPAWN_NOTIFICATION = "com.blegod.app.ACTION_RESPAWN_NOTIFICATION"
     }

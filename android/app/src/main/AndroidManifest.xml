@@ -56,11 +56,11 @@
         android:required="true" />
 
     <application
-        android:name=".BleGodApp"
+        android:name=".BleXApp"
         android:allowBackup="false"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="BleGod"
+        android:label="BleX"
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"

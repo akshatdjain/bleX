@@ -8,7 +8,7 @@ MQTT_BROKER = "10.1.2.223"
 MQTT_PORT = 1883
 
 # Base topic where all scanners publish
-MQTT_TOPIC_BASE = "ble/scanner"
+MQTT_TOPIC_BASE = "blex/beacons"
 
 # ---------------- REDIS ----------------
 REDIS_HOST = "127.0.0.1"

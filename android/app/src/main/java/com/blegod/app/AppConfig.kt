@@ -34,11 +34,11 @@ object AppConfig {
 
     /**
      * MQTT Topic prefix — messages are published to:
-     *   blegod/beacons/{DEVICE_ID}
+     *   blex/beacons/{DEVICE_ID}
      *
-     * The Python subscriber uses wildcard blegod/beacons/# to get ALL tablets.
+     * The Python subscriber uses wildcard blex/beacons/# to get ALL tablets.
      */
-    const val MQTT_TOPIC_PREFIX = "blegod/beacons"
+    const val MQTT_TOPIC_PREFIX = "blex/beacons"
 
     /**
      * MQTT Quality of Service (QoS):
@@ -141,7 +141,7 @@ object AppConfig {
 
     /**
      * Build the full MQTT topic for this device.
-     * Example: "blegod/beacons/a1b2c3d4"
+     * Example: "blex/beacons/a1b2c3d4"
      */
     fun getMqttTopic(context: android.content.Context): String {
         return "$MQTT_TOPIC_PREFIX/${getDeviceId(context)}"

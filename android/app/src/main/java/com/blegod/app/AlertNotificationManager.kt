@@ -24,8 +24,9 @@ import kotlinx.coroutines.*
 class AlertNotificationManager(private val context: Context) {
 
     companion object {
-        private const val CHANNEL_ID = "blegod_alerts"
-        private const val CHANNEL_NAME = "BleGod Alerts"
+        private const val TAG = "BleX.Alerts"
+        private const val CHANNEL_ID = "blex_alerts"
+        private const val CHANNEL_NAME = "BleX Alerts"
         private const val COOLDOWN_MS = 5 * 60 * 1000L // 5 minutes between repeats
 
         // Notification IDs
@@ -50,7 +51,7 @@ class AlertNotificationManager(private val context: Context) {
             CHANNEL_NAME,
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "Critical alerts for BleGod operation"
+            description = "Critical alerts for BleX operation"
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 200, 100, 200) // vibrate pattern
         }

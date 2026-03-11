@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap
 class BleScanner(private val context: Context) {
 
     companion object {
-        private const val TAG = "BleGod.Scanner"
+        private const val TAG = "BleX.Scanner"
 
         val EDDYSTONE_SERVICE_UUID: ParcelUuid =
             ParcelUuid.fromString("0000FEAA-0000-1000-8000-00805F9B34FB")

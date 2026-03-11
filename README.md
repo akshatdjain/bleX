@@ -1,6 +1,6 @@
-# BleGod: Next-Gen Asset Tracking System
+# BleX: Next-Gen Asset Tracking System
 
-BleGod is a comprehensive, proximity-based asset tracking solution designed for industrial and commercial environments. It integrates Android tablets as central hubs/brokers with edge scanner nodes (Raspberry Pi/ESP32) to provide real-time visibility into asset locations and status.
+BleX is a comprehensive, proximity-based asset tracking solution designed for industrial and commercial environments. It integrates Android tablets as central hubs/brokers with edge scanner nodes (Raspberry Pi/ESP32) to provide real-time visibility into asset locations and status.
 
 ## 🚀 System Architecture
 

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BleGod"
+rootProject.name = "BleX"
 include(":app")

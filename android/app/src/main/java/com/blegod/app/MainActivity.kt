@@ -45,7 +45,7 @@ import com.blegod.app.ui.screens.configurator.AssetsTab
 import com.blegod.app.ui.screens.configurator.HotspotTab
 import com.blegod.app.ui.screens.configurator.ScannersTab
 import com.blegod.app.ui.screens.configurator.ZonesTab
-import com.blegod.app.ui.theme.BleGodTheme
+import com.blegod.app.ui.theme.BleXTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -154,7 +154,7 @@ class MainActivity : ComponentActivity() {
 
         // Set up Compose UI
         setContent {
-            BleGodTheme {
+            BleXTheme {
                 BleGodNavHost()
             }
         }

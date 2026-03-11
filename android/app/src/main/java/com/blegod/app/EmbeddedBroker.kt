@@ -18,7 +18,7 @@ import java.util.Properties
 class EmbeddedBroker(private val context: Context) {
 
     companion object {
-        private const val TAG = "BleGod.Broker"
+        private const val TAG = "BleX.Broker"
     }
 
     private var server: Server? = null

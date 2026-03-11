@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class MqttBridge(private val context: Context) {
 
     companion object {
-        private const val TAG = "BleGod.Bridge"
+        private const val TAG = "BleX.Bridge"
         private const val MAX_QUEUE_SIZE = 1000
     }
 
@@ -92,7 +92,7 @@ class MqttBridge(private val context: Context) {
         val localUrl = "tcp://127.0.0.1:${settings.brokerPort}"
         log(LogLevel.INFO, "Connecting to local broker: $localUrl")
 
-        localClient = MqttAsyncClient(localUrl, "blegod-bridge-local", MemoryPersistence())
+        localClient = MqttAsyncClient(localUrl, "blex-bridge-local", MemoryPersistence())
         localClient?.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String?) {
                 isLocalConnected = true
@@ -143,7 +143,7 @@ class MqttBridge(private val context: Context) {
         log(LogLevel.INFO, "Connecting to remote: $remoteUrl")
 
         if (remoteClient == null) {
-            remoteClient = MqttAsyncClient(remoteUrl, "blegod-bridge-remote", MemoryPersistence())
+            remoteClient = MqttAsyncClient(remoteUrl, "blex-bridge-remote", MemoryPersistence())
         }
         
         remoteClient?.setCallback(object : MqttCallbackExtended {

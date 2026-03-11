@@ -31,7 +31,7 @@ val InterFontFamily = FontFamily(
 )
 
 // ── Custom Typography ───────────────────────────────────────────
-private val BleGodTypography = Typography().let { base ->
+private val BleXTypography = Typography().let { base ->
     Typography(
         displayLarge = base.displayLarge.copy(fontFamily = InterFontFamily),
         displayMedium = base.displayMedium.copy(fontFamily = InterFontFamily),
@@ -52,13 +52,13 @@ private val BleGodTypography = Typography().let { base ->
 }
 
 /**
- * BleGod Theme — Material You with:
+ * BleX Theme — Material You with:
  *  - Dynamic wallpaper-based colors
  *  - Google Fonts (Inter) for premium typography
  *  - Respects user dark/light mode preference
  */
 @Composable
-fun BleGodTheme(
+fun BleXTheme(
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -79,7 +79,7 @@ fun BleGodTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = BleGodTypography,
+        typography = BleXTypography,
         content = content
     )
 }

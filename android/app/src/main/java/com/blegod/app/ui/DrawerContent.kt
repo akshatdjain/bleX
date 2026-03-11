@@ -53,7 +53,7 @@ fun DrawerContent(
             )
             Spacer(Modifier.width(12.dp))
             Text(
-                "BleGod",
+                "BleX",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -112,7 +112,7 @@ fun DrawerContent(
 
             // ── Footer ─────────────────────────
             Text(
-                "v3.0.1",
+                "v3.0.3",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier
