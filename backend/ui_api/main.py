@@ -114,7 +114,18 @@ async def get_vite_icon():
         return FileResponse("www/vite.svg")
     return JSONResponse({"detail": "Not Found"}, status_code=404)
 
-# 3. Catch-all: for ANY other path, return index.html (SPA logic)
+# 3. Explicit root route (for http://address:port/)
+@app.get("/")
+async def get_root():
+    index_path = os.path.join("www", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return JSONResponse(
+        {"detail": f"Root index.html not found. CWD={os.getcwd()}"},
+        status_code=404
+    )
+
+# 4. Catch-all: for ANY other path, return index.html (SPA logic)
 @app.get("/{full_path:path}")
 async def serve_spa(full_path: str):
     # If the path starts with "api", we shouldn't have hit this anyway if routes are correct,
@@ -127,6 +138,6 @@ async def serve_spa(full_path: str):
         return FileResponse(index_path)
     
     return JSONResponse(
-        {"detail": f"UI folder 'www' or 'index.html' not found. path={full_path}"},
+        {"detail": f"UI path '{full_path}' not found and no index.html backup. CWD={os.getcwd()}"},
         status_code=404
     )
