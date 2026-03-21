@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,7 @@ import com.blegod.app.data.SettingsManager
  *
  * If apiBaseUrl is empty, shows a helpful "not configured" placeholder.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun DashboardWebScreen() {
@@ -45,11 +48,15 @@ fun DashboardWebScreen() {
     }
 
     var isLoading by remember { mutableStateOf(true) }
+    var isRefreshing by remember { mutableStateOf(false) }
     var hasError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
+
+    val pullToRefreshState = rememberPullToRefreshState()
 
     if (url == null) {
-        // API URL not configured yet — show setup instructions
+        // ... (unconfigured state)
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -113,6 +120,7 @@ fun DashboardWebScreen() {
                 Button(onClick = {
                     hasError = false
                     isLoading = true
+                    webViewRef?.reload()
                 }) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
@@ -120,56 +128,70 @@ fun DashboardWebScreen() {
                 }
             }
         } else {
-            // WebView
-            var webViewRef by remember { mutableStateOf<WebView?>(null) }
-
-            AndroidView(
-                factory = { ctx ->
-                    WebView(ctx).apply {
-                        this.settings.apply {
-                            javaScriptEnabled = true
-                            domStorageEnabled = true
-                            loadWithOverviewMode = true
-                            useWideViewPort = true
-                            builtInZoomControls = false
-                            displayZoomControls = false
-                            // Allow mixed content (HTTP assets from HTTPS page, common on LAN)
-                            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                        }
-
-                        webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url2: String?) {
-                                isLoading = false
-                            }
-
-                            override fun onReceivedError(
-                                view: WebView?,
-                                request: WebResourceRequest?,
-                                error: WebResourceError?
-                            ) {
-                                // Only trigger error UI for the main frame
-                                if (request?.isForMainFrame == true) {
-                                    isLoading = false
-                                    hasError = true
-                                    errorMessage = error?.description?.toString() ?: ""
-                                }
-                            }
-                        }
-                        loadUrl(url)
-                        webViewRef = this
-                    }
-                },
-                update = { webView ->
-                    // Re-load if URL changed (e.g. user updated settings and came back)
-                    webViewRef = webView
+            // WebView + Swipe Refresh
+            PullToRefreshBox(
+                state = pullToRefreshState,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    isRefreshing = true
+                    webViewRef?.reload()
                 },
                 modifier = Modifier.fillMaxSize()
-            )
+            ) {
+                AndroidView(
+                    factory = { ctx ->
+                        WebView(ctx).apply {
+                            this.settings.apply {
+                                javaScriptEnabled = true
+                                domStorageEnabled = true
+                                loadWithOverviewMode = true
+                                useWideViewPort = true
+                                builtInZoomControls = false
+                                displayZoomControls = false
+                                // Allow mixed content (HTTP assets from HTTPS page, common on LAN)
+                                mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                            }
+
+                            webViewClient = object : WebViewClient() {
+                                override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+                                    // Don't show overlay spinner if we are already showing pull-to-refresh
+                                    if (!isRefreshing) isLoading = true
+                                }
+
+                                override fun onPageFinished(view: WebView?, url2: String?) {
+                                    isLoading = false
+                                    isRefreshing = false
+                                }
+
+                                override fun onReceivedError(
+                                    view: WebView?,
+                                    request: WebResourceRequest?,
+                                    error: WebResourceError?
+                                ) {
+                                    // Only trigger error UI for the main frame
+                                    if (request?.isForMainFrame == true) {
+                                        isLoading = false
+                                        isRefreshing = false
+                                        hasError = true
+                                        errorMessage = error?.description?.toString() ?: ""
+                                    }
+                                }
+                            }
+                            loadUrl(url)
+                            webViewRef = this
+                        }
+                    },
+                    update = { webView ->
+                        webViewRef = webView
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
 
-        // Loading spinner overlay
+        // Loading spinner overlay (only for initial load, not for pull-to-refresh)
         AnimatedVisibility(
-            visible = isLoading && !hasError,
+            visible = isLoading && !hasError && !isRefreshing,
             enter = fadeIn(),
             exit = fadeOut(),
             modifier = Modifier.align(Alignment.Center)
