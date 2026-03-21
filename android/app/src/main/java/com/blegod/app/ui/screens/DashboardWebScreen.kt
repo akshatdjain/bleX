@@ -34,10 +34,10 @@ import com.blegod.app.data.SettingsManager
 @Composable
 fun DashboardWebScreen() {
     val context = LocalContext.current
-    val settings = remember { SettingsManager.getInstance(context) }
+    val appSettings = remember { SettingsManager.getInstance(context) }
 
     // Build the URL to load — use apiBaseUrl directly (it already includes host + port)
-    val rawUrl = settings.apiBaseUrl.trim()
+    val rawUrl = appSettings.apiBaseUrl.trim()
     val url = when {
         rawUrl.isEmpty() -> null
         rawUrl.startsWith("http://") || rawUrl.startsWith("https://") -> rawUrl
@@ -126,15 +126,16 @@ fun DashboardWebScreen() {
             AndroidView(
                 factory = { ctx ->
                     WebView(ctx).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        settings.loadWithOverviewMode = true
-                        settings.useWideViewPort = true
-                        settings.builtInZoomControls = false
-                        settings.displayZoomControls = false
-                        // Allow mixed content (HTTP assets from HTTPS page, common on LAN)
-                        settings.mixedContentMode =
-                            android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        this.settings.apply {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            loadWithOverviewMode = true
+                            useWideViewPort = true
+                            builtInZoomControls = false
+                            displayZoomControls = false
+                            // Allow mixed content (HTTP assets from HTTPS page, common on LAN)
+                            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        }
 
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView?, url2: String?) {
