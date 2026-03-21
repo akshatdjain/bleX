@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -102,4 +103,30 @@ app.include_router(health.router,        prefix="/api")
 app.include_router(notifications.router, prefix="/api")
 
 # SERVE UI (built Vite dist goes in www/)
-app.mount("/", StaticFiles(directory="www", html=True), name="ui")
+# 1. First, serve the static assets folder explicitly
+if os.path.exists("www/assets"):
+    app.mount("/assets", StaticFiles(directory="www/assets"), name="assets")
+
+# 2. Add an explicit route for manifest/vite icons if they exist
+@app.get("/vite.svg")
+async def get_vite_icon():
+    if os.path.exists("www/vite.svg"):
+        return FileResponse("www/vite.svg")
+    return JSONResponse({"detail": "Not Found"}, status_code=404)
+
+# 3. Catch-all: for ANY other path, return index.html (SPA logic)
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    # If the path starts with "api", we shouldn't have hit this anyway if routes are correct,
+    # but let's be safe and only serve HTML for non-API requests or the root.
+    if full_path.startswith("api"):
+        return JSONResponse({"detail": "Not Found"}, status_code=404)
+        
+    index_path = os.path.join("www", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    
+    return JSONResponse(
+        {"detail": f"UI folder 'www' or 'index.html' not found. path={full_path}"},
+        status_code=404
+    )
