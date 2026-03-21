@@ -205,7 +205,7 @@ class SettingsManager(context: Context) {
     // ── API Configuration ────────────────────────────────────────
 
     var apiBaseUrl: String
-        get() = prefs.getString("api_base_url", "") ?: ""
+        get() = prefs.getString("api_base_url", "http://93.127.206.7:9000") ?: "http://93.127.206.7:9000"
         set(value) = prefs.edit().putString("api_base_url", value).apply()
 
     // ── Zone Persistence ─────────────────────────────────────────

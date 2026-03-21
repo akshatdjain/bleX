@@ -38,6 +38,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.blegod.app.data.SettingsManager
 import com.blegod.app.ui.DrawerContent
+import com.blegod.app.ui.screens.DashboardWebScreen
 import com.blegod.app.ui.screens.LogScreen
 import com.blegod.app.ui.screens.ScannerScreen
 import com.blegod.app.ui.screens.SettingsScreen
@@ -319,23 +320,27 @@ fun BleGodNavHost() {
                                     currentRoute == "scanner" -> "Dashboard"
                                     currentRoute == "settings" || currentRoute.startsWith("settings/") -> "Settings"
                                     currentRoute == "logs" -> "Logs"
+                                    currentRoute == "webdashboard" -> "Web Dashboard"
                                     else -> "BleGod"
                                 }
                             )
                         }
                     },
                     navigationIcon = {
+                        val isTopLevel = currentRoute == "scanner" ||
+                            currentRoute == "settings" ||
+                            currentRoute == "logs" ||
+                            currentRoute == "webdashboard" ||
+                            currentRoute.startsWith("config/")
                         IconButton(onClick = {
-                            if (currentRoute != "scanner" && currentRoute != "settings" && currentRoute != "logs" && !currentRoute.startsWith("config/")) {
+                            if (!isTopLevel) {
                                 navController.popBackStack()
                             } else {
                                 scope.launch { drawerState.open() }
                             }
                         }) {
                             Icon(
-                                if (currentRoute == "scanner" || currentRoute == "settings" || currentRoute == "logs" || currentRoute.startsWith("config/"))
-                                    Icons.Default.Menu
-                                else Icons.Default.ArrowBack,
+                                if (isTopLevel) Icons.Default.Menu else Icons.Default.ArrowBack,
                                 contentDescription = "Navigation"
                             )
                         }
@@ -405,6 +410,7 @@ fun BleGodNavHost() {
                 composable("config/zones") { ZonesTab() }
                 composable("config/assets") { AssetsTab() }
                 composable("logs") { LogScreen() }
+                composable("webdashboard") { DashboardWebScreen() }
             }
         }
     }

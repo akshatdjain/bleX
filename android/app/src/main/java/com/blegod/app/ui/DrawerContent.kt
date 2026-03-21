@@ -97,6 +97,16 @@ fun DrawerContent(
                 onClick = { onNavigate("config/hotspot") }
             )
 
+            Spacer(Modifier.height(4.dp))
+
+            // ── Web Dashboard ────────────────────
+            DrawerItem(
+                icon = Icons.Default.Language,
+                label = "Web Dashboard",
+                selected = currentRoute == "webdashboard",
+                onClick = { onNavigate("webdashboard") }
+            )
+
             // ── Logs (conditional) ──────────────
             if (logsVisible) {
                 Spacer(Modifier.height(4.dp))
