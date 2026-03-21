@@ -533,6 +533,7 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
     var remoteCaCertUri by remember { mutableStateOf(settings.remoteCaCertUri) }
     var bridgeTopicFilter by remember { mutableStateOf(settings.bridgeTopicFilter) }
     var apiBaseUrl by remember { mutableStateOf(settings.apiBaseUrl) }
+    var webDashboardUrl by remember { mutableStateOf(settings.webDashboardUrl) }
     var upstreamPublishInterval by remember { mutableStateOf(settings.upstreamPublishIntervalS.toString()) }
 
     // Auto-save text fields on panel exit
@@ -545,13 +546,27 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
             settings.remoteCaCertUri = remoteCaCertUri
             settings.bridgeTopicFilter = bridgeTopicFilter
             settings.apiBaseUrl = apiBaseUrl
+            settings.webDashboardUrl = webDashboardUrl
             settings.upstreamPublishIntervalS = upstreamPublishInterval.toIntOrNull() ?: 0
             onSaved()
         }
     }
 
+    // ── Web Dashboard Configuration ─────────────────────
+    SectionDivider("Dashboard Configuration")
+
+    SettingTextFieldItem(
+        value = webDashboardUrl, onValueChange = { webDashboardUrl = it },
+        label = "Web Dashboard URL",
+        icon = Icons.Default.Dashboard,
+        isTop = true, isBottom = true,
+        supportingText = { Text("The URL loaded by the 'Web Dashboard' drawer item") }
+    )
+
+    Spacer(Modifier.height(4.dp))
+
     // ── API Base URL (for Configurator) ────────────────────
-    SectionDivider("API Endpoint")
+    SectionDivider("Scanner API Endpoint")
 
     SettingTextFieldItem(
         value = apiBaseUrl, onValueChange = { apiBaseUrl = it },

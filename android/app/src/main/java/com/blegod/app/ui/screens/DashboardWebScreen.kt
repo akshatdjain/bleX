@@ -36,8 +36,8 @@ fun DashboardWebScreen() {
     val context = LocalContext.current
     val appSettings = remember { SettingsManager.getInstance(context) }
 
-    // Build the URL to load — use apiBaseUrl directly (it already includes host + port)
-    val rawUrl = appSettings.apiBaseUrl.trim()
+    // Build the URL to load — use webDashboardUrl specifically
+    val rawUrl = appSettings.webDashboardUrl.trim()
     val url = when {
         rawUrl.isEmpty() -> null
         rawUrl.startsWith("http://") || rawUrl.startsWith("https://") -> rawUrl
@@ -66,13 +66,13 @@ fun DashboardWebScreen() {
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Dashboard URL not configured",
+                    "Web Dashboard URL not configured",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Go to Settings → API Base URL and enter your server address " +
-                    "(e.g. http://192.168.1.100:8001) to load the web dashboard.",
+                    "Go to Settings → Remote Server → Web Dashboard URL and enter your server address " +
+                    "(e.g. http://93.127.206.7:9000) to load the UI.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline,
                     textAlign = TextAlign.Center
