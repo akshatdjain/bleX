@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 215 25% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 17%;
+
+    --primary: 173 58% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 18% 93%;
+    --secondary-foreground: 215 25% 27%;
+
+    --muted: 210 14% 95%;
+    --muted-foreground: 215 13% 50%;
+
+    --accent: 173 40% 92%;
+    --accent-foreground: 173 58% 25%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 173 58% 39%;
+
+    --radius: 0.625rem;
+
+    /* Custom tokens */
+    --surface-elevated: 0 0% 100%;
+    --teal-glow: 173 58% 39%;
+    --status-active: 152 60% 42%;
+    --status-idle: 38 92% 50%;
+    --status-offline: 0 0% 65%;
+
+    --sidebar-background: 215 25% 15%;
+    --sidebar-foreground: 210 14% 83%;
+    --sidebar-primary: 173 58% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 20% 20%;
+    --sidebar-accent-foreground: 210 14% 83%;
+    --sidebar-border: 215 18% 22%;
+    --sidebar-ring: 173 58% 39%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Subtle page gradient */
+  #root {
+    min-height: 100vh;
+    background: linear-gradient(
+      168deg,
+      hsl(210 20% 98%) 0%,
+      hsl(190 18% 96%) 40%,
+      hsl(210 20% 97%) 100%
+    );
+  }
+}
+
+@layer utilities {
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}

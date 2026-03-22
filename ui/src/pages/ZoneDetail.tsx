@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useZone } from "@/hooks/use-api";
 import { BeaconIcon } from "@/components/BeaconIcon";
+import { inferShapeFromName } from "@/lib/data";
 import { StatusDot } from "@/components/StatusDot";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -76,7 +77,7 @@ export default function ZoneDetail() {
               style={{ animationDelay: `${i * 60}ms` }}
             >
               <CardContent className="p-4 flex items-center gap-4">
-                <BeaconIcon shape={asset.shape} status={asset.status} size={36} />
+                <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={36} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium truncate">{asset.name}</span>

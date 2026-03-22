@@ -26,7 +26,7 @@ async function post<T>(path: string, body?: unknown): Promise<T> {
 }
 
 // ------------------------------------------------------------------ types --
-export type BeaconShape = "triangle" | "card" | "pebble";
+export type BeaconShape = "oval" | "badge" | "card";
 export type AssetStatus = "active" | "idle" | "offline";
 export type ScannerStatus = "online" | "offline" | "unknown";
 export type NotificationPriority = "high" | "medium" | "low";

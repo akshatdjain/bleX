@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useAsset, useAssetHistory } from "@/hooks/use-api";
 import { BeaconIcon } from "@/components/BeaconIcon";
+import { inferShapeFromName } from "@/lib/data";
 import { StatusDot } from "@/components/StatusDot";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,14 +51,14 @@ export default function AssetDetail() {
         <Link to="/assets" className="rounded-md p-1.5 hover:bg-muted transition-colors">
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <BeaconIcon shape={asset.shape} status={asset.status} size={40} />
+        <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={40} />
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-lg font-semibold">{asset.name}</h1>
             <StatusDot status={asset.status} className="relative" />
           </div>
           <p className="text-xs text-muted-foreground capitalize">
-            {asset.shape} beacon · {asset.status}
+            {inferShapeFromName(asset.name)} beacon · {asset.status}
           </p>
         </div>
       </div>
