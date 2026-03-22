@@ -15,12 +15,6 @@ import {
 import { ScannerSheet } from "@/components/ScannerSheet";
 import type { Scanner } from "@/lib/api";
 
-function abbreviate(name: string): string {
-  const words = name.replace(/#/g, "").trim().split(/\s+/);
-  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
-  return words.map((w) => w[0]).join("").toUpperCase().slice(0, 3);
-}
-
 interface ZoneCardProps {
   zone: Zone;
   index: number;
@@ -125,7 +119,7 @@ export function ZoneCard({ zone, index }: ZoneCardProps) {
                               "text-[11px] font-bold leading-none tracking-wide",
                               asset.status === "offline" ? "text-muted-foreground" : "text-foreground"
                             )}>
-                              {abbreviate(asset.name)}
+                              {asset.name}
                             </span>
                             <span className="text-[9px] text-muted-foreground tabular-nums leading-none mt-1 uppercase opacity-80">
                               {asset.last_seen_relative}
