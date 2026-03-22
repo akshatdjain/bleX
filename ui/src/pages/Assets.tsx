@@ -1,4 +1,5 @@
 import { useAssets } from "@/hooks/use-api";
+import { inferShapeFromName } from "@/lib/data";
 import { Card, CardContent } from "@/components/ui/card";
 import { BeaconIcon } from "@/components/BeaconIcon";
 import { StatusDot } from "@/components/StatusDot";
@@ -30,7 +31,7 @@ export default function Assets() {
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <CardContent className="p-4 flex items-center gap-3">
-                    <BeaconIcon shape={asset.shape} status={asset.status} size={32} />
+                    <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={32} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium truncate">{asset.name}</span>
