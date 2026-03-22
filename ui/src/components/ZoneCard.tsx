@@ -106,19 +106,28 @@ export function ZoneCard({ zone, index }: ZoneCardProps) {
                             navigate(`/assets/${asset.id}`);
                           }}
                           className={cn(
-                            "flex items-center gap-2 rounded-lg px-2.5 py-1.5",
-                            "bg-muted/70 hover:bg-muted border border-border/50",
-                            "transition-colors duration-150",
+                            "flex items-center gap-2 rounded-xl px-2.5 py-1.5",
+                            "bg-transparent border",
+                            "transition-all duration-200",
                             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                            "active:scale-[0.97] transition-transform duration-100"
+                            "active:scale-[0.97]",
+                            // Status-based colors and borders
+                            asset.status === "active" 
+                              ? "border-status-active/30 bg-status-active/5 hover:bg-status-active/10" 
+                              : asset.status === "offline"
+                              ? "border-muted-foreground/20 hover:bg-muted/50 text-muted-foreground"
+                              : "border-border/50 hover:bg-muted/50"
                           )}
                         >
-                          <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={22} />
-                          <div className="text-left">
-                            <span className="text-xs font-medium leading-none text-foreground block">
+                          <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={18} />
+                          <div className="flex flex-col text-left">
+                            <span className={cn(
+                              "text-[11px] font-bold leading-none tracking-wide",
+                              asset.status === "offline" ? "text-muted-foreground" : "text-foreground"
+                            )}>
                               {abbreviate(asset.name)}
                             </span>
-                            <span className="text-[10px] text-muted-foreground tabular-nums leading-none mt-0.5 block">
+                            <span className="text-[9px] text-muted-foreground tabular-nums leading-none mt-1 uppercase opacity-80">
                               {asset.last_seen_relative}
                             </span>
                           </div>
