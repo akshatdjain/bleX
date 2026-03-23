@@ -122,7 +122,7 @@ fun DrawerContent(
 
             // ── Footer ─────────────────────────
             Text(
-                "v3.0.3",
+                "v3.0.5",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier

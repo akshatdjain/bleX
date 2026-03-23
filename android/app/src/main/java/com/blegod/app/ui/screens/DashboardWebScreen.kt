@@ -13,8 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,8 +50,6 @@ fun DashboardWebScreen() {
     var hasError by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var webViewRef by remember { mutableStateOf<WebView?>(null) }
-
-    val pullToRefreshState = rememberPullToRefreshState()
 
     if (url == null) {
         // ... (unconfigured state)
@@ -128,19 +124,16 @@ fun DashboardWebScreen() {
                 }
             }
         } else {
-            // WebView + Swipe Refresh
-            PullToRefreshBox(
-                state = pullToRefreshState,
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    isRefreshing = true
-                    webViewRef?.reload()
-                },
-                modifier = Modifier.fillMaxSize()
-            ) {
-                AndroidView(
-                    factory = { ctx ->
-                        WebView(ctx).apply {
+            // WebView wrapped in native SwipeRefreshLayout for flawless swipe-to-refresh
+            AndroidView(
+                factory = { ctx ->
+                    androidx.swiperefreshlayout.widget.SwipeRefreshLayout(ctx).apply {
+                        setOnRefreshListener {
+                            isRefreshing = true
+                            webViewRef?.reload()
+                        }
+                        
+                        val webView = WebView(ctx).apply {
                             this.settings.apply {
                                 javaScriptEnabled = true
                                 domStorageEnabled = true
@@ -178,15 +171,16 @@ fun DashboardWebScreen() {
                                 }
                             }
                             loadUrl(url)
-                            webViewRef = this
                         }
-                    },
-                    update = { webView ->
                         webViewRef = webView
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+                        addView(webView)
+                    }
+                },
+                update = { swipeLayout ->
+                    swipeLayout.isRefreshing = isRefreshing
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         // Loading spinner overlay (only for initial load, not for pull-to-refresh)

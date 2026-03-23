@@ -262,7 +262,7 @@ fun BleGodNavHost() {
                 }
             )
         },
-        gesturesEnabled = true
+        gesturesEnabled = currentRoute != "webdashboard"
     ) {
         Scaffold(
             topBar = {
