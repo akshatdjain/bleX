@@ -12,6 +12,7 @@ import redis
 from config import (
     REDIS_HOST,
     REDIS_PORT,
+    REDIS_PASSWORD,
     REDIS_ZONE_QUEUE_KEY,
     API_URL,
     API_TIMEOUT,
@@ -21,11 +22,15 @@ from config import (
 # -------------------------------------------------
 # REDIS SETUP
 # -------------------------------------------------
-redis_client = redis.Redis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    decode_responses=True,
-)
+redis_kwargs = {
+    "host": REDIS_HOST,
+    "port": REDIS_PORT,
+    "decode_responses": True,
+}
+if REDIS_PASSWORD:
+    redis_kwargs["password"] = REDIS_PASSWORD
+
+redis_client = redis.Redis(**redis_kwargs)
 
 # -------------------------------------------------
 # MAIN LOOP
