@@ -535,6 +535,9 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
     var apiBaseUrl by remember { mutableStateOf(settings.apiBaseUrl) }
     var webDashboardUrl by remember { mutableStateOf(settings.webDashboardUrl) }
     var upstreamPublishInterval by remember { mutableStateOf(settings.upstreamPublishIntervalS.toString()) }
+    var remoteClientId by remember { mutableStateOf(settings.remoteClientId) }
+    var remoteKeepAlive by remember { mutableStateOf(settings.mqttKeepAlive.toString()) }
+    var remoteTimeout by remember { mutableStateOf(settings.mqttConnectionTimeout.toString()) }
 
     // Auto-save text fields on panel exit
     DisposableEffect(Unit) {
@@ -548,6 +551,9 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
             settings.apiBaseUrl = apiBaseUrl
             settings.webDashboardUrl = webDashboardUrl
             settings.upstreamPublishIntervalS = upstreamPublishInterval.toIntOrNull() ?: 0
+            settings.remoteClientId = remoteClientId
+            settings.mqttKeepAlive = remoteKeepAlive.toIntOrNull() ?: 30
+            settings.mqttConnectionTimeout = remoteTimeout.toIntOrNull() ?: 10
             onSaved()
         }
     }
@@ -626,8 +632,30 @@ private fun RemoteServerPanel(settings: SettingsManager, onSaved: () -> Unit) {
         value = remotePassword, onValueChange = { remotePassword = it },
         label = "Remote Password",
         icon = Icons.Default.Key,
-        isTop = false, isBottom = true,
+        isTop = false, isBottom = false,
         visualTransformation = PasswordVisualTransformation()
+    )
+    SettingTextFieldItem(
+        value = remoteClientId, onValueChange = { remoteClientId = it },
+        label = "Remote Client ID",
+        icon = Icons.Default.Badge,
+        isTop = false, isBottom = false,
+        supportingText = { Text("Unique ID for this device (e.g. tablet-1)") }
+    )
+    SettingTextFieldItem(
+        value = remoteKeepAlive, onValueChange = { remoteKeepAlive = it.filter { c -> c.isDigit() } },
+        label = "Keep Alive (seconds)",
+        icon = Icons.Default.SyncAlt,
+        isTop = false, isBottom = false,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        supportingText = { Text("Frequency of heartbeat packets (default: 30)") }
+    )
+    SettingTextFieldItem(
+        value = remoteTimeout, onValueChange = { remoteTimeout = it.filter { c -> c.isDigit() } },
+        label = "Connection Timeout (seconds)",
+        icon = Icons.Default.Timer,
+        isTop = false, isBottom = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
     )
 
     // CA Certificate picker (when TLS enabled)

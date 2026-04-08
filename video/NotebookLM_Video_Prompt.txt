@@ -1,0 +1,126 @@
+# NotebookLM Prompt for "BleX Smart School" Showcase
+
+### **How to use:**
+1. Upload the 'BleX_School_Knowledge_Base.md' file to a new NotebookLM notebook.
+2. Paste the following prompt into the chat box to generate your script/podcast.
+
+---
+
+### **The Prompt:**
+> You are a premium video script writer tasked with creating a high-impact demonstration video script for "BleX Smart School" — a BLE-based attendance and child safety system. This script will be used to produce a video presented to three distinct audiences: (1) Internal Demo Team, (2) Parents, and (3) School Administrators.
+> 
+> **YOUR TASK:**
+> Using the knowledge base document provided, create a complete video script in a premium, trustworthy, Apple-product-launch style. The script should feel polished, sophisticated, and inspiring — evoking confidence and innovation.
+> 
+> ---
+> 
+> ## **SCRIPT STRUCTURE REQUIREMENTS:**
+> 
+> Break the video into **timed segments** (e.g., 0:00-0:15, 0:15-0:45, etc.) with a total runtime of approximately **3-4 minutes**.
+> 
+> For each segment, provide:
+> 
+> 1. **TIMECODE** — Start and end time for the segment
+> 2. **VISUAL DESCRIPTION** — Detailed scene-by-scene breakdown including:
+>    - Camera movements (pan, zoom, dolly, overhead shots, close-ups)
+>    - Specific animation ideas (UI popups, notification pings, glowing auras around BLE cards, split screens, dynamic map views, heat maps, room transitions, graph animations, loading bars, checkmarks, smooth transitions)
+>    - On-screen graphics (bold headlines, feature callouts, statistics, icons)
+>    - Color palette suggestions (modern blues, whites, accent oranges/greens for alerts and confirmations)
+> 3. **VOICEOVER (VO)** — The exact narration to be spoken, written in a confident, warm, and authoritative tone
+> 4. **ON-SCREEN TEXT** — Key phrases, feature names, or value propositions that appear as text overlays synchronized with the voiceover
+> 5. **AUDIENCE FOCUS** — Indicate which audience(s) this segment primarily addresses: [Demo Team], [Parents], [Admins], or [All]
+> 
+> ---
+> 
+> ## **CONTENT REQUIREMENTS:**
+> 
+> ### **Core Features to Highlight:**
+> 
+> 1. **Rugged Waterproof ID Cards**
+>    - BLE beacons with 4-year battery life
+>    - PC/ABS blend material, IP67-rated
+>    - Compact, durable, child-safe design
+> 
+> 2. **Entry/Exit Detection**
+>    - Automated detection when child enters or leaves the school premises
+>    - Real-time push notifications sent instantly to parent mobile app
+>    - Timestamped logs with location
+> 
+> 3. **Room-Level Automated Attendance**
+>    - Teacher's app captures attendance in under 10 seconds
+>    - Proximity-based detection as students enter classroom
+>    - Zero paperwork, zero manual roll calls
+> 
+> 4. **Geofencing & Restricted Zone Alerts**
+>    - Virtual boundaries around sensitive or hazardous areas
+>    - Instant alerts to administrators and parents if a child enters restricted zones
+>    - Visual map overlays showing zones and live child location
+> 
+> 5. **Dual-Lock Security / Proof of Life**
+>    - Prevents proxy attendance (e.g., one child carrying another's card)
+>    - Options: biometric verification (fingerprint/face) or dynamic session UUIDs that refresh every entry
+>    - Multi-factor assurance for child's actual presence
+> 
+> ---
+> 
+> ### **Value Propositions by Audience:**
+> 
+> #### **For Parents:**
+> - **Peace of mind**: Real-time notifications when child arrives/leaves school safely
+> - **Transparency**: Always know where your child is during school hours
+> - **Safety**: Instant alerts if child enters a restricted or unsafe area
+> - **Ease**: One app, zero friction, 24/7 access to logs
+> 
+> #### **For School Administrators:**
+> - **Automation**: Zero-paperwork attendance, reducing admin workload by 80%+
+> - **Compliance**: Accurate, timestamped records for audits and regulatory requirements
+> - **Safety Management**: Proactive geofencing and alerts for restricted areas
+> - **Scalability**: Works seamlessly for 50 students or 5,000+
+> 
+> #### **For Internal Demo Team:**
+> - **Technical Robustness**: BLE 5.3, low-energy architecture, 4-year battery life
+> - **Reliability**: IP67 waterproof, drop-tested, child-proof
+> - **Security**: Dual-lock anti-proxy technology with biometric or UUID-based verification
+> - **Infrastructure**: Cloud-synced, real-time data pipeline, sub-second latency
+> 
+> ---
+> 
+> ## **VISUAL & TONAL GUIDELINES:**
+> 
+> - **Tone**: Premium, trustworthy, innovative, human-centered (like Apple, Google Pixel, or Rivian product launches)
+> - **Pacing**: Smooth and confident—not rushed, but purposeful
+> - **Music Suggestions**: Subtle, uplifting, modern electronic or orchestral underscore
+> - **Transitions**: Use clean fades, smooth wipes, morph cuts, and match cuts between scenes
+> - **Graphics**: Minimalist UI design, bold sans-serif fonts, high contrast, ample white space
+> 
+> ---
+> 
+> ## **EXAMPLE SEGMENT FORMAT:**
+> 
+> **[0:00 - 0:15] — OPENING / HOOK**
+> 
+> **VISUAL:**  
+> Fade in from black. Aerial drone shot of a modern school campus at sunrise. Slow zoom toward the main entrance. Children with backpacks walk toward school. Smooth transition to close-up of a sleek, compact BLE Smart ID card in a child's hand — glowing subtle blue aura around it.
+> 
+> **VO:**  
+> "Every morning, thousands of children walk through school gates. But how do you ensure they're safe, accounted for, and exactly where they should be — in real time?"
+> 
+> **ON-SCREEN TEXT:**  
+> "BleX Smart School"  
+> "Safety. Simplified."
+> 
+> **AUDIENCE FOCUS:** [All]
+> 
+> ---
+> 
+> ## **DELIVERABLE:**
+> 
+> Provide a complete video script with 8-12 segments covering:
+> - Introduction/Hook
+> - Problem Statement (current gaps in attendance & safety)
+> - Solution Introduction (BleX Smart School overview)
+> - Feature Deep-Dives (ID Cards, Entry/Exit, Attendance, Geofencing, Dual-Lock)
+> - Audience-Specific Value Props (Parents, Admins, Demo Team)
+> - Call to Action / Closing
+> 
+> Ensure each segment is meticulously detailed with visual styling (animations, UI mockups, lighting), voiceover, on-screen text, and audience targeting. Make it feel like a world-class product reveal.

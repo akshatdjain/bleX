@@ -143,7 +143,8 @@ class MqttBridge(private val context: Context) {
         log(LogLevel.INFO, "Connecting to remote: $remoteUrl")
 
         if (remoteClient == null) {
-            remoteClient = MqttAsyncClient(remoteUrl, "blex-bridge-remote", MemoryPersistence())
+            val clientId = settings.remoteClientId.ifEmpty { "blex-bridge-remote" }
+            remoteClient = MqttAsyncClient(remoteUrl, clientId, MemoryPersistence())
         }
         
         remoteClient?.setCallback(object : MqttCallbackExtended {
@@ -165,8 +166,8 @@ class MqttBridge(private val context: Context) {
         val opts = MqttConnectOptions().apply {
             isCleanSession = true
             isAutomaticReconnect = true
-            connectionTimeout = 15
-            keepAliveInterval = 30
+            connectionTimeout = settings.mqttConnectionTimeout
+            keepAliveInterval = settings.mqttKeepAlive
             if (settings.remoteUsername.isNotEmpty()) {
                 userName = settings.remoteUsername
                 password = settings.remotePassword.toCharArray()

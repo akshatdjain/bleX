@@ -3,11 +3,11 @@ Zone CRUD + zone-scanner assignment endpoints.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
-from models import MstZone, MstZoneScanner, MstScanner
+from models import MstZone, MstZoneScanner, MstScanner, MstAsset, MovementLog
 from schemas import ZoneIn, ZoneScannerIn
 from events import notify_zone_map_changed
 
@@ -64,9 +64,30 @@ async def update_zone(zone_id: int, payload: ZoneIn, db: AsyncSession = Depends(
 
 @router.delete("/{zone_id}")
 async def delete_zone(zone_id: int, db: AsyncSession = Depends(get_db)):
+    # 1. Clear associations in MstZoneScanner
     await db.execute(
         delete(MstZoneScanner).where(MstZoneScanner.mst_zone_id == zone_id)
     )
+
+    # 2. Nullify current_zone_id in MstAsset
+    await db.execute(
+        update(MstAsset)
+        .where(MstAsset.current_zone_id == zone_id)
+        .values(current_zone_id=None)
+    )
+
+    # 3. Nullify from_zone_id and to_zone_id in MovementLog
+    await db.execute(
+        update(MovementLog)
+        .where(MovementLog.from_zone_id == zone_id)
+        .values(from_zone_id=None)
+    )
+    await db.execute(
+        update(MovementLog)
+        .where(MovementLog.to_zone_id == zone_id)
+        .values(to_zone_id=None)
+    )
+
     result = await db.execute(select(MstZone).where(MstZone.id == zone_id))
     zone = result.scalars().first()
     if not zone:

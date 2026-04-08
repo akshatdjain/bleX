@@ -17,11 +17,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Header */}
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
         <div className="container flex h-14 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <Radio className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="text-base font-semibold tracking-tight">bleX</span>
+          <Link to="/" className="flex items-center gap-1.5 group">
+            <img
+              src="/sigmatic_logo_teal.png"
+              alt="Sigmatic"
+              className="h-7 w-auto"
+            />
+            <span className="text-base font-semibold tracking-tight text-[#1E293B] dark:text-white mt-0.5">
+              - bleX
+            </span>
           </Link>
 
           <div className="flex items-center gap-1">
