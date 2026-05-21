@@ -1,0 +1,19 @@
+[Unit]
+Description=BleX Master Stack (local mode only)
+After=network-online.target blex-mode.service mosquitto.service
+Wants=network-online.target
+ConditionPathExists=/run/blex/mode-local
+
+[Service]
+Type=simple
+User=blex
+WorkingDirectory=/home/blex/Desktop/blex/master
+ExecStartPre=/bin/sleep 5
+ExecStart=/bin/bash master_stack.sh
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

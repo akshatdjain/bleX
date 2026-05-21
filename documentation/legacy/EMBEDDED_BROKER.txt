@@ -1,0 +1,359 @@
+================================================================================
+  BLEGOD - EMBEDDED MQTT BROKER + EDGE COMPUTE ON ANDROID
+  Date: 2026-02-19
+================================================================================
+
+YOUR CURRENT ARCHITECTURE (with Termux/Linux):
+
+  [ESP32 scanners] --mqtt--> [Termux Mosquitto on Tab] --wss/tls1.3--> [Remote Server]
+  [Pi scanners]    --mqtt--> [Termux Mosquitto on Tab] --wss/tls1.3--> [Remote Server]
+  [Tab BLE scan]   --mqtt--> [Termux Mosquitto on Tab] --wss/tls1.3--> [Remote Server]
+                                     |
+                              [Python logic in Termux]
+
+PROPOSED ARCHITECTURE (pure Android, no Termux):
+
+  [ESP32 scanners] --mqtt--> [Embedded Broker in BleGod App] --wss/tls1.3--> [Remote Server]
+  [Pi scanners]    --mqtt--> [Embedded Broker in BleGod App] --wss/tls1.3--> [Remote Server]
+  [Tab BLE scan]   -------->  [Embedded Broker in BleGod App] --wss/tls1.3--> [Remote Server]
+                                     |
+                              [Kotlin logic in BleGod]
+
+YES, this is 100% doable on Android without Termux. Here's everything.
+
+
+================================================================================
+1. EMBEDDED MQTT BROKER ON ANDROID
+================================================================================
+
+There are two solid options for running an MQTT broker inside an Android app:
+
+OPTION A: Moquette (Recommended)
+---------------------------------
+- What: Lightweight MQTT broker written in pure Java.
+- GitHub: https://github.com/moquette-io/moquette
+- License: Apache 2.0 (commercial-friendly)
+- Size: ~2MB added to APK
+- Features:
+    - MQTT 3.1 and 3.1.1 support
+    - QoS 0, 1, 2
+    - Retained messages
+    - Will messages
+    - Username/password auth
+    - TLS/SSL listener
+    - WebSocket listener
+    - Persistent sessions (survives restart)
+    - Topic-based ACL (access control)
+- Integration: Add as a Gradle dependency, start in your foreground service.
+- Performance: Handles hundreds of concurrent connections. More than enough
+  for a fleet of ESP32s and Pis.
+
+  // Gradle dependency
+  implementation("io.moquette:moquette-broker:0.17")
+
+  // Start broker in BleScannerService
+  val broker = Server()
+  val config = Properties().apply {
+      setProperty("host", "0.0.0.0")
+      setProperty("port", "1883")
+      setProperty("allow_anonymous", "false")
+      setProperty("password_file", "${context.filesDir}/mqtt_passwords.conf")
+  }
+  broker.startServer(MemoryConfig(config))
+
+OPTION B: HiveMQ Community Edition (Embedded)
+----------------------------------------------
+- What: Lightweight embeddable MQTT broker.
+- Heavier than Moquette (~10MB), but more actively maintained.
+- MQTT 5.0 support (if your ESP32s use MQTT 5).
+- Enterprise-grade reliability.
+- May be overkill for your use case.
+
+RECOMMENDATION: Go with Moquette. It's lightweight, pure Java, and does
+exactly what Mosquitto does but runs inside your Android app.
+
+
+================================================================================
+2. HOW THE ARCHITECTURE WORKS (DETAILED)
+================================================================================
+
+STEP-BY-STEP FLOW:
+
+  1. BleGod app starts -> foreground service launches
+  2. Embedded Moquette broker starts on port 1883 (or any port)
+  3. BLE scanner starts, finds beacons
+  4. ESP32s and Pis connect to the tablet's IP:1883 as MQTT clients
+  5. All devices (including the tab itself) publish to local broker
+  6. A "bridge" component subscribes to all local topics
+  7. Bridge forwards messages to your remote server via WSS/TLS 1.3
+  8. Optional: Kotlin logic processes messages before forwarding
+
+COMPONENTS INSIDE BLEGOD:
+
+  BleScannerService (already exists)
+      |
+      +--> Embedded Broker (Moquette) - listens on port 1883
+      |        |
+      |        +--> ESP32/Pi clients connect here
+      |        +--> Tab's own BLE data published here
+      |
+      +--> Bridge Client - subscribes to local broker "#" (all topics)
+      |        |
+      |        +--> Applies logic/filtering/transformation
+      |        +--> Publishes to remote server via WSS/TLS 1.3
+      |
+      +--> Local MQTT Client (already exists as MqttManager)
+               |
+               +--> Publishes tab's own BLE scan data to local broker
+
+NETWORK REQUIREMENTS:
+- Tablet and ESP32s/Pis must be on the same Wi-Fi network (or the tab
+  acts as a Wi-Fi hotspot).
+- Tablet needs internet access for the WSS upstream connection.
+- Firewall: Android doesn't block incoming connections by default on
+  user-installed apps. Port 1883 will be accessible on the local network.
+
+
+================================================================================
+3. BRIDGE: LOCAL BROKER -> REMOTE SERVER (WSS/TLS 1.3)
+================================================================================
+
+The "bridge" is a second MQTT client inside the app that:
+  1. Connects to the LOCAL embedded broker (localhost:1883)
+  2. Subscribes to all topics (or specific ones like "scanners/#")
+  3. For each message received, transforms/enriches it
+  4. Publishes to your REMOTE server via WSS with TLS 1.3
+
+This is exactly what Mosquitto's "bridge" config does, but in code.
+
+PSEUDOCODE:
+
+  class MqttBridge(context: Context) {
+      private val localClient = MqttAsyncClient("tcp://127.0.0.1:1883", "bridge-local")
+      private val remoteClient = MqttAsyncClient("wss://mqtt.yourdomain.com:443", "bridge-remote")
+
+      fun start() {
+          // Connect to local broker
+          localClient.connect()
+          localClient.subscribe("#", 1) { topic, message ->
+              // Optional: apply logic, filter, transform
+              val enriched = processMessage(topic, message)
+              // Forward to remote
+              remoteClient.publish(topic, enriched, qos=1)
+          }
+
+          // Connect to remote broker via WSS/TLS 1.3
+          val sslOptions = MqttConnectOptions().apply {
+              socketFactory = SSLSocketFactory.getDefault()
+              // TLS 1.3 is automatic on Android 12+
+          }
+          remoteClient.connect(sslOptions)
+      }
+  }
+
+
+================================================================================
+4. RUNNING PYTHON LOGIC ON ANDROID (WITHOUT TERMUX)
+================================================================================
+
+You mentioned you run some Python logic. Here are your options:
+
+OPTION A: Chaquopy (Best for existing Python code)
+---------------------------------------------------
+- Embeds CPython 3.x directly in your Android app.
+- You can call Python functions from Kotlin:
+
+    // Kotlin calling Python
+    val python = Python.getInstance()
+    val module = python.getModule("my_logic")
+    val result = module.callAttr("process_beacon", beaconJson)
+
+- Your Python code lives in app/src/main/python/
+- Supports: numpy, pandas, scipy, requests, json, math, statistics
+- Does NOT support: packages with C extensions that need Linux headers
+  (e.g., some ML libraries). But most data processing works fine.
+- APK size increase: ~20-30MB (includes Python interpreter + stdlib)
+- Setup: Add Chaquopy Gradle plugin, put Python files in the right dir.
+
+  // build.gradle.kts
+  plugins {
+      id("com.chaquo.python") version "15.0.1"
+  }
+  chaquopy {
+      defaultConfig {
+          pip {
+              install("numpy")
+              install("requests")
+          }
+      }
+  }
+
+OPTION B: Rewrite in Kotlin (Best long-term)
+---------------------------------------------
+- If your Python logic is relatively simple (data transformation,
+  filtering, math, API calls), rewriting in Kotlin is cleaner.
+- Kotlin has: kotlinx.serialization (JSON), ktor-client (HTTP), and
+  the full Java math/stats library ecosystem.
+- No APK bloat, no interpreter overhead, native performance.
+- Easier to maintain as a single codebase.
+
+OPTION C: GraalVM (Advanced)
+------------------------------
+- Run Python via GraalVM's polyglot engine on Android.
+- Experimental, not production-ready on Android.
+- Not recommended.
+
+RECOMMENDATION:
+- If your Python code is < 500 lines and mostly data processing:
+  rewrite in Kotlin. It will be faster, smaller, and easier to maintain.
+- If your Python code is complex, uses numpy/pandas heavily, or you want
+  to hot-swap logic without app updates: use Chaquopy.
+
+
+================================================================================
+5. COMPLETE UPGRADED ARCHITECTURE
+================================================================================
+
+Here's what BleGod v2.0 could look like:
+
+  BleGod App (single Android APK)
+  ================================
+  |
+  |-- Foreground Service
+  |     |
+  |     |-- BLE Scanner
+  |     |     Scans beacons, publishes to local broker
+  |     |
+  |     |-- Embedded MQTT Broker (Moquette)
+  |     |     Listens on port 1883
+  |     |     Accepts connections from ESP32, Pi, other devices
+  |     |     Username/password auth
+  |     |     Optional TLS for local connections
+  |     |
+  |     |-- MQTT Bridge
+  |     |     Subscribes to local broker (all topics)
+  |     |     Enriches/transforms/filters messages
+  |     |     Forwards to remote server via WSS/TLS 1.3
+  |     |     Handles reconnection, buffering, retry
+  |     |
+  |     |-- Logic Engine
+  |     |     Processes incoming beacon data
+  |     |     Runs rules (proximity alerts, geofencing, etc.)
+  |     |     Can be Kotlin-native or Chaquopy Python
+  |     |
+  |     |-- Watchdog / Health Monitor
+  |           Monitors all components
+  |           Auto-restarts on failure
+  |           Reports health to remote server
+  |
+  |-- UI (Jetpack Compose)
+        |-- Scanner Screen (live beacon view)
+        |-- Broker Screen (connected clients, message stats)
+        |-- Bridge Screen (upstream status, queue depth)
+        |-- Settings Screen (all configuration)
+        |-- Logs Screen (debug logs)
+
+
+================================================================================
+6. ADVANTAGES OVER TERMUX/LINUX APPROACH
+================================================================================
+
+  ANDROID-NATIVE                         TERMUX/LINUX
+  ===============                        ==============
+  Single APK, one install                Multiple packages to install
+  Auto-starts on boot                    Need to script autostart
+  Foreground service (protected)         Background process (can be killed)
+  Google Play / MDM updates              Manual apt update / scp
+  Native BLE access                      Bluez + dbus (fragile)
+  Battery-optimized                      No power management
+  Crash recovery built-in                Need supervisord or systemd
+  UI for monitoring                      Terminal only (or web UI)
+  Works on locked/kiosk tablets          Need full shell access
+  Single codebase                        Kotlin + bash + Python + Mosquitto config
+
+  ONLY DOWNSIDE OF ANDROID-NATIVE:
+  - Cannot run arbitrary Linux tools (awk, sed, grep, etc.)
+  - Cannot run Docker containers
+  - Limited to Java/Kotlin ecosystem (+ Chaquopy for Python)
+  - Slightly more complex initial development
+
+
+================================================================================
+7. WHAT NEEDS TO CHANGE IN BLEGOD FOR THIS
+================================================================================
+
+CURRENT STATE (v1.1):
+  - BLE scanning: done
+  - MQTT client (publish to external broker): done
+  - Foreground service: done
+  - Crash recovery: done
+  - Settings UI: done
+
+TO ADD FOR v2.0:
+  1. Add Moquette dependency and start embedded broker in service
+  2. Add MqttBridge class (local -> remote via WSS)
+  3. Modify MqttManager to publish to localhost:1883 instead of remote
+  4. Add WSS connection support (change URL prefix to wss://)
+  5. Add broker config screen (port, auth, connected clients)
+  6. Add bridge status to health monitor
+  7. Optional: Add Chaquopy for Python logic
+
+ESTIMATED EFFORT: 2-3 sessions to implement, mostly around the broker
+integration, bridge logic, and new UI screens.
+
+
+================================================================================
+8. PERFORMANCE & LIMITATIONS
+================================================================================
+
+MOQUETTE ON ANDROID:
+  - Tested on tablets: handles 50+ concurrent clients easily
+  - Message throughput: 1000+ msgs/sec on modern hardware
+  - Memory: ~30-50MB overhead
+  - CPU: negligible for beacon-rate traffic
+
+BATTERY IMPACT:
+  - Embedded broker adds minimal battery drain
+  - The BLE scanning and screen are the main power consumers
+  - Wi-Fi radio staying active for ESP32/Pi connections uses some power
+  - With the screen off and only processing MQTT: expect 24-48 hours
+    on a typical 8000mAh tablet battery
+  - Recommendation: keep the tablet plugged in for 24/7 operation
+
+NETWORK:
+  - Tablet as Wi-Fi client: ESP32s/Pis connect to same network
+  - Tablet as Wi-Fi hotspot: ESP32s/Pis connect directly to tablet
+    (no router needed, good for field deployments)
+  - Maximum clients on a Wi-Fi hotspot: typically 10 (Android limit)
+
+STORAGE:
+  - Moquette persistent sessions: stored in app's internal storage
+  - Bridge offline queue: can be stored in SQLite (survives reboots)
+  - Log files: rotated automatically
+
+
+================================================================================
+  SUMMARY
+================================================================================
+
+  Q: Can we replace Termux + Mosquitto with native Android?
+  A: YES. Moquette gives you an embedded MQTT broker in pure Java.
+
+  Q: Can ESP32s and Pis connect to it?
+  A: YES. They connect to the tablet's IP on port 1883, same as Mosquitto.
+
+  Q: Can we forward to remote server via WSS/TLS 1.3?
+  A: YES. A bridge client connects to wss://yourdomain.com with TLS 1.3.
+
+  Q: Can we run Python logic?
+  A: YES, via Chaquopy. Or rewrite in Kotlin for better performance.
+
+  Q: Is it reliable enough for 24/7 unattended operation?
+  A: YES, with the foreground service, crash recovery, and watchdog
+     already built into BleGod.
+
+  Ready to implement when you are.
+
+================================================================================
+  END
+================================================================================

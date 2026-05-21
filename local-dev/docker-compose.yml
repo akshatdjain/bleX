@@ -1,0 +1,191 @@
+version: '3.8'
+
+# BleX Local Dev Stack — mirrors DGX production exactly.
+# Code mounted as volumes: edit locally, changes reflect instantly (--reload).
+
+services:
+
+  # ── Postgres ──────────────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: blex_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: asset_tracking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: localdev1234
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis ─────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: blex_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # ── Mosquitto MQTT Broker ─────────────────────────────────────────────
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: blex_mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  # ── Asset API (FastAPI) ───────────────────────────────────────────────
+  asset_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.asset
+    container_name: blex_asset_api
+    restart: unless-stopped
+    ports:
+      - "5000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:localdev1234@db:5432/asset_tracking
+    volumes:
+      - ./asset_api:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ── UI API (FastAPI) ──────────────────────────────────────────────────
+  ui_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: blex_ui_api
+    restart: unless-stopped
+    ports:
+      - "4000:9000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:localdev1234@db:5432/asset_tracking
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+    volumes:
+      - ./ui_api:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 9000 --reload
+
+  # ── Master Engine ─────────────────────────────────────────────────────
+  master_engine:
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    container_name: blex_master
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mqtt
+    environment:
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - MQTT_USERNAME=
+      - MQTT_PASSWORD=
+      - MQTT_TRANSPORT=tcp
+      - MQTT_TLS=false
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - SCANNER_ZONE_API=http://asset_api:8000/api/runtime/scanner-zone-map
+      - API_URL=http://asset_api:8000/api/asset/movement
+    volumes:
+      - ./master:/app
+    command: python3 -u master.py
+
+  # ── FIFO Consumer ─────────────────────────────────────────────────────
+  fifo_consumer:
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    container_name: blex_fifo
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - asset_api
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - API_URL=http://asset_api:8000/api/asset/movement
+    volumes:
+      - ./master:/app
+    command: python3 -u fifo_consumer.py
+
+  # ── Master Engine: RY3DDD (Akshat - BleX Dev) ─────────────────────────
+  master_RY3DDD:
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    image: blex-master:latest
+    container_name: blex_master_RY3DDD
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mqtt
+      - asset_api
+    environment:
+      - TENANT_ID=RY3DDD
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - SCANNER_ZONE_API=http://asset_api:8000/api/runtime/scanner-zone-map
+      - API_URL=http://asset_api:8000/api/asset/movement
+      - HEALTH_API_BASE=http://asset_api:8000/api/health
+    volumes:
+      - ./master:/app
+    command: python3 -u master.py
+
+  # ── Master Engine: HQTJAC (Raghu - Raghu Home) ────────────────────────
+  master_HQTJAC:
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    image: blex-master:latest
+    container_name: blex_master_HQTJAC
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - mqtt
+      - asset_api
+    environment:
+      - TENANT_ID=HQTJAC
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - SCANNER_ZONE_API=http://asset_api:8000/api/runtime/scanner-zone-map
+      - API_URL=http://asset_api:8000/api/asset/movement
+      - HEALTH_API_BASE=http://asset_api:8000/api/health
+    volumes:
+      - ./master:/app
+    command: python3 -u master.py
+
+  # ── Adminer (DB UI) ───────────────────────────────────────────────────
+  adminer:
+    image: adminer
+    container_name: blex_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:

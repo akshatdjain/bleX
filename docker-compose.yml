@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: asset_tracking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: LYzxeJ2xrSKfzM2f
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: asset_tracking-redis-1
+    restart: always
+    command: redis-server --maxmemory 32mb --maxmemory-policy allkeys-lru
+
+  asset_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.asset
+    ports:
+      - "5000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - default
+      - sonic_default
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+      - sonic_default
+
+volumes:
+  db_data:
+
+networks:
+  sonic_default:
+    external: true

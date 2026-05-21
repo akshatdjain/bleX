@@ -1,0 +1,18 @@
+[Unit]
+Description=AsseTrack UDP Discovery Broadcaster
+Documentation=https://github.com/assetrack
+After=network-online.target NetworkManager-wait-online.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi5
+ExecStart=/usr/bin/python3 /home/pi5/scanner/discovery_broadcast.py
+WorkingDirectory=/home/pi5/scanner
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

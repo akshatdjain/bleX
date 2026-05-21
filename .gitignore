@@ -1,0 +1,87 @@
+# General
+.idea/
+.vscode/
+*.log
+*.out
+*.err
+*.pid
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+
+# Documentation (exclude specific directory)
+documentation_aksh/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/*.iml
+android/captures/
+android/.externalNativeBuild/
+android/.cxx/
+
+# Gradle
+.gradle/
+build/
+app/build/
+local.properties
+
+# Secrets
+*.jks
+*.keystore
+secrets.xml
+mosquitto.passwd
+*.key
+*.crt
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+*.egg-info/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+.next/
+
+# Docker
+.docker/
+
+# Large static/built files
+asset_api/www/
+ui_api/www/
+www/
+
+# Database dumps
+*.sql.bak
+*.dump
+
+# Claude / AI tooling
+.claude/
+brain.md
+CLAUDE.md
+.mcp.json
+.playwright-mcp/
+.superpowers/
+memory/
+docs/superpowers/
+.aider*
+
+# Lovable
+.lovable/
+
+# Images (large binary files)
+images/*.xz
+images/*.img

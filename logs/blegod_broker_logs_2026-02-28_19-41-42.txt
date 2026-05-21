@@ -1,0 +1,505 @@
+BleGod Broker Logs — Exported 2026-02-28 19:41:42.966
+============================================================
+
+2026-02-28 19:41:11.282  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:11.282  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:11.283  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:11.285  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:11.285  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:11.285  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:11.286  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:11.286  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:11.286  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:11.286  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:11.287  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:11.288  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:11.288  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:11.288  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.588  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.593  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.594  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.595  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.595  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.596  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.596  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.596  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.596  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.598  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.599  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.599  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.599  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.601  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.601  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.603  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.604  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.604  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.604  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.604  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.604  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:12.605  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:12.605  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:12.608  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.916  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.917  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.918  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.918  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.919  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.919  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.920  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.920  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.920  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.921  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.922  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.922  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.923  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.923  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.923  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.923  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.923  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.924  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.926  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.926  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.927  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.928  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.928  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:13.929  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:13.929  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:13.929  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.238  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.240  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.240  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.243  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.245  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.245  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.246  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.246  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.247  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.247  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.247  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.248  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.248  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.248  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.248  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.249  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.249  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.250  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.250  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.250  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:15.251  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:15.251  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:15.251  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.565  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.567  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.568  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.568  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.568  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.569  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.569  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.569  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.571  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.571  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.572  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.572  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.573  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.574  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.574  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.574  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.576  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.577  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.577  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.577  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.578  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.578  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:16.578  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:16.578  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:16.588  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.885  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.885  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.886  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.886  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.886  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.887  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.887  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.888  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.889  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.889  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.891  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.891  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.892  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.892  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.892  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.892  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.893  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.893  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.893  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.893  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.893  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.896  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.897  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.897  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:17.898  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:17.900  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:17.900  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.198  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.201  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.201  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.203  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.203  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.203  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.203  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.203  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.204  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.206  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.207  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.207  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.208  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.208  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.208  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.208  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.208  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.209  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.209  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.213  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:19.213  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.213  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.214  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.214  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.215  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:19.215  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:19.216  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.516  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.520  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.520  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.521  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.521  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.521  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.522  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.522  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.523  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.525  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.525  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.526  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.527  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.528  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.528  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.528  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.528  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.528  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.528  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:20.528  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.529  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:20.529  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:20.529  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.836  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.840  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.840  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.841  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.841  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.841  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.841  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.841  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.842  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.842  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.842  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.842  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.843  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.844  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.844  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.844  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.845  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.845  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.846  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:21.847  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.848  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:21.848  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:21.848  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.163  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.165  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.166  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.166  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.166  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.166  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.166  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.166  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.167  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.170  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.170  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.170  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.170  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.170  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.170  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.170  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.171  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.171  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.171  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.178  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.178  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.179  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:23.179  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:23.179  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:23.179  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.485  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.490  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.492  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.493  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.493  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.493  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.494  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.494  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.494  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.495  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.495  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.497  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.501  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.502  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.502  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.502  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.502  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.502  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.502  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.502  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:24.503  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:24.503  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:24.503  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.810  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.812  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.812  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.813  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.816  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.816  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.817  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.817  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.818  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.819  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.819  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.819  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.822  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.822  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.822  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.824  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.824  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.824  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.824  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.825  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:25.827  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.827  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.827  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.827  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.827  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:25.827  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:25.829  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.139  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.140  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.141  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:27.141  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:27.141  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:27.141  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:27.141  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.142  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.142  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.142  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:27.142  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:27.145  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:27.145  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.145  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:27.145  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:27.145  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:27.145  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:27.147  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.456  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.458  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.458  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.459  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.464  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.465  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.466  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.469  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.469  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.469  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.469  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.469  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.470  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.470  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.471  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:28.472  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.472  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.473  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:28.473  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:28.474  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.782  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:29.782  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:29.783  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.783  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.784  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.785  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.785  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.785  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:29.785  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:29.786  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:29.786  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:29.787  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.788  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:29.789  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:29.790  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:29.790  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.096  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.098  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.101  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:31.101  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:31.101  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.101  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.102  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:31.102  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:31.102  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.102  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:31.102  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:31.102  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.103  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:31.103  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:31.103  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:31.103  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.408  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.413  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.413  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:32.414  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.414  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.416  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.416  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.416  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.417  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.417  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:32.417  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.417  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:32.418  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.419  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:32.419  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.420  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:32.420  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.420  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:32.420  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:32.420  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.727  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.729  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:33.729  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.731  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.731  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.731  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.734  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:33.734  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.735  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.736  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:33.736  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:33.736  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.736  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.737  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:33.737  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:33.737  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:33.738  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.052  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.054  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.054  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:35.055  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.055  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.056  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.056  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:35.057  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.057  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.058  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:35.058  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.058  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.058  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.058  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:35.058  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:35.059  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.059  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:35.061  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:35.061  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.372  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.375  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.376  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:36.376  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.376  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:36.376  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.378  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.378  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.378  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:36.378  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.378  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.378  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:36.379  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:36.380  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.380  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:36.380  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:36.381  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.698  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.704  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.704  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.705  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.705  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.708  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.708  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.708  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.709  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.709  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.709  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.709  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.709  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.709  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.710  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:37.710  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.711  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:37.711  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:37.712  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.022  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.023  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:39.024  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:39.027  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:39.027  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:39.028  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.028  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.028  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.029  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:39.029  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:39.030  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.033  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:39.033  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:39.034  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.034  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:39.036  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:39.036  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:40.344  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.345  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.346  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:40.347  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.347  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:40.348  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.349  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.350  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:40.350  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:40.351  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:40.352  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:40.352  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:40.353  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:40.354  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:40.354  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.665  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.667  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.667  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.668  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.669  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.673  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.673  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.674  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.674  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.674  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.674  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.674  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.674  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.675  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.675  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.675  WARN   [Bridge]  Local connection lost: Connection lost
+2026-02-28 19:41:41.675  INFO   [Bridge]  Local connected (reconnect=true)
+2026-02-28 19:41:41.675  INFO   [Bridge]  Subscribing to local: #
+2026-02-28 19:41:41.676  WARN   [Bridge]  Local connection lost: Connection lost
+
+Total entries: 500

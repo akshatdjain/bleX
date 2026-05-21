@@ -1,0 +1,46 @@
+# BleX "Intelligence for the Floor" - Full Video Prompts (8s Segments)
+
+### SEGMENT 01: "The Void" (Opening)
+Cinematic 8K digital cinema quality, shot on ARRI Alexa LF with Zeiss Supreme Prime lenses at f/2.8. A long, pristine modern hospital corridor at night, illuminated by soft architectural LED strip lighting along the ceiling and walls creating a high-key but subdued ambiance. The hallway features polished white epoxy floors with subtle reflections, clean white walls with clinical teal accent strips, and brushed aluminum door frames. In the foreground right, an empty modern wheelchair sits solitary, rendered with shallow depth of field bokeh making it slightly soft. Very slow, smooth cinematic dolly-back camera movement pulling away from the wheelchair at 0.5 meters per second. Apple-style premium healthcare aesthetic. 8 seconds duration.
+
+### SEGMENT 02: "The Struggle" (Montage)
+Cinematic 8K digital cinema quality, shot on ARRI Alexa LF with Zeiss Supreme Prime macro lenses. Same pristine hospital corridor, now in bright daylight with natural light. Fast-paced editorial montage sequence: SHOT 1 - Extreme close-up of hands (clinical teal scrubs) rapidly flipping through papers on aluminum clipboard. SHOT 2 - Close-up hands opening an empty white medical storage alcove with teal interior accent lighting. SHOT 3 - Hands searching through another clipboard with urgency. Smooth but rapid cuts every 1.5-2 seconds. Apple-style premium aesthetic. 8 seconds duration.
+
+### SEGMENT 03: "The Reveal" (Transition)
+Cinematic 8K digital cinema quality, shot on ARRI Alexa LF. Abstract high-fidelity sequence on pristine white background with premium glass surface. Scene opens with rack focus: BACKGROUND - Blurred digital hospital floorplan with animated red pulsing location markers searching rapidly. TRANSITION - The red pulses suddenly converge and stabilize into a single pure white radiant glow. FOCUS SHIFT - Smooth rack focus to FOREGROUND where the minimalist 'BleX' logo materializes on the glass surface. Logo features clean sans-serif typography with clinical teal (#008080) underline. Apple keynote reveal aesthetic. 8 seconds duration.
+
+### SEGMENT 04: "The Hardware" (Beacon Placement)
+Cinematic macro close-up, shot on ARRI Alexa LF with 100mm macro lens. A professional hand carefully places a sleek, minimalist white BLE beacon onto the brushed aluminum frame of a modern medical wheelchair. The beacon is a small, matte-white circular device. Action: The hand presses the beacon into place, and for a split second, a soft teal ring glows beneath its surface to confirm activation. High-key lighting, shallow depth of field. Apple product-film aesthetic. 8 seconds, 8K resolution.
+
+### SEGMENT 05: "The Edge Hub" (Scanner Node)
+Cinematic low-angle tracking shot looking up at a clean white hospital ceiling. Motion: The camera pans slowly reveals a discreet, high-design Scanner Node (Pi/ESP32) mounted securely. The scanner is a slim, white circular hub. Action: Every 2 seconds, the ring pulses with a soft, intentional teal light. Lighting is bright and airy. Apple-style architectural cinematography. 8 seconds, 8K resolution.
+
+### SEGMENT 06: "The Signal" (Connectivity)
+A cinematic 8-second sequence shot on ARRI Alexa LF. Wide shot with slow dolly movement in a modern hospital room. From a ceiling-mounted BLE scanner node, elegant teal (#008080) signal rings pulse downward in concentric waves, touching medical assets (beds, pumps). The rings are rendered as premium glass-like translucent light with subtle refraction. High-end CGI integration, Apple keynote aesthetic. 8 seconds, 4K resolution.
+
+### SEGMENT 07: "The Master Hub" (Revised Logic Node)
+Cinematic reveal of a premium aluminum 'Master Node' server enclosure in a glass-enclosed hospital equipment room. Glowing teal LED status ring on front panel. Steady 180-degree orbital dolly movement around the hub at eye level. ARRI Alexa LF aesthetic with shallow depth of field. Apple keynote presentation lighting. 8 seconds, 8K resolution.
+
+### SEGMENT 08: "The Dashboard Snap" (Revised UI Morph)
+Seamless morphing transition from the glowing teal LED ring to a premium Android tablet glass surface. The tablet displays the hospital dashboard with glassmorphism UI. MANDATORY ON-SCREEN TEXT must render precisely: "BleX | Fleet Manager" as the header, and "Status: System Optimal" with a teal checkmark. Camera pushes into extreme close-up of the screen surface. 8 seconds, 8K resolution.
+
+### SEGMENT 09: "Precision Deployment" (Revised Interaction)
+Extreme macro of a finger interacting with the tablet. Finger taps a button labeled "Sync Node". MANDATORY ON-SCREEN TEXT sequence: Alert notification slides in reading "New Scanner Detected: RPi-04". User taps confirm. Result: "Scanner Configured" appears center-screen with an animated glowing teal checkmark. Apple-style elastic micro-interactions. 8 seconds, 8K resolution.
+
+### SEGMENT 10: "Live Tracking" (In-App Action)
+Over-the-shoulder medium shot of the tablet in a medical corridor. CRITICAL TEXT RENDERING: Header reads "BleX | Fleet Manager". Alert banner appears: "Asset Moved: Infusion Pump #12". Below it, status text reads "Zone: Oncology -> ICU B". On the map, a teal circular asset icon labeled "IV Pump #12" smoothly animates between zones. 8 seconds, 8K resolution.
+
+### SEGMENT 11: "The Watchdog Alert" (Health Check)
+Extreme macro close-up of the premium tablet screen. CRITICAL TEXT RENDERING: A high-end glassmorphism toast notification slides in. Title: "HEARTBEAT CRITICAL". Subtitle: "Scanner RPi-04: Offline (2min ago)". The notification has a frosted glass effect. Lighting is high-key and clean. Apple-style micro-interactions. 8 seconds, 8K resolution.
+
+### SEGMENT 12: "The Fleet View" (Scale & Uptime)
+Cinematic zoom-out from the tablet screen into a wide shot of the hospital ward. Tablet shows map with 20+ green circular icons (online scanners). CRITICAL TEXT RENDERING: Header: "BleX | Fleet Manager". Status bar: "99.9% Floor Uptime". Action: The map subtly rotates to show 3D depth. 8 seconds, 8K resolution.
+
+### SEGMENT 13: "The Impact" (Total Visibility)
+Wide panning cinematic shot of a clean, busy hospital ward. Medical staff moving calmly. Visual effect: Every tracked asset has a subtle, elegant glowing teal aura floating above it. Camera tracks laterally through the corridor, capturing the "Digital Pulse" of the entire floor. Apple product-film aesthetic. 8 seconds, 8K resolution.
+
+### SEGMENT 14: "The Slogan" (Product Hero)
+Cinematic product reveal. Slow, elegant fade transition from the hospital ward to a luxury dark mahogany desk surface, which is highly reflective like black glass. The BleX logo (brushed aluminum) rests perfectly centered. The desk surface reflects a "ghosted" double-exposure of the hospital ward. MANDATORY TEXT: "BleX. Know exactly where it is." 8 seconds, 8K resolution.
+
+### SEGMENT 15: "The Close" (Branding)
+Pure infinite white void. Surgical cleanliness. BleX logo in brushed aluminum floating in center. The logo scales up 5% over 8 seconds. MANDATORY TEXT: "samartha.solutions / BleX v3.0.5" in light gray, and "Intelligence for the Hospital." centered below. Clinical perfection. 8 seconds, 8K resolution.

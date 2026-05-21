@@ -1,0 +1,241 @@
+================================================================================
+  BLEGOD - TECHNICAL Q&A
+  Date: 2026-02-18
+================================================================================
+
+
+1. OTA UPDATES + AUTO-UPDATE AFTER 24 HOURS
+================================================================================
+
+SHORT ANSWER: Not possible on Android in the way you're imagining. Here's why.
+
+HOW ANDROID APP UPDATES WORK:
+- Android apps are signed APKs. The OS enforces that only the same signing
+  key can update an installed app. There is no mechanism to silently replace
+  an APK from within the app itself.
+- Google Play Store handles OTA updates. If you publish BleGod on Play Store,
+  you can enable "auto-update" and Google will push updates automatically
+  when the device is on Wi-Fi and charging.
+- Even with auto-update enabled, the OS decides WHEN to apply it. You cannot
+  force it within 24 hours.
+
+WHAT YOU CAN DO:
+
+  Option A: Google Play + Auto-Update
+  - Publish to Play Store (or internal testing track for private use).
+  - Users enable auto-update per app or globally.
+  - Updates typically install within 24-48 hours automatically.
+  - No code changes needed in BleGod.
+
+  Option B: In-App Update API (Google Play)
+  - Use Google's "In-App Updates" library (play-core).
+  - Two modes: FLEXIBLE (background download) or IMMEDIATE (blocks the app).
+  - You can show a prompt: "Update available" and force it.
+  - Still requires Play Store distribution.
+  - Can check staleness: if update has been available > 24 hours, force
+    IMMEDIATE mode which blocks the app until updated.
+  - This is the closest to what you described.
+
+  Option C: Self-Hosted APK (Sideloading)
+  - Host APK on your own server.
+  - App checks your server for version number periodically.
+  - If new version found, downloads APK and prompts user to install.
+  - CANNOT install silently. Android always requires user to tap "Install".
+  - On Android 12+, the app needs REQUEST_INSTALL_PACKAGES permission.
+  - Not recommended for production; Play Protect may flag it.
+
+  Option D: Remote Config (Feature Flags)
+  - Use Firebase Remote Config or your own API.
+  - Toggle features ON/OFF without an app update.
+  - Does NOT update code, only configuration values.
+  - Good for: changing MQTT settings, scan intervals, enabling/disabling
+    features remotely.
+
+  BOTTOM LINE: For your use case (unattended tablets running continuously),
+  the best approach is Play Store internal track + In-App Updates API with
+  IMMEDIATE mode forced after 24 hours of staleness. The app checks on each
+  scan cycle, and if an update has been pending > 24h, it triggers the
+  mandatory update flow.
+
+  TRUE SILENT AUTO-UPDATE IS ONLY POSSIBLE IF:
+  - The device is a managed device (Android Enterprise / MDM).
+  - You use an MDM solution (e.g., Google's Android Management API).
+  - The MDM can silently push APK updates without user interaction.
+  - This is the enterprise/kiosk approach and works perfectly for
+    unattended tablet deployments.
+
+
+2. OFFLINE DATA STORAGE (MQTT QUEUE)
+================================================================================
+
+WHERE IS THE QUEUED DATA STORED?
+- RAM only. Specifically, a ConcurrentLinkedQueue<Pair<String, String>> in
+  MqttManager.kt. Each entry is a (topic, payload) pair as plain strings.
+
+HOW MUCH CAN IT STORE?
+- Current limit: 1,000 messages (hardcoded in MqttManager.queueMessage).
+- When the queue hits 1,000, it drops the OLDEST message and adds the new one
+  (circular buffer behavior).
+- Each message is roughly 200-500 bytes of JSON, so the queue uses about
+  200KB-500KB of RAM at max capacity. Negligible on any modern device.
+
+WHAT HAPPENS ON APP KILL / REBOOT?
+- The queue is LOST. It exists only in memory.
+- If the process dies (crash, reboot, OOM kill), all queued messages are gone.
+
+SHOULD WE ADD PERSISTENT STORAGE?
+- If you need zero data loss, we can add SQLite or Room database storage.
+- Messages would be written to disk, survive reboots, and flush to MQTT
+  when connection is restored.
+- Trade-off: disk I/O adds latency per scan cycle. For BLE beacons this is
+  usually fine (milliseconds).
+- We can also use a simple file-based queue (append JSON lines to a file)
+  which is simpler than a full database.
+
+COMPARISON:
+  Current (RAM):     Fast, simple, max ~1000 msgs, lost on kill
+  SQLite/Room:       Persistent, survives reboots, unlimited*, slower writes
+  File-based queue:  Persistent, simple, good for append-only, manual cleanup
+  Redis:             Not applicable on Android (Redis is a server-side tool)
+
+
+3. CONNECTING TO YOUR REMOTE MQTT BROKER (WSS / TLS 1.3)
+================================================================================
+
+YES, YOU CAN CONNECT DIRECTLY. Here's how:
+
+CURRENT SUPPORT:
+- BleGod already supports TLS via the toggle in Settings.
+- The Paho MQTT client library supports: tcp://, ssl://, ws://, wss://
+
+TO CONNECT VIA WSS (WebSocket Secure):
+- In Settings, set the broker host to your domain: e.g., "mqtt.yourdomain.com"
+- Set port to your WSS port (typically 443 or 8883)
+- Enable TLS toggle
+- The broker URL is constructed in SettingsManager.getBrokerUrl()
+
+WHAT MAY NEED CHANGING:
+- The current getBrokerUrl() builds "tcp://" or "ssl://" URLs.
+- For WSS, it needs to build "wss://" URLs instead.
+- This is a small code change: add a "WebSocket" toggle in Settings, and
+  if enabled, use "wss://" prefix instead of "ssl://".
+
+TLS 1.3 SUPPORT:
+- Android 10+ (API 29+) supports TLS 1.3 natively.
+- Since BleGod's minSdk is 31 (Android 12), TLS 1.3 is fully supported.
+- No extra configuration needed. The default SSLSocketFactory will
+  negotiate TLS 1.3 if the server supports it.
+
+CERTIFICATE PINNING (OPTIONAL):
+- If your broker uses a custom CA or self-signed cert, you'd need to add
+  a custom TrustManager or network_security_config.xml.
+- If your broker uses a standard CA (Let's Encrypt, etc.), it works
+  out of the box with no changes.
+
+AUTHENTICATION:
+- Username/password auth: already supported in Settings.
+- Client certificate auth: would need code changes to load a .p12/.pem
+  file and configure the SSLContext.
+
+SUMMARY: For standard WSS + TLS 1.3 + username/password to a public domain,
+we just need to add a WebSocket toggle (one small code change) and you're
+connected. Everything else works as-is.
+
+
+4. RUNNING MATH / PYTHON / API LOGIC ON ANDROID
+================================================================================
+
+GREAT QUESTION. Here's the full picture.
+
+CAN YOU RUN PYTHON ON ANDROID?
+- Not natively. Android runs Java/Kotlin on the JVM (ART runtime).
+- However, there are options:
+
+  a) Chaquopy (Python SDK for Android)
+     - Embeds a Python interpreter inside your Android app.
+     - You can call Python functions from Kotlin and vice versa.
+     - Supports most pure-Python packages (numpy, pandas, scipy, etc.).
+     - Adds ~15-30MB to APK size.
+     - Good for: running existing Python scripts, ML inference, math.
+
+  b) Termux (Linux terminal on Android)
+     - Full Linux environment: Python, Node.js, gcc, etc.
+     - Runs as a separate app, not integrated into BleGod.
+     - Good for: ad-hoc scripting, SSH, development on tablet.
+     - Not suitable for automated/embedded logic.
+
+  c) ONNX Runtime / TensorFlow Lite
+     - For ML models specifically.
+     - Convert your Python ML model to ONNX or TFLite format.
+     - Run inference natively on Android with hardware acceleration.
+     - Much faster than running Python.
+
+CAN YOU DO MATH/LOGIC DIRECTLY IN KOTLIN?
+- Absolutely. Kotlin is a full programming language.
+- For most use cases, you do NOT need Python. Kotlin can do:
+  - Statistical calculations (mean, median, std dev, regression)
+  - JSON parsing and transformation
+  - HTTP API calls (using OkHttp or Ktor)
+  - Data filtering, aggregation, analysis
+  - Database queries (SQLite/Room)
+  - WebSocket connections
+  - Background processing with coroutines
+
+CAN YOU CALL EXTERNAL APIS FROM THE APP?
+- Yes. You can make HTTP/HTTPS requests to any API.
+- Libraries: OkHttp, Retrofit, Ktor (all work great on Android).
+- Example: after each scan cycle, POST beacon data to your REST API,
+  get back instructions, and act on them.
+- You can run API calls in the background service alongside BLE scanning.
+
+WHY NOT JUST USE ANDROID DIRECTLY?
+You're right to question this. For your use case:
+
+  WHAT ANDROID DOES BETTER THAN LINUX:
+  - Native BLE access (no driver issues, no bluez/dbus complexity)
+  - Power management and battery optimization
+  - Hardware access (camera, GPS, sensors, NFC)
+  - UI for monitoring/configuration
+  - App distribution (Play Store / MDM)
+  - Crash recovery and auto-restart
+
+  WHAT LINUX DOES BETTER:
+  - Running long-lived server processes (web servers, databases)
+  - Package management (apt, pip, npm)
+  - Shell scripting and automation
+  - Docker containers
+  - Full filesystem access without sandboxing
+
+  FOR BLEGOD SPECIFICALLY:
+  - Android is the right choice. BLE scanning is a first-class citizen.
+  - If you need additional processing, do it in Kotlin inside the app,
+    or call your remote server's API for heavy computation.
+  - The "Android as an edge compute node" pattern is used in production
+    by companies like Estimote, Kontakt.io, and other beacon platform
+    providers.
+
+RECOMMENDED ARCHITECTURE:
+  [BLE Beacons] --> [BleGod on Android Tablet]
+                         |
+                         |--> MQTT --> [Your MQTT Broker]
+                         |                    |
+                         |                    v
+                         |             [Backend Server]
+                         |             (Python/Node/Go)
+                         |             (Heavy logic here)
+                         |
+                         |--> REST API --> [Your API Server]
+                         |                (Get config, rules)
+                         |
+                         |--> Local Logic (Kotlin)
+                              (Filtering, basic math, alerts)
+
+The tablet handles scanning and forwarding. Your server handles the
+heavy processing, ML, analytics, and decision-making. This separation
+keeps the tablet app lean and reliable.
+
+
+================================================================================
+  END OF Q&A
+  For implementation of any of the above, just ask.
+================================================================================

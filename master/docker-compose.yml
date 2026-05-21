@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  master_redis:
+    image: redis:7-alpine
+    container_name: master_redis
+    restart: always
+
+  master_engine:
+    build: .
+    container_name: master_engine
+    restart: always
+    command: python3 -u master.py
+    depends_on:
+      - master_redis
+    networks:
+      - default
+      - asset_tracking_default
+      - sonic_default
+    environment:
+      - MQTT_BROKER=sigmatic-asc.tech
+      - MQTT_PORT=8883
+      - MQTT_USERNAME=tab
+      - MQTT_PASSWORD=1234
+      - MQTT_TRANSPORT=tcp
+      - MQTT_TLS=true
+      - REDIS_HOST=master_redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - TENANT_ID=SF5WU6
+      - MQTT_TOPIC_BASE=ble/SF5WU6/scanner
+      - SCANNER_ZONE_API=http://asset_tracking-asset_api-1:8000/api/runtime/scanner-zone-map
+      - API_URL=http://asset_tracking-asset_api-1:8000/api/asset/movement
+      - HEALTH_API_BASE=http://asset_tracking-asset_api-1:8000/api/health
+
+  master_fifo_consumer:
+    build: .
+    container_name: master_fifo_consumer
+    restart: always
+    command: python3 -u fifo_consumer.py
+    depends_on:
+      - master_redis
+    networks:
+      - default
+      - asset_tracking_default
+    environment:
+      - REDIS_HOST=master_redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - TENANT_ID=SF5WU6
+      - API_URL=http://asset_tracking-asset_api-1:8000/api/asset/movement
+
+networks:
+  asset_tracking_default:
+    external: true
+  sonic_default:
+    external: true

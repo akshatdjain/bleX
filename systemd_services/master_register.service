@@ -1,0 +1,14 @@
+[Unit]
+Description=BLE Master API Registration
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/master
+ExecStart=/usr/bin/python3 /home/pi/master/master_register.py
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

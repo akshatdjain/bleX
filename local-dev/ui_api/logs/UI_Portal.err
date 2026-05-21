@@ -1,0 +1,12 @@
+INFO:     Will watch for changes in these directories: ['/opt/asset_tracking/ui_api']
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+INFO:     Started reloader process [1243319] using WatchFiles
+INFO:     Started server process [1243324]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.
+WARNING:  Invalid HTTP request received.

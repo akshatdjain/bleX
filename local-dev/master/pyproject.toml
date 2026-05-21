@@ -1,0 +1,12 @@
+[project]
+name = "master"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "paho-mqtt>=2.1.0",
+    "psycopg2>=2.9.11",
+    "redis>=7.3.0",
+    "requests>=2.32.5",
+]

@@ -1,0 +1,344 @@
+[
+  {
+    "id": "advanced-evaluation",
+    "path": "skills/advanced-evaluation",
+    "name": "advanced-evaluation",
+    "description": "This skill should be used when the user asks to \"implement LLM-as-judge\", \"compare model outputs\", \"create evaluation rubrics\", \"mitigate evaluation bias\", or mentions direct scoring, pairwise comparison, position bias, evaluation pipelines, or automated quality assessment."
+  },
+  {
+    "id": "algorithmic-art",
+    "path": "skills/algorithmic-art",
+    "name": "algorithmic-art",
+    "description": "Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations."
+  },
+  {
+    "id": "bdi-mental-states",
+    "path": "skills/bdi-mental-states",
+    "name": "bdi-mental-states",
+    "description": "This skill should be used when the user asks to \"model agent mental states\", \"implement BDI architecture\", \"create belief-desire-intention models\", \"transform RDF to beliefs\", \"build cognitive agent\", or mentions BDI ontology, mental state modeling, rational agency, or neuro-symbolic AI integration."
+  },
+  {
+    "id": "brainstorming",
+    "path": "skills/brainstorming",
+    "name": "brainstorming",
+    "description": "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+  },
+  {
+    "id": "brand-guidelines",
+    "path": "skills/brand-guidelines",
+    "name": "brand-guidelines",
+    "description": "Applies Anthropic's official brand colors and typography to any sort of artifact that may benefit from having Anthropic's look-and-feel. Use it when brand colors or style guidelines, visual formatting, or company design standards apply."
+  },
+  {
+    "id": "canvas-design",
+    "path": "skills/canvas-design",
+    "name": "canvas-design",
+    "description": "Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations."
+  },
+  {
+    "id": "composition-patterns",
+    "path": "skills/composition-patterns",
+    "name": "composition-patterns",
+    "description": "React composition patterns that scale. Use when refactoring components with boolean prop proliferation, building flexible component libraries, or designing reusable APIs. Also includes React 19 API changes."
+  },
+  {
+    "id": "context-compression",
+    "path": "skills/context-compression",
+    "name": "context-compression",
+    "description": "This skill should be used when the user asks to \"compress context\", \"summarize conversation history\", \"implement compaction\", \"reduce token usage\", or mentions context compression, structured summarization, tokens-per-task optimization, or long-running agent sessions exceeding context limits."
+  },
+  {
+    "id": "context-degradation",
+    "path": "skills/context-degradation",
+    "name": "context-degradation",
+    "description": "This skill should be used when the user asks to \"diagnose context problems\", \"fix lost-in-middle issues\", \"debug agent failures\", \"understand context poisoning\", or mentions context degradation, attention patterns, context clash, context confusion, or agent performance degradation. Provides patterns for recognizing and mitigating context failures."
+  },
+  {
+    "id": "context-fundamentals",
+    "path": "skills/context-fundamentals",
+    "name": "context-fundamentals",
+    "description": "This skill should be used when the user asks to \"understand context\", \"explain context windows\", \"design agent architecture\", \"debug context issues\", \"optimize context usage\", or discusses context components, attention mechanics, progressive disclosure, or context budgeting. Provides foundational understanding of context engineering for AI agent systems."
+  },
+  {
+    "id": "context-optimization",
+    "path": "skills/context-optimization",
+    "name": "context-optimization",
+    "description": "This skill should be used when the user asks to \"optimize context\", \"reduce token costs\", \"improve context efficiency\", \"implement KV-cache optimization\", \"partition context\", or mentions context limits, observation masking, context budgeting, or extending effective context capacity."
+  },
+  {
+    "id": "defuddle",
+    "path": "skills/defuddle",
+    "name": "defuddle",
+    "description": "Extract clean markdown content from web pages using Defuddle CLI, removing clutter and navigation to save tokens. Use instead of WebFetch when the user provides a URL to read or analyze, for online documentation, articles, blog posts, or any standard web page."
+  },
+  {
+    "id": "dispatching-parallel-agents",
+    "path": "skills/dispatching-parallel-agents",
+    "name": "dispatching-parallel-agents",
+    "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies"
+  },
+  {
+    "id": "doc-coauthoring",
+    "path": "skills/doc-coauthoring",
+    "name": "doc-coauthoring",
+    "description": "Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks."
+  },
+  {
+    "id": "docx",
+    "path": "skills/docx",
+    "name": "docx",
+    "description": "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. When Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
+  },
+  {
+    "id": "evaluation",
+    "path": "skills/evaluation",
+    "name": "evaluation",
+    "description": "This skill should be used when the user asks to \"evaluate agent performance\", \"build test framework\", \"measure agent quality\", \"create evaluation rubrics\", or mentions LLM-as-judge, multi-dimensional evaluation, agent testing, or quality gates for agent pipelines."
+  },
+  {
+    "id": "executing-plans",
+    "path": "skills/executing-plans",
+    "name": "executing-plans",
+    "description": "Use when you have a written implementation plan to execute in a separate session with review checkpoints"
+  },
+  {
+    "id": "filesystem-context",
+    "path": "skills/filesystem-context",
+    "name": "filesystem-context",
+    "description": "This skill should be used when the user asks to \"offload context to files\", \"implement dynamic context discovery\", \"use filesystem for agent memory\", \"reduce context window bloat\", or mentions file-based context management, tool output persistence, agent scratch pads, or just-in-time context loading."
+  },
+  {
+    "id": "finishing-a-development-branch",
+    "path": "skills/finishing-a-development-branch",
+    "name": "finishing-a-development-branch",
+    "description": "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work - guides completion of development work by presenting structured options for merge, PR, or cleanup"
+  },
+  {
+    "id": "frontend-design",
+    "path": "skills/frontend-design",
+    "name": "frontend-design",
+    "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics."
+  },
+  {
+    "id": "hosted-agents",
+    "path": "skills/hosted-agents",
+    "name": "hosted-agents",
+    "description": "This skill should be used when the user asks to \"build background agent\", \"create hosted coding agent\", \"set up sandboxed execution\", \"implement multiplayer agent\", or mentions background agents, sandboxed VMs, agent infrastructure, Modal sandboxes, self-spawning agents, or remote coding environments."
+  },
+  {
+    "id": "internal-comms",
+    "path": "skills/internal-comms",
+    "name": "internal-comms",
+    "description": "A set of resources to help me write all kinds of internal communications, using the formats that my company likes to use. Claude should use this skill whenever asked to write some sort of internal communications (status reports, leadership updates, 3P updates, company newsletters, FAQs, incident reports, project updates, etc.)."
+  },
+  {
+    "id": "json-canvas",
+    "path": "skills/json-canvas",
+    "name": "json-canvas",
+    "description": "Create and edit JSON Canvas files (.canvas) with nodes, edges, groups, and connections. Use when working with .canvas files, creating visual canvases, mind maps, flowcharts, or when the user mentions Canvas files in Obsidian."
+  },
+  {
+    "id": "mcp-builder",
+    "path": "skills/mcp-builder",
+    "name": "mcp-builder",
+    "description": "Guide for creating high-quality MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. Use when building MCP servers to integrate external APIs or services, whether in Python (FastMCP) or Node/TypeScript (MCP SDK)."
+  },
+  {
+    "id": "memory-systems",
+    "path": "skills/memory-systems",
+    "name": "memory-systems",
+    "description": "This skill should be used when the user asks to \"implement agent memory\", \"persist state across sessions\", \"build knowledge graph\", \"track entities\", or mentions memory architecture, temporal knowledge graphs, vector stores, entity memory, or cross-session persistence."
+  },
+  {
+    "id": "multi-agent-patterns",
+    "path": "skills/multi-agent-patterns",
+    "name": "multi-agent-patterns",
+    "description": "This skill should be used when the user asks to \"design multi-agent system\", \"implement supervisor pattern\", \"create swarm architecture\", \"coordinate multiple agents\", or mentions multi-agent patterns, context isolation, agent handoffs, sub-agents, or parallel agent execution."
+  },
+  {
+    "id": "notebooklm",
+    "path": "skills/notebooklm",
+    "name": "notebooklm",
+    "description": "Use this skill to query your Google NotebookLM notebooks directly from Claude Code for source-grounded, citation-backed answers from Gemini. Browser automation, library management, persistent auth. Drastically reduced hallucinations through document-only responses."
+  },
+  {
+    "id": "obsidian-bases",
+    "path": "skills/obsidian-bases",
+    "name": "obsidian-bases",
+    "description": "Create and edit Obsidian Bases (.base files) with views, filters, formulas, and summaries. Use when working with .base files, creating database-like views of notes, or when the user mentions Bases, table views, card views, filters, or formulas in Obsidian."
+  },
+  {
+    "id": "obsidian-cli",
+    "path": "skills/obsidian-cli",
+    "name": "obsidian-cli",
+    "description": "Interact with Obsidian vaults using the Obsidian CLI to read, create, search, and manage notes, tasks, properties, and more. Also supports plugin and theme development with commands to reload plugins, run JavaScript, capture errors, take screenshots, and inspect the DOM."
+  },
+  {
+    "id": "obsidian-markdown",
+    "path": "skills/obsidian-markdown",
+    "name": "obsidian-markdown",
+    "description": "Create and edit Obsidian Flavored Markdown with wikilinks, embeds, callouts, properties, and other Obsidian-specific syntax. Use when working with .md files in Obsidian, or when the user mentions wikilinks, callouts, frontmatter, tags, embeds, or Obsidian notes."
+  },
+  {
+    "id": "pdf",
+    "path": "skills/pdf",
+    "name": "pdf",
+    "description": "Comprehensive PDF manipulation toolkit for extracting text and tables, creating new PDFs, merging/splitting documents, and handling forms. When Claude needs to fill in a PDF form or programmatically process, generate, or analyze PDF documents at scale."
+  },
+  {
+    "id": "planning-with-files",
+    "path": "skills/planning-with-files",
+    "name": "planning-with-files",
+    "description": "Implements Manus-style file-based planning for complex tasks. Creates task_plan.md, findings.md, and progress.md. Use when starting complex multi-step tasks, research projects, or any task requiring >5 tool calls."
+  },
+  {
+    "id": "pptx",
+    "path": "skills/pptx",
+    "name": "pptx",
+    "description": "Presentation creation, editing, and analysis. When Claude needs to work with presentations (.pptx files) for: (1) Creating new presentations, (2) Modifying or editing content, (3) Working with layouts, (4) Adding comments or speaker notes, or any other presentation tasks"
+  },
+  {
+    "id": "project-development",
+    "path": "skills/project-development",
+    "name": "project-development",
+    "description": "This skill should be used when the user asks to \"start an LLM project\", \"design batch pipeline\", \"evaluate task-model fit\", \"structure agent project\", or mentions pipeline architecture, agent-assisted development, cost estimation, or choosing between LLM and traditional approaches."
+  },
+  {
+    "id": "react-best-practices",
+    "path": "skills/react-best-practices",
+    "name": "react-best-practices",
+    "description": "React and Next.js performance optimization guidelines from Vercel Engineering. Use when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns."
+  },
+  {
+    "id": "react-native-skills",
+    "path": "skills/react-native-skills",
+    "name": "react-native-skills",
+    "description": "React Native and Expo best practices for building performant mobile apps. Use when building React Native components, optimizing list performance, or implementing animations with Reanimated."
+  },
+  {
+    "id": "receiving-code-review",
+    "path": "skills/receiving-code-review",
+    "name": "receiving-code-review",
+    "description": "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable - requires technical rigor and verification, not performative agreement or blind implementation"
+  },
+  {
+    "id": "remotion",
+    "path": "skills/remotion",
+    "name": "remotion",
+    "description": "Best practices for Remotion - Video creation in React. Use this skill whenever you are dealing with Remotion code to obtain the domain-specific knowledge."
+  },
+  {
+    "id": "requesting-code-review",
+    "path": "skills/requesting-code-review",
+    "name": "requesting-code-review",
+    "description": "Use when completing tasks, implementing major features, or before merging to verify work meets requirements"
+  },
+  {
+    "id": "skill-creator",
+    "path": "skills/skill-creator",
+    "name": "skill-creator",
+    "description": "Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations."
+  },
+  {
+    "id": "slack-gif-creator",
+    "path": "skills/slack-gif-creator",
+    "name": "slack-gif-creator",
+    "description": "Knowledge and utilities for creating animated GIFs optimized for Slack. Provides constraints, validation tools, and animation concepts. Use when users request animated GIFs for Slack like \"make me a GIF of X doing Y for Slack."
+  },
+  {
+    "id": "subagent-driven-development",
+    "path": "skills/subagent-driven-development",
+    "name": "subagent-driven-development",
+    "description": "Use when executing implementation plans with independent tasks in the current session"
+  },
+  {
+    "id": "supabase-postgres-best-practices",
+    "path": "skills/supabase-postgres-best-practices",
+    "name": "supabase-postgres-best-practices",
+    "description": "Postgres performance optimization and best practices from Supabase. Use this skill when writing, reviewing, or optimizing Postgres queries, schema designs, or database configurations."
+  },
+  {
+    "id": "systematic-debugging",
+    "path": "skills/systematic-debugging",
+    "name": "systematic-debugging",
+    "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes"
+  },
+  {
+    "id": "test-driven-development",
+    "path": "skills/test-driven-development",
+    "name": "test-driven-development",
+    "description": "Use when implementing any feature or bugfix, before writing implementation code"
+  },
+  {
+    "id": "theme-factory",
+    "path": "skills/theme-factory",
+    "name": "theme-factory",
+    "description": "Toolkit for styling artifacts with a theme. These artifacts can be slides, docs, reportings, HTML landing pages, etc. There are 10 pre-set themes with colors/fonts that you can apply to any artifact that has been creating, or can generate a new theme on-the-fly."
+  },
+  {
+    "id": "tool-design",
+    "path": "skills/tool-design",
+    "name": "tool-design",
+    "description": "This skill should be used when the user asks to \"design agent tools\", \"create tool descriptions\", \"reduce tool complexity\", \"implement MCP tools\", or mentions tool consolidation, architectural reduction, tool naming conventions, or agent-tool interfaces."
+  },
+  {
+    "id": "ui-ux-pro-max",
+    "path": "skills/ui-ux-pro-max",
+    "name": "ui-ux-pro-max",
+    "description": "UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 8 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, mobile app, .html, .tsx, .vue, .svelte. Elements: button, modal, navbar, sidebar, card, table, form, chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, flat design. Topics: color palette, accessibility, animation, layout, typography, font pairing, spacing, hover, shadow, gradient."
+  },
+  {
+    "id": "using-git-worktrees",
+    "path": "skills/using-git-worktrees",
+    "name": "using-git-worktrees",
+    "description": "Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification"
+  },
+  {
+    "id": "using-superpowers",
+    "path": "skills/using-superpowers",
+    "name": "using-superpowers",
+    "description": "Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions"
+  },
+  {
+    "id": "verification-before-completion",
+    "path": "skills/verification-before-completion",
+    "name": "verification-before-completion",
+    "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always"
+  },
+  {
+    "id": "web-artifacts-builder",
+    "path": "skills/web-artifacts-builder",
+    "name": "web-artifacts-builder",
+    "description": "Suite of tools for creating elaborate, multi-component claude.ai HTML artifacts using modern frontend web technologies (React, Tailwind CSS, shadcn/ui). Use for complex artifacts requiring state management, routing, or shadcn/ui components - not for simple single-file HTML/JSX artifacts."
+  },
+  {
+    "id": "web-design-guidelines",
+    "path": "skills/web-design-guidelines",
+    "name": "web-design-guidelines",
+    "description": "Review UI code for Web Interface Guidelines compliance. Use when asked to review UI, check accessibility, audit design, or check site against best practices."
+  },
+  {
+    "id": "webapp-testing",
+    "path": "skills/webapp-testing",
+    "name": "webapp-testing",
+    "description": "Toolkit for interacting with and testing local web applications using Playwright. Supports verifying frontend functionality, debugging UI behavior, capturing browser screenshots, and viewing browser logs."
+  },
+  {
+    "id": "writing-plans",
+    "path": "skills/writing-plans",
+    "name": "writing-plans",
+    "description": "Use when you have a spec or requirements for a multi-step task, before touching code"
+  },
+  {
+    "id": "writing-skills",
+    "path": "skills/writing-skills",
+    "name": "writing-skills",
+    "description": "Use when creating new skills, editing existing skills, or verifying skills work before deployment"
+  },
+  {
+    "id": "xlsx",
+    "path": "skills/xlsx",
+    "name": "xlsx",
+    "description": "Comprehensive spreadsheet creation, editing, and analysis with support for formulas, formatting, data analysis, and visualization. When Claude needs to work with spreadsheets (.xlsx, .xlsm, .csv, .tsv, etc) for: (1) Creating new spreadsheets with formulas and formatting, (2) Reading or analyzing data, (3) Modify existing spreadsheets while preserving formulas, (4) Data analysis and visualization in spreadsheets, or (5) Recalculating formulas"
+  }
+]

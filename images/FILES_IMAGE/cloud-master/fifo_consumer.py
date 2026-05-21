@@ -1,0 +1,62 @@
+# fifo_consumer.py — Cloud Master FIFO Consumer → API → DB
+print("[FIFO] Script started", flush=True)
+
+import json
+import time
+import requests
+import redis
+
+from config import (
+    REDIS_HOST,
+    REDIS_PORT,
+    REDIS_PASSWORD,
+    REDIS_ZONE_QUEUE_KEY,
+    API_URL,
+    API_TIMEOUT,
+    CONSUMER_SLEEP_SEC,
+)
+
+redis_client = redis.Redis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    decode_responses=True,
+)
+
+print("[CONSUMER] FIFO consumer started")
+
+while True:
+    try:
+        item = redis_client.blpop(REDIS_ZONE_QUEUE_KEY, timeout=5)
+
+        if not item:
+            time.sleep(CONSUMER_SLEEP_SEC)
+            continue
+
+        _, raw_event = item
+        event = json.loads(raw_event)
+
+        try:
+            tenant_id = event.get("tenant_id") or ""
+            headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+            resp = requests.post(API_URL, json=event, headers=headers, timeout=API_TIMEOUT)
+
+            if resp.status_code == 200:
+                print(f"[API OK] {event['asset_mac']} {event.get('from_zone_id')} → {event.get('to_zone_id')}")
+            else:
+                print(f"[API ERR {resp.status_code}] pushing back to queue")
+                redis_client.rpush(REDIS_ZONE_QUEUE_KEY, json.dumps(event))
+                time.sleep(2)
+
+        except Exception as e:
+            print(f"[API DOWN] {e} → re-queueing")
+            redis_client.rpush(REDIS_ZONE_QUEUE_KEY, json.dumps(event))
+            time.sleep(3)
+
+    except KeyboardInterrupt:
+        print("\n[CONSUMER] Stopped by user")
+        break
+
+    except Exception as e:
+        print(f"[CONSUMER ERROR] {e}")
+        time.sleep(5)

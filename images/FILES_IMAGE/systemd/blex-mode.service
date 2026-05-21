@@ -1,0 +1,14 @@
+[Unit]
+Description=BleX Mode Check (local vs cloud vs unprovisioned)
+After=local-fs.target
+Before=blex-master.service blex-scanner.service blex-provisioner.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/bin/blex-mode-check.py
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
