@@ -26,6 +26,7 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
       - REDIS_URL=redis://redis:6379
+      - APP_ROOT_PATH=/asset
     volumes:
       - ./asset_api:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
