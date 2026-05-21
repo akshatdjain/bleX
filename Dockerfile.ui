@@ -1,21 +1,7 @@
 # Dockerfile.ui
-FROM node:20-alpine AS builder
-
-WORKDIR /app/ui
-
-# Copy package files first for caching
-COPY ui/package*.json ./
-
-RUN npm ci
-
-COPY ui/ ./
-
-RUN npm run build
-
-# Production stage
 FROM python:3.11-slim
 
-WORKDIR /app/ui_api
+WORKDIR /app
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -23,20 +9,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
 COPY ui_api/requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy service source code
+# Copy service source code (including www folder)
 COPY ui_api/ .
 
-# Copy built UI assets from builder stage
-COPY --from=builder /app/ui/dist /app/ui_api/www
-
-# Expose port (will be overridden by compose)
 EXPOSE 9000
 
-# Default command (can be overridden)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]

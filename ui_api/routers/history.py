@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import date
 
-from database import get_db
+from database import get_tenant_db
 from models import MovementLog
 
 router = APIRouter(prefix="/assets", tags=["History"])
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/assets", tags=["History"])
 @router.get("/history")
 async def get_history(
     start_date: date | None = Query(default=None),
-    db: AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_tenant_db),
 ):
     stmt = select(MovementLog).order_by(MovementLog.timestamp_movement.desc())
 

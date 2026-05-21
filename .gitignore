@@ -1,27 +1,52 @@
-# AI/Aider tool history and caches
-.aider*
-!.aider.conf.yml
-
-# Python caches and environments
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-*.pyd
-.env
-.venv
-env/
+.venv/
 venv/
+env/
+*.egg-info/
 .pytest_cache/
 
-# Docker and runtime logs
-*.log
+# Logs
 logs/
-runtime/site.json
+*.log
+*.out
+*.err
+*.pid
 
-# Node/UI dependencies and builds
+# Environment & secrets
+.env
+.env.*
+!.env.example
+mosquitto.passwd
+*.key
+*.crt
+*.pem
+
+# Node
 node_modules/
 dist/
-.eslintcache
+.next/
 
-# OS files
+# Docker build cache
+.docker/
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.aider*
+
+# Large static/built files
+asset_api/www/
+ui_api/www/
+www/
+
+# Database dumps
+*.sql.bak
+*.dump
