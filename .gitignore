@@ -71,6 +71,7 @@ www/
 # Claude / AI tooling
 .claude/
 brain.md
+brain.md.backup
 CLAUDE.md
 .mcp.json
 .playwright-mcp/
@@ -78,6 +79,9 @@ CLAUDE.md
 memory/
 docs/superpowers/
 .aider*
+.specify/
+graphify-out/
+install_skills.ps1
 
 # Lovable
 .lovable/
@@ -85,3 +89,22 @@ docs/superpowers/
 # Images (large binary files)
 images/*.xz
 images/*.img
+
+# Local dev environment
+local-dev/
+logs/
+legacy/
+
+# Tilde dir (accidental home dir / antigravity-skills)
+~/
+~/antigravity-skills/
+
+# One-off dev/tooling scripts
+build_semantic.py
+cleanup_graphify.py
+run_graphify_pipeline.py
+make_html.py
+generate_proposal.py
+ssh_explorer.py
+ssh_scanner_explorer.py
+ssh_uploader.py
