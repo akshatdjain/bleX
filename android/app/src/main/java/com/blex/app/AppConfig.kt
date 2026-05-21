@@ -167,5 +167,5 @@ object AppConfig {
     const val REMOTE_API_URL = "https://sigmatic-asc.tech/asset"
 
     /** URL for the BleX web dashboard */
-    const val REMOTE_WEB_URL = "https://sigmatic-asc.tech/beam"
+    const val REMOTE_WEB_URL = "https://sigmatic-asc.tech/blex"
 }

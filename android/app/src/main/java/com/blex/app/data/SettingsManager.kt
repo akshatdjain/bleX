@@ -234,7 +234,7 @@ class SettingsManager(context: Context) {
         set(value) = prefs.edit().putString("api_base_url", value).apply()
 
     var webDashboardUrl: String
-        get() = prefs.getString("web_dashboard_url", "https://sigmatic-asc.tech/beam") ?: "https://sigmatic-asc.tech/beam"
+        get() = prefs.getString("web_dashboard_url", "https://sigmatic-asc.tech/blex") ?: "https://sigmatic-asc.tech/blex"
         set(value) = prefs.edit().putString("web_dashboard_url", value).apply()
 
     // ── Auth & Tenant ────────────────────────────────────────────

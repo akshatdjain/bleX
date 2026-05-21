@@ -23,7 +23,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter basename="/beam">
+      <BrowserRouter basename="/blex">
         <Routes>
           {/* Public routes — no AppLayout */}
           <Route path="/" element={<Index />} />

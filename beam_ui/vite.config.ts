@@ -32,7 +32,7 @@ export default defineConfig({
       },
     },
   },
-  base: "/beam/",
+  base: "/blex/",
   plugins: [react()],
   resolve: {
     alias: {
