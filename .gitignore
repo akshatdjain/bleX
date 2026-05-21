@@ -50,3 +50,6 @@ www/
 # Database dumps
 *.sql.bak
 *.dump
+
+# Lovable
+.lovable/
