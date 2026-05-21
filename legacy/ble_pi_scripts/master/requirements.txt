@@ -1,4 +1,0 @@
-requests
-redis
-paho-mqtt
-psycopg2-binary

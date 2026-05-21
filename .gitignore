@@ -93,6 +93,7 @@ images/*.img
 # Local dev environment
 local-dev/
 logs/
+legacy/
 
 # Tilde dir (accidental home dir symlink)
 ~/
