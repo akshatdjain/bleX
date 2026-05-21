@@ -414,7 +414,7 @@ async def create_web_nonce(request: Request):
 async def weblogin(nonce: str, request: Request):
     """
     Validates one-time nonce (atomic get+delete), checks IP binding,
-    sets httpOnly cookie, redirects to /beam/dashboard.
+    sets httpOnly cookie, redirects to /blex/dashboard.
     """
     entry = _nonce_pop(nonce)
     if not entry:
@@ -435,7 +435,7 @@ async def weblogin(nonce: str, request: Request):
     except Exception:
         raise HTTPException(status_code=401, detail="Token expired")
 
-    redirect = RedirectResponse(url="/beam/dashboard", status_code=302)
+    redirect = RedirectResponse(url="/blex/dashboard", status_code=302)
     redirect.set_cookie(
         key="blex_token",
         value=token,
