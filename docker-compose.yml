@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: LYzxeJ2xrSKfzM2f
     volumes:
       - db_data:/var/lib/postgresql/data
+    restart: always
 
   redis:
     image: redis:7-alpine
@@ -18,11 +19,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.asset
+    container_name: asset_tracking-asset_api-1
+    restart: always
     ports:
       - "5000:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
       - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./asset_api:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       - db
       - redis
