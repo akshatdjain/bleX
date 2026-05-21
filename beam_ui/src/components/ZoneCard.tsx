@@ -15,6 +15,14 @@ import {
 import { ScannerSheet } from "@/components/ScannerSheet";
 import type { Scanner } from "@/lib/api";
 
+function rssiBar(rssi?: number | null): string {
+  if (rssi == null) return "·";
+  if (rssi > -65) return "▄▄▄▄";
+  if (rssi > -75) return "▃▃▃";
+  if (rssi > -85) return "▂▂";
+  return "▁";
+}
+
 interface ZoneCardProps {
   zone: Zone;
   index: number;
@@ -44,12 +52,11 @@ export function ZoneCard({ zone, index }: ZoneCardProps) {
             <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary/60" />
           )}
 
-          <CardContent className="p-5">
+          <CardContent className="p-3.5">
             {/* Header: zone name + movement count */}
             <div className="flex items-start justify-between mb-1">
               <div>
                 <h3 className="text-sm font-semibold">{zone.name}</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 font-mono opacity-60">ID: {zone.id}</p>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Activity className="h-3.5 w-3.5" />
@@ -88,52 +95,58 @@ export function ZoneCard({ zone, index }: ZoneCardProps) {
               )}
             </div>
 
-            {/* Assets — prominent beacon chips */}
+            {/* Assets — beacon chips capped at 3 with RSSI bars */}
             <TooltipProvider delayDuration={200}>
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 {assets.length > 0 ? (
-                  assets.map((asset) => (
-                    <Tooltip key={asset.id}>
-                      <TooltipTrigger asChild>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            navigate(`/assets/${asset.id}`);
-                          }}
-                          className={cn(
-                            "flex items-center gap-2 rounded-xl px-2.5 py-1.5",
-                            "bg-transparent border",
-                            "transition-all duration-200",
-                            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                            "active:scale-[0.97]",
-                            // Status-based colors and borders
-                            asset.status === "active" 
-                              ? "border-status-active/30 bg-status-active/5 hover:bg-status-active/10" 
-                              : asset.status === "offline"
-                              ? "border-muted-foreground/20 hover:bg-muted/50 text-muted-foreground"
-                              : "border-border/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={18} />
-                          <div className="flex flex-col text-left">
-                            <span className={cn(
-                              "text-[11px] font-bold leading-none tracking-wide",
-                              asset.status === "offline" ? "text-muted-foreground" : "text-foreground"
-                            )}>
-                              {asset.name}
-                            </span>
-                            <span className="text-[9px] text-muted-foreground tabular-nums leading-none mt-1 uppercase opacity-80">
-                              {asset.last_seen_relative}
-                            </span>
-                          </div>
-                        </button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="text-xs font-mono">
-                        {asset.name} · {asset.rssi} dBm · {asset.battery}%
-                      </TooltipContent>
-                    </Tooltip>
-                  ))
+                  <>
+                    {assets.slice(0, 3).map((asset) => (
+                      <Tooltip key={asset.id}>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate(`/assets/${asset.id}`);
+                            }}
+                            className={cn(
+                              "flex items-center gap-2 rounded-xl px-2.5 py-1.5",
+                              "bg-transparent border",
+                              "transition-all duration-200",
+                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                              "active:scale-[0.97]",
+                              asset.status === "active"
+                                ? "border-status-active/30 bg-status-active/5 hover:bg-status-active/10"
+                                : asset.status === "offline"
+                                ? "border-muted-foreground/20 hover:bg-muted/50 text-muted-foreground"
+                                : "border-border/50 hover:bg-muted/50"
+                            )}
+                          >
+                            <BeaconIcon shape={inferShapeFromName(asset.name)} status={asset.status} size={18} />
+                            <div className="flex flex-col text-left">
+                              <span className={cn(
+                                "text-[11px] font-bold leading-none tracking-wide",
+                                asset.status === "offline" ? "text-muted-foreground" : "text-foreground"
+                              )}>
+                                {asset.name}
+                              </span>
+                              <span className="text-[9px] text-muted-foreground tabular-nums leading-none mt-1 font-mono">
+                                {rssiBar(asset.rssi)}
+                              </span>
+                            </div>
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs font-mono">
+                          {asset.name} · {asset.rssi ?? "?"} dBm · {asset.battery ?? "?"}%
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                    {assets.length > 3 && (
+                      <span className="text-[10px] font-medium text-muted-foreground px-1.5 py-0.5">
+                        +{assets.length - 3} more
+                      </span>
+                    )}
+                  </>
                 ) : (
                   <span className="text-xs text-muted-foreground italic">No assets</span>
                 )}

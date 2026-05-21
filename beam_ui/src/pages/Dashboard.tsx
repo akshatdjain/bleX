@@ -1,91 +1,70 @@
+import { useState } from "react";
 import { useZones } from "@/hooks/use-api";
 import { ZoneCard } from "@/components/ZoneCard";
-import { ChevronRight, Box } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 export default function Dashboard() {
   const { data: zones = [], isLoading } = useZones();
+  const [inactiveOpen, setInactiveOpen] = useState(false);
 
-  const activeZones = [...zones]
-    .filter((z) => z.is_active)
-    .sort((a, b) => b.movement_count - a.movement_count)
-    .slice(0, 4);
+  const sorted = [...zones].sort((a, b) => b.movement_count - a.movement_count);
+  const activeZones = sorted.filter((z) => z.is_active || z.asset_count > 0);
+  const inactiveZones = sorted.filter((z) => !z.is_active && z.asset_count === 0);
 
   const totalAssets = zones.reduce((s, z) => s + z.asset_count, 0);
   const totalMovements = zones.reduce((s, z) => s + z.movement_count, 0);
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight text-balance">Active Zones</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {totalAssets} assets tracked · {totalMovements} movements today
-          </p>
-        </div>
-
-        {/* 3D Visualize CTA */}
-        <Card className="border-dashed opacity-80 hover:opacity-100 transition-opacity cursor-default hidden sm:block">
-          <CardContent className="flex items-center gap-2.5 px-4 py-2.5">
-            <Box className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="text-xs font-medium">3D Visualize</p>
-              <p className="text-[11px] text-muted-foreground">Coming soon</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Zones</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {totalAssets} assets tracked · {totalMovements} movements today
+        </p>
       </div>
 
-      {/* Loading skeletons for active zones */}
       {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-40 rounded-xl" />
           ))}
         </div>
       )}
 
-      {/* Active zones grid */}
       {!isLoading && activeZones.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {activeZones.map((zone, i) => (
             <ZoneCard key={zone.id} zone={zone} index={i} />
           ))}
         </div>
       )}
 
-      {/* All zones scroll link */}
-      {zones.length > 4 && (
-        <div className="pt-2">
-          <button
-            onClick={() => document.getElementById("all-zones")?.scrollIntoView({ behavior: "smooth" })}
-            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            View all {zones.length} zones
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
+      {!isLoading && activeZones.length === 0 && (
+        <div className="py-12 text-center text-muted-foreground">
+          <p className="text-sm">No active zones with assets.</p>
         </div>
       )}
 
-      {/* All zones list section */}
-      <div id="all-zones" className="pt-4">
-        <h2 className="text-sm font-medium text-muted-foreground mb-4">All Zones</h2>
-        {isLoading ? (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-32 rounded-xl" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {zones.map((zone, i) => (
-              <ZoneCard key={zone.id} zone={zone} index={i + 4} />
-            ))}
-          </div>
-        )}
-      </div>
+      {!isLoading && inactiveZones.length > 0 && (
+        <Collapsible open={inactiveOpen} onOpenChange={setInactiveOpen}>
+          <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-1">
+            <ChevronDown
+              className="h-4 w-4 transition-transform duration-200"
+              style={{ transform: inactiveOpen ? "rotate(0deg)" : "rotate(-90deg)" }}
+            />
+            Inactive Zones ({inactiveZones.length})
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {inactiveZones.map((zone, i) => (
+                <ZoneCard key={zone.id} zone={zone} index={activeZones.length + i} />
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
     </div>
   );
 }

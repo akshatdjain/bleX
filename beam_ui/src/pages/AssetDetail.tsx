@@ -40,8 +40,8 @@ export default function AssetDetail() {
 
   const stats = [
     { icon: MapPin,   label: "Zone",      value: asset.zone_name },
-    { icon: Signal,   label: "RSSI",      value: asset.rssi ? `${asset.rssi} dBm` : "—" },
-    { icon: Battery,  label: "Battery",   value: asset.battery !== undefined && asset.battery !== null ? `${asset.battery}%` : "—" },
+    { icon: Signal,   label: "RSSI",      value: asset.rssi ? `${asset.rssi} dBm` : "no signal" },
+    { icon: Battery,  label: "Battery",   value: asset.battery !== undefined && asset.battery !== null ? `${asset.battery}%` : "no data" },
     { icon: Clock,    label: "Last Seen", value: asset.last_seen_relative },
   ];
 
@@ -93,7 +93,7 @@ export default function AssetDetail() {
                 style={{ animationDelay: `${(i + 4) * 60}ms` }}
               >
                 <CardContent className="p-3 flex items-center gap-3 text-sm">
-                  <span className="text-xs text-muted-foreground font-mono tabular-nums w-12 flex-shrink-0">
+                  <span className="text-xs text-muted-foreground font-mono tabular-nums whitespace-nowrap flex-shrink-0 min-w-fit">
                     {formatTs(log.timestamp)}
                   </span>
                   <span className="text-muted-foreground truncate">{log.from_zone}</span>

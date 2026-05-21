@@ -25,7 +25,7 @@ app = FastAPI(
     title="BleX API",
     description="BLE asset tracking — device API + web dashboard",
     version="2.0.0",
-    root_path="/asset"
+    root_path=os.getenv("APP_ROOT_PATH", ""),  # /asset on DGX via Caddy, empty locally
 )
 
 app.add_middleware(
