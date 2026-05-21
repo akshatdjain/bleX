@@ -95,8 +95,9 @@ local-dev/
 logs/
 legacy/
 
-# Tilde dir (accidental home dir symlink)
+# Tilde dir (accidental home dir / antigravity-skills)
 ~/
+~/antigravity-skills/
 
 # One-off dev/tooling scripts
 build_semantic.py
