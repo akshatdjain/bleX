@@ -147,6 +147,35 @@ object AppConfig {
         return "$MQTT_TOPIC_PREFIX/${getDeviceId(context)}"
     }
 
+    /**
+     * Returns the same MAC the Scanners screen displays and registers.
+     * Mirrors ScannersTab.getNetworkMac() — tries wlan0, then falls back
+     * to AndroidID chunked as colon-separated MAC.
+     */
+    fun getTabletMac(context: android.content.Context): String {
+        try {
+            for (ifName in listOf("wlan0", "rmnet0", "rmnet_data0")) {
+                val iface = java.net.NetworkInterface.getByName(ifName) ?: continue
+                val hw = iface.hardwareAddress ?: continue
+                if (hw.isEmpty()) continue
+                val mac = hw.joinToString(":") { String.format("%02X", it) }
+                if (mac != "02:00:00:00:00:00") return mac
+            }
+            val interfaces = java.net.NetworkInterface.getNetworkInterfaces()
+            while (interfaces.hasMoreElements()) {
+                val iface = interfaces.nextElement()
+                if (iface.isLoopback) continue
+                val hw = iface.hardwareAddress ?: continue
+                if (hw.isEmpty()) continue
+                val mac = hw.joinToString(":") { String.format("%02X", it) }
+                if (mac != "02:00:00:00:00:00") return mac
+            }
+        } catch (_: Exception) {}
+        // Same fallback as ScannersTab: AndroidID chunked as MAC
+        val aid = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID) ?: "0000000000000000"
+        return aid.chunked(2).take(6).joinToString(":").uppercase()
+    }
+
     // ══════════════════════════════════════════════════════════════
     //  Remote Cloud Endpoints
     // ══════════════════════════════════════════════════════════════

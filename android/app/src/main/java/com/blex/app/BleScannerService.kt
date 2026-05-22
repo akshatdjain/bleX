@@ -101,6 +101,19 @@ class BleScannerService : Service() {
             val payload = PayloadBuilder.buildBatchPayload(this, beacons)
             mqttManager.publish(payload)
 
+            // Publish heartbeat — use same MAC the Scanners screen registers (AndroidID as MAC)
+            val scannerMac = settings.scannerMacLabel.ifEmpty { AppConfig.getTabletMac(this) }
+            val hb = org.json.JSONObject().apply {
+                put("type", "heartbeat")
+                put("scanner_id", scannerMac)
+                put("scanner_mac", scannerMac)
+                put("scanner_type", "android")
+                put("tenant_id", settings.tenantId)
+                put("beacon_count", beacons.size)
+                put("timestamp", java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale.US).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }.format(java.util.Date()))
+            }
+            mqttManager.publish(hb.toString())
+
             // Push to UI
             ScanRepository.updateBeacons(beacons)
 
