@@ -14,6 +14,16 @@ function timeAgoShort(ts: string | null | undefined): string {
   return `${Math.floor(diff / 3600)}h ago`;
 }
 
+// Compute status from last_heartbeat age — don't trust DB scanner_status
+// which only updates every 60s. Keep green up to 3 min, idle up to 10 min.
+function statusFromHeartbeat(ts: string | null | undefined, dbStatus: string): string {
+  if (!ts) return dbStatus || "offline";
+  const ageSec = (Date.now() - new Date(ts).getTime()) / 1000;
+  if (ageSec < 180) return "active";   // < 3 min → green
+  if (ageSec < 600) return "idle";     // < 10 min → yellow
+  return "offline";
+}
+
 export function HealthBar() {
   const { data: health, dataUpdatedAt } = useHealthSummary();
   const { data: scanners = [] } = useScanners();
@@ -34,8 +44,11 @@ export function HealthBar() {
 
   if (!health) return null;
 
-  const online = health.scanners?.online ?? 0;
-  const total = health.scanners?.total ?? 0;
+  // Compute online count from live heartbeat age rather than stale DB status
+  const total = scanners.length || health.scanners?.total || 0;
+  const online = scanners.length > 0
+    ? scanners.filter(s => statusFromHeartbeat(s.last_heartbeat, s.status) !== "offline").length
+    : health.scanners?.online ?? 0;
   const offline = total - online;
   const assetCount = health.beacons?.alive ?? 0;
 
@@ -98,10 +111,12 @@ function ScannerSheet({ open, onOpenChange, scanners, online, total }: {
           {scanners.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">No scanners registered.</p>
           )}
-          {scanners.map((scanner) => (
+          {scanners.map((scanner) => {
+            const liveStatus = statusFromHeartbeat(scanner.last_heartbeat, scanner.status) as any;
+            return (
             <div key={scanner.id} className="flex items-center justify-between rounded-lg border border-border/40 px-3 py-2.5">
               <div className="flex items-center gap-2 min-w-0">
-                <StatusDot status={scanner.status} />
+                <StatusDot status={liveStatus} />
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{scanner.name || scanner.mac_id}</p>
                   <p className="text-[11px] text-muted-foreground font-mono">
@@ -111,14 +126,15 @@ function ScannerSheet({ open, onOpenChange, scanners, online, total }: {
               </div>
               <span className={cn(
                 "text-[10px] font-medium px-1.5 py-0.5 rounded capitalize",
-                scanner.status === "online" ? "bg-green-500/10 text-green-600" :
-                scanner.status === "idle" ? "bg-yellow-400/10 text-yellow-600" :
+                liveStatus === "active" ? "bg-green-500/10 text-green-600" :
+                liveStatus === "idle" ? "bg-yellow-400/10 text-yellow-600" :
                 "bg-muted text-muted-foreground"
               )}>
-                {scanner.status}
+                {liveStatus}
               </span>
             </div>
-          ))}
+            );
+          })}
         </div>
       </SheetContent>
     </Sheet>

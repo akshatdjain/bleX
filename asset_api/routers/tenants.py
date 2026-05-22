@@ -1,7 +1,26 @@
+"""
+Tenant management endpoints.
+
+Public (no auth):
+  POST /api/tenants/register         — Android first-launch: create tenant + schema
+  GET  /api/tenants/{tenant_id}      — Verify tenant exists
+
+Internal (master.py):
+  GET  /api/tenants/active           — List all active tenant IDs (used by master pre-load)
+
+Admin panel (future auth layer goes here):
+  GET  /api/tenants                  — List all tenants with stats
+  GET  /api/tenants/{id}/stats       — Per-tenant stats (scanners, assets, zones, events)
+  PATCH /api/tenants/{id}            — Update status / tier / limits / metadata
+  GET  /api/tenants/{id}/events      — Audit log
+  POST /api/tenants/{id}/events      — Append audit event (admin action)
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from pydantic import BaseModel
+from typing import Optional, Any
 import random
 import string
 
@@ -9,28 +28,60 @@ from database import get_db
 
 router = APIRouter(prefix="/api/tenants", tags=["Tenants"])
 
-# Characters for tenant ID — no ambiguous chars (0/O, 1/I/L)
 _CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
 
 def _generate_tenant_id(length: int = 6) -> str:
     return "".join(random.choices(_CHARS, k=length))
 
+
+# ── Schemas ───────────────────────────────────────────────────────────────────
+
 class TenantRegisterIn(BaseModel):
-    name: str           # e.g. "Raghu" or "City Hospital"
+    name: str
+    contact_email: Optional[str] = None
+    plan: Optional[str] = "demo"
 
 class TenantOut(BaseModel):
     tenant_id: str
     name: str
     mqtt_prefix: str
 
+class TenantDetail(BaseModel):
+    tenant_id: str
+    name: str
+    mqtt_prefix: str
+    plan: str
+    tier: str
+    master_tier: str
+    status: str
+    db_schema: Optional[str]
+    scanner_limit: int
+    asset_limit: int
+    contact_email: Optional[str]
+    created_at: str
+    metadata: dict
+
+class TenantUpdateIn(BaseModel):
+    name: Optional[str] = None
+    status: Optional[str] = None          # active | suspended | churned
+    plan: Optional[str] = None
+    tier: Optional[str] = None
+    master_tier: Optional[str] = None     # shared | dedicated
+    scanner_limit: Optional[int] = None
+    asset_limit: Optional[int] = None
+    contact_email: Optional[str] = None
+    metadata: Optional[dict] = None
+
+class TenantEventIn(BaseModel):
+    event_type: str
+    actor: Optional[str] = "system"
+    payload: Optional[dict] = {}
+
+
+# ── Register (Android first launch) ──────────────────────────────────────────
+
 @router.post("/register", response_model=TenantOut)
 async def register_tenant(payload: TenantRegisterIn, db: AsyncSession = Depends(get_db)):
-    """
-    Called by the Android app on first launch.
-    Generates a 6-char tenant ID, creates the Postgres schema + all tables,
-    registers in shared.tenants, and returns the tenant_id to the app.
-    """
-    # Try up to 5 times to get a unique ID
     for _ in range(5):
         tenant_id = _generate_tenant_id()
         result = await db.execute(
@@ -42,10 +93,9 @@ async def register_tenant(payload: TenantRegisterIn, db: AsyncSession = Depends(
     else:
         raise HTTPException(status_code=500, detail="Could not generate unique tenant ID")
 
-    schema = f"t_{tenant_id.lower()}"   # e.g. t_r4x9k2
-    mqtt_prefix = f"ble/{tenant_id}"
+    schema       = f"t_{tenant_id.lower()}"
+    mqtt_prefix  = f"ble/{tenant_id}"
 
-    # asyncpg does not allow multiple statements per execute() — run each separately
     stmts = [
         f"CREATE SCHEMA IF NOT EXISTS {schema}",
         f"""CREATE TABLE IF NOT EXISTS {schema}.mst_zone (
@@ -53,7 +103,8 @@ async def register_tenant(payload: TenantRegisterIn, db: AsyncSession = Depends(
             description TEXT, dimension JSON)""",
         f"""CREATE TABLE IF NOT EXISTS {schema}.mst_scanner (
             id SERIAL PRIMARY KEY, mac_id TEXT NOT NULL, name TEXT, type TEXT,
-            created_at TIMESTAMPTZ DEFAULT NOW(), last_heartbeat TIMESTAMPTZ)""",
+            created_at TIMESTAMPTZ DEFAULT NOW(), last_heartbeat TIMESTAMPTZ,
+            scanner_status TEXT DEFAULT 'offline')""",
         f"""CREATE TABLE IF NOT EXISTS {schema}.mst_asset (
             id SERIAL PRIMARY KEY, bluetooth_id TEXT NOT NULL UNIQUE, asset_name TEXT,
             current_zone_id INTEGER, last_movement_dt TIMESTAMPTZ,
@@ -74,18 +125,198 @@ async def register_tenant(payload: TenantRegisterIn, db: AsyncSession = Depends(
         await db.execute(text(stmt))
 
     await db.execute(
-        text("INSERT INTO shared.tenants (tenant_id, name, mqtt_prefix, tier, plan) "
-             "VALUES (:tid, :name, :prefix, 'pooled', 'demo') ON CONFLICT (tenant_id) DO NOTHING"),
-        {"tid": tenant_id, "name": payload.name, "prefix": mqtt_prefix}
+        text("""INSERT INTO shared.tenants
+                  (tenant_id, name, mqtt_prefix, tier, plan, status, master_tier,
+                   db_schema, contact_email, metadata)
+                VALUES
+                  (:tid, :name, :prefix, 'pooled', :plan, 'active', 'shared',
+                   :schema, :email, '{}')
+                ON CONFLICT (tenant_id) DO NOTHING"""),
+        {"tid": tenant_id, "name": payload.name, "prefix": mqtt_prefix,
+         "plan": payload.plan or "demo", "schema": schema,
+         "email": payload.contact_email},
     )
-    await db.commit()
 
+    await db.execute(
+        text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
+             "VALUES (:tid, 'created', 'system', :p)"),
+        {"tid": tenant_id, "p": '{"source":"register_api"}'},
+    )
+
+    await db.commit()
     return TenantOut(tenant_id=tenant_id, name=payload.name, mqtt_prefix=mqtt_prefix)
 
 
+# ── Active tenants (used by master.py pre-load) ───────────────────────────────
+
+@router.get("/active")
+async def list_active_tenants(db: AsyncSession = Depends(get_db)):
+    """Returns all active tenant IDs. master.py calls this at startup."""
+    result = await db.execute(
+        text("SELECT tenant_id FROM shared.tenants WHERE status = 'active' ORDER BY created_at")
+    )
+    rows = result.fetchall()
+    return {"tenants": [r.tenant_id for r in rows]}
+
+
+# ── Admin: list all tenants ───────────────────────────────────────────────────
+
+@router.get("")
+async def list_tenants(db: AsyncSession = Depends(get_db)):
+    """Full tenant list for admin panel."""
+    result = await db.execute(
+        text("""
+            SELECT t.tenant_id, t.name, t.mqtt_prefix, t.plan, t.tier, t.master_tier,
+                   t.status, t.db_schema, t.scanner_limit, t.asset_limit,
+                   t.contact_email, t.created_at, t.metadata
+            FROM shared.tenants t
+            ORDER BY t.created_at
+        """)
+    )
+    rows = result.fetchall()
+    return [
+        {
+            "tenant_id":     r.tenant_id,
+            "name":          r.name,
+            "mqtt_prefix":   r.mqtt_prefix,
+            "plan":          r.plan,
+            "tier":          r.tier,
+            "master_tier":   r.master_tier,
+            "status":        r.status,
+            "db_schema":     r.db_schema,
+            "scanner_limit": r.scanner_limit,
+            "asset_limit":   r.asset_limit,
+            "contact_email": r.contact_email,
+            "created_at":    r.created_at.isoformat() if r.created_at else None,
+            "metadata":      r.metadata or {},
+        }
+        for r in rows
+    ]
+
+
+# ── Admin: per-tenant stats ───────────────────────────────────────────────────
+
+@router.get("/{tenant_id}/stats")
+async def tenant_stats(tenant_id: str, db: AsyncSession = Depends(get_db)):
+    """Counts of scanners, assets, zones, movements for admin panel."""
+    row = (await db.execute(
+        text("SELECT db_schema FROM shared.tenants WHERE tenant_id = :tid"),
+        {"tid": tenant_id}
+    )).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    schema = row.db_schema
+    if not schema:
+        return {"tenant_id": tenant_id, "scanners": 0, "assets": 0, "zones": 0, "movements": 0}
+
+    counts = {}
+    for table, key in [("mst_scanner","scanners"),("mst_asset","assets"),
+                       ("mst_zone","zones"),("movement_log","movements")]:
+        try:
+            r = await db.execute(text(f"SELECT COUNT(*) FROM {schema}.{table}"))
+            counts[key] = r.scalar()
+        except Exception:
+            counts[key] = 0
+
+    active_scanners = 0
+    try:
+        r = await db.execute(text(
+            f"SELECT COUNT(*) FROM {schema}.mst_scanner WHERE scanner_status='active'"
+        ))
+        active_scanners = r.scalar()
+    except Exception:
+        pass
+
+    counts["active_scanners"] = active_scanners
+    counts["tenant_id"] = tenant_id
+    return counts
+
+
+# ── Admin: update tenant ──────────────────────────────────────────────────────
+
+@router.patch("/{tenant_id}")
+async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
+                        db: AsyncSession = Depends(get_db)):
+    """Update tenant fields — status, tier, limits, etc."""
+    existing = (await db.execute(
+        text("SELECT tenant_id FROM shared.tenants WHERE tenant_id = :tid"),
+        {"tid": tenant_id}
+    )).fetchone()
+    if not existing:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    updates = {}
+    if payload.name          is not None: updates["name"]          = payload.name
+    if payload.status        is not None: updates["status"]        = payload.status
+    if payload.plan          is not None: updates["plan"]          = payload.plan
+    if payload.tier          is not None: updates["tier"]          = payload.tier
+    if payload.master_tier   is not None: updates["master_tier"]   = payload.master_tier
+    if payload.scanner_limit is not None: updates["scanner_limit"] = payload.scanner_limit
+    if payload.asset_limit   is not None: updates["asset_limit"]   = payload.asset_limit
+    if payload.contact_email is not None: updates["contact_email"] = payload.contact_email
+    if payload.metadata      is not None: updates["metadata"]      = payload.metadata
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    set_clause = ", ".join(f"{k} = :{k}" for k in updates)
+    updates["tid"] = tenant_id
+    await db.execute(
+        text(f"UPDATE shared.tenants SET {set_clause} WHERE tenant_id = :tid"),
+        updates,
+    )
+
+    await db.execute(
+        text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
+             "VALUES (:tid, 'updated', 'admin', :p::jsonb)"),
+        {"tid": tenant_id, "p": str({"fields": list(payload.model_dump(exclude_none=True).keys())})
+                                   .replace("'", '"')},
+    )
+    await db.commit()
+    return {"ok": True, "updated": list(updates.keys())}
+
+
+# ── Admin: audit events ───────────────────────────────────────────────────────
+
+@router.get("/{tenant_id}/events")
+async def tenant_events(tenant_id: str, limit: int = 50, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        text("""SELECT id, event_type, actor, payload, created_at
+                FROM shared.tenant_events
+                WHERE tenant_id = :tid
+                ORDER BY created_at DESC LIMIT :lim"""),
+        {"tid": tenant_id, "lim": limit},
+    )
+    rows = result.fetchall()
+    return [
+        {"id": r.id, "event_type": r.event_type, "actor": r.actor,
+         "payload": r.payload, "created_at": r.created_at.isoformat()}
+        for r in rows
+    ]
+
+@router.post("/{tenant_id}/events")
+async def append_tenant_event(tenant_id: str, payload: TenantEventIn,
+                               db: AsyncSession = Depends(get_db)):
+    existing = (await db.execute(
+        text("SELECT tenant_id FROM shared.tenants WHERE tenant_id = :tid"),
+        {"tid": tenant_id}
+    )).fetchone()
+    if not existing:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    await db.execute(
+        text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
+             "VALUES (:tid, :et, :actor, :p::jsonb)"),
+        {"tid": tenant_id, "et": payload.event_type,
+         "actor": payload.actor, "p": str(payload.payload or {}).replace("'", '"')},
+    )
+    await db.commit()
+    return {"ok": True}
+
+
+# ── Verify tenant (Android subsequent launches) ───────────────────────────────
+
 @router.get("/{tenant_id}", response_model=TenantOut)
 async def get_tenant(tenant_id: str, db: AsyncSession = Depends(get_db)):
-    """Returns tenant info. Android app calls this on subsequent launches to verify tenant still exists."""
     result = await db.execute(
         text("SELECT tenant_id, name, mqtt_prefix FROM shared.tenants WHERE tenant_id = :tid"),
         {"tid": tenant_id}

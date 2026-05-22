@@ -55,11 +55,9 @@ fun SetupWizard(
     val settings = remember { SettingsManager.getInstance(context) }
     val beacons by ScanRepository.beacons.collectAsState()
 
-    // Ensure ApiService is wired with tenant credentials from login
-    LaunchedEffect(Unit) {
-        ApiService.configuredBaseUrl = settings.apiBaseUrl
-        ApiService.tenantId = settings.tenantId
-    }
+    // Wire ApiService immediately (not in LaunchedEffect) so skip works correctly
+    ApiService.configuredBaseUrl = settings.apiBaseUrl
+    ApiService.tenantId = settings.tenantId
 
     var currentStep by remember { mutableStateOf(0) }
     var createdZoneId by remember { mutableStateOf<Int?>(null) }

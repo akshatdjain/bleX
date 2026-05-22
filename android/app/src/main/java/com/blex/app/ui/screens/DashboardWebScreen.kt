@@ -58,7 +58,7 @@ fun DashboardWebScreen() {
     // Secure WebView auto-login via one-time nonce:
     // 1. App calls POST /api/auth/web-nonce (sends blex_token cookie) → gets 32-byte nonce
     // 2. WebView loads /asset/api/auth/weblogin?nonce=XXX
-    // 3. Server validates nonce, deletes it (one-time use), sets httpOnly cookie, redirects to /beam/dashboard
+    // 3. Server validates nonce, deletes it (one-time use), sets httpOnly cookie, redirects to /blex/dashboard
     // Nonce expires in 60s — even if URL is logged, it's already consumed.
     var webLoginUrl by remember { mutableStateOf<String?>(null) }
     var nonceError by remember { mutableStateOf(false) }

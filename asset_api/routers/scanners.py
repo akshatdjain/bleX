@@ -24,6 +24,8 @@ async def list_scanners(db: AsyncSession = Depends(get_tenant_db)):
             "mac_id": s.mac_id,
             "name": s.name,
             "type": s.type,
+            "last_heartbeat": s.last_heartbeat.isoformat() if s.last_heartbeat else None,
+            "status": s.scanner_status or "offline",
         }
         for s in scanners
     ]

@@ -296,9 +296,9 @@ class MqttManager(private val context: Context) {
     fun publish(payload: String) {
         val tenantTopic = settings.mqttTopicTenant
         val topic = if (settings.tenantId.isNotEmpty()) {
-            "$tenantTopic/${AppConfig.getDeviceId(context)}"
+            "$tenantTopic/${AppConfig.getTabletMac(context)}"
         } else {
-            "${settings.mqttTopicPrefix}/${AppConfig.getDeviceId(context)}"
+            "${settings.mqttTopicPrefix}/${AppConfig.getTabletMac(context)}"
         }
 
         if (!isConnected || mqttClient == null) {

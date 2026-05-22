@@ -26,7 +26,7 @@ object PayloadBuilder {
      */
     fun buildPayload(context: Context, beacon: BeaconData): String {
         val settings = SettingsManager.getInstance(context)
-        val scannerMac = settings.scannerMacLabel.ifEmpty { AppConfig.getDeviceId(context) }
+        val scannerMac = settings.scannerMacLabel.ifEmpty { AppConfig.getTabletMac(context) }
 
         return try {
             buildFromTemplate(settings.mqttPayloadTemplate, scannerMac, beacon, settings)
@@ -104,7 +104,7 @@ object PayloadBuilder {
      */
     fun buildBatchPayload(context: Context, beacons: List<BeaconData>): String {
         val settings = SettingsManager.getInstance(context)
-        val scannerMac = settings.scannerMacLabel.ifEmpty { AppConfig.getDeviceId(context) }
+        val scannerMac = settings.scannerMacLabel.ifEmpty { AppConfig.getTabletMac(context) }
         val ts = utcFormat.format(Date())
 
         val json = JSONObject()
