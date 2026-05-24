@@ -110,17 +110,17 @@ export default function Landing() {
           .tag-pulse, .hover-lift, .btn-primary, .btn-outline { animation: none !important; transition: none !important; }
         }
 
-        .landing-scroll { scroll-snap-type: y proximity; overflow-y: scroll; height: 100vh; scroll-behavior: smooth; }
-        .snap-section { scroll-snap-align: start; scroll-snap-stop: normal; }
+        .landing-scroll { scroll-snap-type: y proximity; overflow-y: scroll; height: 100vh; scroll-behavior: smooth; scroll-padding-top: 68px; }
+        .snap-section { scroll-snap-align: start; scroll-snap-stop: normal; scroll-margin-top: 0px; }
         .snap-hero { scroll-snap-align: start; }
       `}</style>
 
       {/* NAV */}
       <nav style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "0 clamp(20px, 5vw, 72px)", height: "68px", borderBottom: `1px solid ${T.cardBorder}`,
-        background: "rgba(255,255,255,0.95)", backdropFilter: "blur(12px)",
-        position: "sticky", top: 0, zIndex: 100,
+        padding: "0 clamp(20px, 5vw, 72px)", height: "68px",
+        background: T.white,
+        position: "sticky", top: 0, zIndex: 100, borderBottom: `1px solid ${T.cardBorder}`,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Sunburst size={32} />
@@ -470,8 +470,8 @@ export default function Landing() {
       </section>
 
       {/* TENANT ID + CTA */}
-      <section className="snap-section" style={{ display: "flex", flexDirection: "column" as const, justifyContent: "flex-start", borderTop: "1px solid rgba(0,95,103,0.08)" }}>
-        <section style={{ padding: "72px clamp(20px, 5vw, 72px)", background: T.sectionBg }}>
+      <section className="snap-section" style={{ display: "flex", flexDirection: "column" as const, justifyContent: "flex-start" }}>
+        <section style={{ padding: "140px clamp(20px, 5vw, 72px) 72px", background: T.sectionBg }}>
           <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
             <div style={{
               display: "inline-block", padding: "8px 22px", borderRadius: "10px",
@@ -527,13 +527,9 @@ export default function Landing() {
           display: "flex", alignItems: "center", justifyContent: "space-between",
           flexWrap: "wrap", gap: "16px", background: T.white,
         }}>
-          <div style={{ display: "flex", gap: "28px", alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Sunburst size={24} />
-              <span style={{ fontFamily: T.fontHead, fontWeight: 700, fontSize: "14px", color: T.tealDark }}>BleX</span>
-            </div>
-            <Link to="/login" style={{ fontFamily: T.fontBody, fontSize: "13px", color: T.bodyText, fontWeight: 500 }}>Sign in</Link>
-            <Link to="/register" style={{ fontFamily: T.fontBody, fontSize: "13px", color: T.bodyText, fontWeight: 500 }}>Register</Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Sunburst size={24} />
+            <span style={{ fontFamily: T.fontHead, fontWeight: 700, fontSize: "14px", color: T.tealDark }}>BleX</span>
           </div>
           <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
             <span style={{ fontFamily: T.fontBody, fontSize: "13px", color: T.bodyText }}>© 2026 Sigmatic AI</span>
