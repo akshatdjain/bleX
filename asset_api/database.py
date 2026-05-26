@@ -47,18 +47,20 @@ async def get_tenant_db(
 async def get_dashboard_db(request: Request) -> AsyncGenerator:
     """
     DB session scoped to tenant schema via blex_token httpOnly cookie.
-    Used by the web dashboard. Falls back to public schema if no cookie.
+    Raises 401 if no valid cookie — never falls back to public schema.
     """
+    from fastapi import HTTPException
     token = request.cookies.get("blex_token")
-    schema = "public"
-    if token:
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            tenant_id = payload.get("tenant_id", "")
-            if tenant_id:
-                schema = f"t_{tenant_id.lower()}"
-        except JWTError:
-            pass
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        tenant_id = payload.get("tenant_id", "")
+        if not tenant_id:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        schema = f"t_{tenant_id.lower()}"
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
     async with AsyncSessionLocal() as session:
         await session.execute(text(f"SET search_path TO {schema}, public"))
         try:

@@ -101,7 +101,8 @@ async def register(payload: RegisterIn, db: AsyncSession = Depends(get_db)):
             description TEXT, dimension JSON)""",
         f"""CREATE TABLE IF NOT EXISTS {schema}.mst_scanner (
             id SERIAL PRIMARY KEY, mac_id TEXT NOT NULL, name TEXT, type TEXT,
-            created_at TIMESTAMPTZ DEFAULT NOW(), last_heartbeat TIMESTAMPTZ)""",
+            created_at TIMESTAMPTZ DEFAULT NOW(), last_heartbeat TIMESTAMPTZ,
+            scanner_status TEXT DEFAULT 'offline')""",
         f"""CREATE TABLE IF NOT EXISTS {schema}.mst_asset (
             id SERIAL PRIMARY KEY, bluetooth_id TEXT NOT NULL UNIQUE, asset_name TEXT,
             current_zone_id INTEGER, last_movement_dt TIMESTAMPTZ,

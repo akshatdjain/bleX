@@ -45,15 +45,18 @@ def _beacon_status(last_seen) -> str:
 _col_cache: dict[str, bool] = {}
 
 async def _col_exists(db: AsyncSession, table: str, column: str) -> bool:
-    key = f"{table}.{column}"
+    # Get current schema from search_path to key cache per tenant schema
+    schema_row = await db.execute(text("SELECT current_schema()"))
+    schema = schema_row.scalar() or "public"
+    key = f"{schema}.{table}.{column}"
     if key in _col_cache:
         return _col_cache[key]
     result = await db.execute(
         text(
             "SELECT COUNT(*) FROM information_schema.columns "
-            "WHERE table_name = :t AND column_name = :c"
+            "WHERE table_schema = :s AND table_name = :t AND column_name = :c"
         ),
-        {"t": table, "c": column},
+        {"s": schema, "t": table, "c": column},
     )
     exists = result.scalar() > 0
     _col_cache[key] = exists
