@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
-from database import get_tenant_db
+from database import get_smart_db as get_tenant_db
 from models import MovementLog, MstAsset
 from schemas import MovementIn, MovementOut
 

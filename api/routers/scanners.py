@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_tenant_db
+from database import get_smart_db as get_tenant_db
 from models import MstScanner, MstZoneScanner
 from schemas import ScannerIn
 from events import notify_zone_map_changed

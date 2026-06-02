@@ -9,9 +9,21 @@ from typing import Optional
 import random
 import string
 from fastapi_limiter.depends import RateLimiter
+import asyncio
+from functools import partial
 
 from database import get_db
 from auth import hash_password, verify_password, create_access_token, decode_token
+
+async def verify_password_async(plain: str, hashed: str) -> bool:
+    """Run bcrypt in a thread pool so it doesn't block the event loop."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, partial(verify_password, plain, hashed))
+
+async def hash_password_async(plain: str) -> str:
+    """Run bcrypt hash in a thread pool."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, partial(hash_password, plain))
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -191,7 +203,7 @@ async def login(payload: LoginIn, db: AsyncSession = Depends(get_db)):
     """), {"email": payload.email.lower().strip()})
     row = result.fetchone()
 
-    if not row or not verify_password(payload.password, row.password_hash):
+    if not row or not await verify_password_async(payload.password, row.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     if not row.is_active:
         raise HTTPException(status_code=403, detail="Account disabled")

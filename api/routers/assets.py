@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_tenant_db
+from database import get_smart_db as get_tenant_db
 from models import MstAsset
 from schemas import AssetIn
 

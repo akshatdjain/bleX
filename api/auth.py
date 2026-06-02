@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 import os
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=12)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "blex-dev-secret-change-in-prod-please")
 ALGORITHM = "HS256"

@@ -187,13 +187,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
               {/* Fallback if no user loaded yet — show logout icon directly */}
               {!user && (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-                  title="Sign out"
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
+                <div className="w-6 h-6 rounded-full bg-muted animate-pulse" />
               )}
             </div>
           </div>
@@ -214,10 +208,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Back-button logout confirmation dialog */}
       {showLogoutDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setShowLogoutDialog(false)}
+        >
           <div
             style={{ border: "1px solid rgba(0,95,103,0.12)", borderRadius: "20px", overflow: "hidden" }}
             className="w-full max-w-sm bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header card — matching login mint gradient */}
             <div style={{ background: "linear-gradient(135deg, #e8f8f7 0%, #d5f2f0 40%, #eafaf9 100%)", padding: "28px 32px 20px" }}>

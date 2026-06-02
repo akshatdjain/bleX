@@ -146,7 +146,7 @@ export function HospitalDemo() {
             <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
           </svg>
           <span style={{ fontFamily: C.sans, fontSize: "12.5px", fontWeight: 600, color: C.text }}>
-            City General — Floor 2
+            City General, Floor 2
           </span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "6px" }}>
             <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#22C55E", display: "inline-block", animation: "blink 2s ease-in-out infinite" }} />
