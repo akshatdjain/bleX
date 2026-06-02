@@ -12,8 +12,8 @@ android {
         applicationId = "com.blex.app"
         minSdk = 31
         targetSdk = 35
-        versionCode = 12
-        versionName = "3.0.6"
+        versionCode = 14
+        versionName = "3.1.1"
     }
 
     signingConfigs {

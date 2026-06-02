@@ -1,6 +1,0 @@
-# BleX Pi requirements
-# Versions from working blex Pi (2026-05-21)
-bleak==3.0.2
-paho-mqtt==2.1.0
-redis==6.1.0
-requests==2.32.3

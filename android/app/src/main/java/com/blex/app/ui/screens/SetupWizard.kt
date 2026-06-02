@@ -1,8 +1,6 @@
 package com.blex.app.ui.screens
 
 import android.content.Context
-import android.net.wifi.WifiManager
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -355,7 +353,8 @@ private fun CreateZoneStep(
             "Where do you want to track?",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -484,9 +483,7 @@ private fun ConnectScannerStep(
     setError: (String?) -> Unit
 ) {
     var showSuccess by remember { mutableStateOf(false) }
-    val deviceMac = remember {
-        getDeviceMacAddress(context) ?: "Unknown MAC"
-    }
+    val deviceMac = remember { AppConfig.getTabletMac(context) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -502,10 +499,11 @@ private fun ConnectScannerStep(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            "Connect your scanner",
+            "Connect your node",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -634,16 +632,6 @@ private fun ConnectScannerStep(
     }
 }
 
-private fun getDeviceMacAddress(context: Context): String? {
-    return try {
-        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val wifiInfo = wifiManager.connectionInfo
-        wifiInfo?.macAddress?.uppercase() ?: "Unknown MAC"
-    } catch (e: Exception) {
-        Log.w("SetupWizard", "Failed to get MAC address", e)
-        null
-    }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STEP 3: REGISTER ASSET
@@ -682,7 +670,8 @@ private fun RegisterAssetStep(
             "Tag your first asset",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -698,109 +687,111 @@ private fun RegisterAssetStep(
 
         // Live beacon list
         if (beacons.isEmpty()) {
-            Text(
-                "Searching for beacons...",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(24.dp)
-            )
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(32.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        "Searching for beacons...",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "Hold a BLE beacon close to this tablet",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                beacons.take(5).forEach { beacon ->
+            Column(modifier = Modifier.fillMaxWidth()) {
+                beacons.take(3).forEach { beacon ->
                     ElevatedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                selectedBeaconMac = beacon.mac
-                            }
+                            .clickable { selectedBeaconMac = beacon.mac }
                             .padding(bottom = 8.dp),
                         colors = CardDefaults.elevatedCardColors(
                             containerColor = if (selectedBeaconMac == beacon.mac)
                                 MaterialTheme.colorScheme.primaryContainer
-                            else
-                                MaterialTheme.colorScheme.surface
+                            else MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    beacon.mac,
+                                    beacon.name ?: beacon.mac,
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp,
+                                    fontSize = 13.sp
+                                )
+                                Text(
+                                    beacon.mac,
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                                 )
                                 Text(
-                                    "RSSI: ${beacon.rssi} dBm",
-                                    fontSize = 12.sp,
+                                    "${beacon.rssi} dBm",
+                                    fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            AssistChip(
-                                onClick = {},
-                                label = {
-                                    Text(
-                                        beacon.beaconType ?: "Unknown",
-                                        fontSize = 11.sp
-                                    )
-                                }
-                            )
+                            if (selectedBeaconMac == beacon.mac) {
+                                Icon(
+                                    Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        if (selectedBeaconMac != null && !showSuccess) {
-            OutlinedTextField(
-                value = assetName,
-                onValueChange = { assetName = it },
-                label = { Text("Asset name (optional)") },
-                placeholder = { Text("e.g. Package A, Equipment 1") },
-                enabled = !isLoading,
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp)
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        if (!showSuccess && selectedBeaconMac != null) {
+        // Always show Next — registering is optional
+        if (!showSuccess) {
             Button(
                 onClick = {
-                    setLoading(true)
-                    scope.launch {
-                        try {
-                            ApiService.registerAsset(
-                                mac = selectedBeaconMac!!,
-                                name = assetName.ifBlank { null }
-                            )
-                            showSuccess = true
-                            kotlinx.coroutines.delay(1000)
-                            onRegistered(selectedBeaconMac!!, assetName.ifBlank { selectedBeaconMac!! })
-                        } catch (e: Exception) {
-                            setError(e.message ?: "Failed to register asset")
-                        } finally {
-                            setLoading(false)
+                    if (selectedBeaconMac != null) {
+                        setLoading(true)
+                        scope.launch {
+                            try {
+                                ApiService.registerAsset(
+                                    mac = selectedBeaconMac!!,
+                                    name = assetName.ifBlank { null }
+                                )
+                                showSuccess = true
+                                kotlinx.coroutines.delay(800)
+                                onRegistered(selectedBeaconMac!!, assetName.ifBlank { selectedBeaconMac!! })
+                            } catch (e: Exception) {
+                                // Even if registration fails, proceed
+                                onRegistered(selectedBeaconMac!!, assetName.ifBlank { selectedBeaconMac!! })
+                            } finally {
+                                setLoading(false)
+                            }
                         }
+                    } else {
+                        onSkip()
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
+                modifier = Modifier.fillMaxWidth().height(48.dp),
                 enabled = !isLoading,
                 shape = RoundedCornerShape(8.dp)
             ) {
@@ -811,7 +802,11 @@ private fun RegisterAssetStep(
                         strokeWidth = 2.dp
                     )
                 } else {
-                    Text("Register Asset →", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        if (selectedBeaconMac != null) "Register & Next →" else "Next →",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         } else if (showSuccess) {
@@ -882,7 +877,8 @@ private fun DoneStep(
             "You're all set!",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(modifier = Modifier.height(32.dp))

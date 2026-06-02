@@ -390,9 +390,9 @@ fun HotspotTab() {
                         )
                         Text(
                             if (currentMode == "local")
-                                "Pi publishes to its own broker. Tablet bridges to cloud."
+                                "BleX nodes report locally. Tablet syncs data to the cloud."
                             else
-                                "Pi publishes directly to DGX over TLS.",
+                                "BleX nodes report directly to the cloud.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -518,7 +518,7 @@ fun HotspotTab() {
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
-                            "Enable your tablet hotspot first. Scanners (Pi/ESP32) must connect to it before they can be discovered and provisioned.",
+                            "Enable your tablet hotspot first. BleX nodes must connect to it before they can be discovered and provisioned.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }

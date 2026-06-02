@@ -200,7 +200,7 @@ class SettingsManager(context: Context) {
 
     // "local" or "cloud" — what mode to send when provisioning scanners
     var scannerProvisionMode: String
-        get() = prefs.getString("scanner_provision_mode", "local") ?: "local"
+        get() = prefs.getString("scanner_provision_mode", "cloud") ?: "cloud"
         set(value) = prefs.edit().putString("scanner_provision_mode", value).apply()
 
     // Last known master Pi IP — persists across cloud/local switches so we can restore it

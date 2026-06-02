@@ -154,7 +154,11 @@ class BleScannerService : Service() {
                 startForeground(AppConfig.NOTIFICATION_ID, notification)
             }
             ACTION_RESTART -> {
-                log(LogLevel.INFO, "Service restarted via alarm")
+                log(LogLevel.INFO, "Service restart requested — reconnecting MQTT with new settings")
+                // Full reconnect with current settings (handles cloud↔local mode switches)
+                pendingRestartMqtt = true
+                pendingRestartBridge = true
+                handleSettingsChange("mqtt_host") // triggers the debounced reconnect
             }
         }
         return START_STICKY

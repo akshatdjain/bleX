@@ -378,7 +378,7 @@ fun ScannersTab() {
                             ) {
                                 Icon(Icons.Default.Hub, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
                                 Text(
-                                    "Will register in scanner + master tables",
+                                    "This BleX node will act as the local tracking hub",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -573,7 +573,7 @@ fun ScannersTab() {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Select the role for this Pi. Master will also be set as your local MQTT broker.",
+                        "Choose how this BleX node should work in your network.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -603,7 +603,7 @@ fun ScannersTab() {
                             ) {
                                 Icon(Icons.Default.Hub, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
                                 Text(
-                                    "App will connect to ${target.ip}:1883 as MQTT broker",
+                                    "This tablet will connect directly to this BleX node for local tracking",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
@@ -919,9 +919,9 @@ fun ScannersTab() {
                         }
                     }
                     val modeInfo = if (provisionMode == "local")
-                        "Pi scanner → Pi master (127.0.0.1:1883) → Tablet bridges to cloud.\nTablet MQTT bridge → Pi at ${settings.remoteHost.ifEmpty { "Pi IP (fetched on switch)" }}:1883"
+                        "Local mode: BleX nodes report to the hub, which syncs to the cloud. Best for sites with poor internet."
                     else
-                        "Pi scanner → DGX directly (${AppConfig.REMOTE_MQTT_HOST}:${AppConfig.REMOTE_MQTT_PORT_TLS} TLS).\nPi master stops. Tablet bridges via WSS."
+                        "Cloud mode: BleX nodes report directly to the cloud. Best for reliable internet connections."
                     Text(modeInfo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                 }
             }
