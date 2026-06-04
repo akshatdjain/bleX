@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: asset_tracking
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: LYzxeJ2xrSKfzM2f
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -21,7 +21,7 @@ services:
     ports:
       - "5000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db:5432/asset_tracking
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@db:5432/asset_tracking
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db

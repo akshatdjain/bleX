@@ -7,7 +7,9 @@ from fastapi import Header, Request
 from jose import JWTError, jwt
 import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:LYzxeJ2xrSKfzM2f@db/asset_tracking")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
 
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
@@ -27,7 +29,9 @@ AsyncSessionLocal = async_sessionmaker(engine, autoflush=False, expire_on_commit
 
 Base = declarative_base()
 
-SECRET_KEY = os.getenv("SECRET_KEY", "blex-dev-secret-change-in-prod-please")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
 ALGORITHM = "HS256"
 
 
