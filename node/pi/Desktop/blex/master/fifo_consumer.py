@@ -1,7 +1,14 @@
-print("[FIFO] Script started", flush=True)
-
 import json
 import time
+import os
+import sys
+
+_BLEX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _BLEX_DIR not in sys.path:
+    sys.path.insert(0, _BLEX_DIR)
+from cypher import get_logger
+log = get_logger("fifo")
+
 import requests
 import redis
 
@@ -20,7 +27,7 @@ if REDIS_PASSWORD:
     redis_kwargs["password"] = REDIS_PASSWORD
 
 redis_client = redis.Redis(**redis_kwargs)
-print("[CONSUMER] FIFO consumer started")
+log.info("fifo consumer started")
 
 while True:
     try:
@@ -35,18 +42,26 @@ while True:
         try:
             resp = requests.post(API_URL, json=event, headers=headers, timeout=API_TIMEOUT)
             if resp.status_code == 200:
-                print(f"[API OK] {event['asset_mac']} {event.get('from_zone_id')} → {event.get('to_zone_id')}")
+                log.info("event posted", extra={
+                    "asset_mac": event.get("asset_mac"),
+                    "from_zone": event.get("from_zone_id"),
+                    "to_zone": event.get("to_zone_id"),
+                    "state": event.get("state"),
+                })
             else:
-                print(f"[API ERR {resp.status_code}] pushing back to queue")
+                log.warning("api error, re-queuing", extra={
+                    "status": resp.status_code,
+                    "asset_mac": event.get("asset_mac"),
+                })
                 redis_client.rpush(REDIS_ZONE_QUEUE_KEY, json.dumps(event))
                 time.sleep(2)
-        except Exception as e:
-            print(f"[API DOWN] {e} → re-queueing")
+        except Exception:
+            log.error("api down, re-queuing", extra={"asset_mac": event.get("asset_mac")}, exc_info=True)
             redis_client.rpush(REDIS_ZONE_QUEUE_KEY, json.dumps(event))
             time.sleep(3)
     except KeyboardInterrupt:
-        print("\n[CONSUMER] Stopped by user")
+        log.info("fifo consumer stopped")
         break
-    except Exception as e:
-        print(f"[CONSUMER ERROR] {e}")
+    except Exception:
+        log.error("consumer error", exc_info=True)
         time.sleep(5)

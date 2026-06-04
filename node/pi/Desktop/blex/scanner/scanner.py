@@ -5,9 +5,16 @@ os.environ["BLEAK_DBUS_DEEP_SCAN"] = "1"
 import asyncio
 import time
 import json
+import sys
 import uuid
 import socket
 from datetime import datetime, timezone
+
+_BLEX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _BLEX_DIR not in sys.path:
+    sys.path.insert(0, _BLEX_DIR)
+from cypher import get_logger
+log = get_logger("scanner")
 
 import paho.mqtt.client as mqtt
 from bleak import BleakScanner, BLEDevice, AdvertisementData
@@ -18,6 +25,7 @@ from config import (
     PUBLISH_INTERVAL, BEACON_TTL, MQTT_USE_TLS,
     MQTT_USERNAME, MQTT_PASSWORD,
 )
+
 
 def _load_tenant_id() -> str:
     for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
@@ -31,9 +39,11 @@ def _load_tenant_id() -> str:
             continue
     return "default"
 
+
 APPLE_COMPANY_ID = 76
 IBEACON_PREFIX = b"\x02\x15"
 EDDYSTONE_UUID = "feaa"
+
 
 def get_scanner_mac():
     try:
@@ -41,6 +51,7 @@ def get_scanner_mac():
             return f.read().strip().upper()
     except Exception:
         return hex(uuid.getnode()).upper()
+
 
 SCANNER_ID   = get_scanner_mac()
 SCANNER_TYPE = "master-scanner"
@@ -51,26 +62,30 @@ if _TENANT_ID and _TENANT_ID != "default":
 else:
     MQTT_TOPIC = f"{MQTT_TOPIC_BASE}/{SCANNER_ID}"
 
-print(f"[SCANNER] tenant_id={_TENANT_ID} topic={MQTT_TOPIC}", flush=True)
+log.info("scanner starting", extra={"scanner_id": SCANNER_ID, "tenant_id": _TENANT_ID, "topic": MQTT_TOPIC})
+
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
-        print("[MQTT] Connected", flush=True)
+        log.info("mqtt connected", extra={"broker": MQTT_BROKER, "port": MQTT_PORT})
     else:
-        print(f"[MQTT] Connect failed rc={reason_code}", flush=True)
+        log.warning("mqtt connect failed", extra={"rc": reason_code})
+
 
 def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
-    print(f"[MQTT] Disconnected rc={reason_code}, reconnecting...", flush=True)
+    log.warning("mqtt disconnected", extra={"rc": reason_code})
+
 
 def connect_mqtt_forever(client, broker, port):
     while True:
         try:
-            print(f"[MQTT] Connecting to {broker}:{port}", flush=True)
+            log.info("mqtt connecting", extra={"broker": broker, "port": port})
             client.connect(broker, port, keepalive=60)
             return
         except (socket.timeout, OSError) as e:
-            print(f"[MQTT] Connect failed: {e}. Retrying in 5s...", flush=True)
+            log.warning("mqtt connect failed, retrying in 5s", extra={"error": str(e)})
             time.sleep(5)
+
 
 mqtt_client = mqtt.Client(
     client_id=f"scanner-{SCANNER_ID.replace(':','')[-6:]}",
@@ -83,18 +98,19 @@ mqtt_client.reconnect_delay_set(min_delay=1, max_delay=30)
 
 if MQTT_USERNAME:
     mqtt_client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
-    print(f"[MQTT] Auth: user={MQTT_USERNAME}", flush=True)
+    log.info("mqtt auth configured", extra={"user": MQTT_USERNAME})
 
 if MQTT_USE_TLS:
     import ssl
     mqtt_client.tls_set(cert_reqs=ssl.CERT_REQUIRED)
-    print("[MQTT] TLS enabled", flush=True)
+    log.info("mqtt tls enabled")
 
 connect_mqtt_forever(mqtt_client, MQTT_BROKER, MQTT_PORT)
 mqtt_client.loop_start()
 
 beacon_state = {}
 last_seen    = {}
+
 
 def parse_ibeacon(data: bytes):
     if not data: return None
@@ -103,10 +119,12 @@ def parse_ibeacon(data: bytes):
     tx = data[idx + 22]
     return tx - 256 if tx > 127 else tx
 
+
 def parse_eddystone(service_data: bytes):
     if not service_data or len(service_data) < 2: return None
     tx = service_data[1]
     return tx - 256 if tx > 127 else tx
+
 
 def is_target_beacon(ad: AdvertisementData) -> bool:
     if APPLE_COMPANY_ID in (ad.manufacturer_data or {}):
@@ -117,12 +135,14 @@ def is_target_beacon(ad: AdvertisementData) -> bool:
             return True
     return False
 
+
 def parse_battery(ad: AdvertisementData):
     for svc_uuid, data in (ad.service_data or {}).items():
         if svc_uuid.lower().startswith("0000fff0"):
             if data and len(data) >= 1:
                 return int(data[-1])
     return None
+
 
 def detection_callback(device: BLEDevice, ad: AdvertisementData):
     mac      = device.address.upper()
@@ -159,8 +179,9 @@ def detection_callback(device: BLEDevice, ad: AdvertisementData):
         state["battery"] = battery
     last_seen[mac] = time.time()
 
+
 async def publish_loop():
-    print(f"[SCANNER] BLE scanning started ({SCANNER_ID})")
+    log.info("ble scanning started", extra={"scanner_id": SCANNER_ID})
     while True:
         now = time.time()
         ts  = datetime.now(timezone.utc).isoformat()
@@ -180,7 +201,11 @@ async def publish_loop():
                 "tx_power": state["tx_power"],
                 "battery":  state.get("battery"),
             }
-            print(f"[PUB] {mac} | raw={state['raw_rssi']} | kalman={round(state['kalman_rssi'],2)}")
+            log.debug("beacon published", extra={
+                "mac": mac,
+                "raw_rssi": state["raw_rssi"],
+                "kalman_rssi": round(state["kalman_rssi"], 2),
+            })
             mqtt_client.publish(MQTT_TOPIC, json.dumps(payload))
         heartbeat = {
             "timestamp":    ts,
@@ -193,13 +218,15 @@ async def publish_loop():
         mqtt_client.publish(MQTT_TOPIC, json.dumps(heartbeat))
         await asyncio.sleep(PUBLISH_INTERVAL)
 
+
 async def main():
     scanner = BleakScanner(detection_callback)
     async with scanner:
         await publish_loop()
 
+
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n[SCANNER] Stopped.")
+        log.info("scanner stopped")

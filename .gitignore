@@ -94,6 +94,8 @@ images/*.img
 local-dev/
 logs/
 legacy/
+test/
+future/
 
 # Tilde dir (accidental home dir / antigravity-skills)
 ~/

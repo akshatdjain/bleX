@@ -1,0 +1,22 @@
+[Unit]
+OnFailure=blex-sage@%n.service
+Description=BleX Master Stack (local mode only)
+After=network-online.target blex-mode.service mosquitto.service
+Wants=network-online.target
+ConditionPathExists=/run/blex/mode-local
+ConditionPathExists=/run/blex/role-master
+
+[Service]
+Type=simple
+User=blex
+WorkingDirectory=/home/blex/Desktop/blex/master
+ExecStartPre=/bin/sleep 5
+ExecStart=/bin/bash master_stack.sh
+ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/Desktop/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

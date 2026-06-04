@@ -1,0 +1,17 @@
+[Unit]
+Description=BleX SAGE Watchdog (5-min health sweep + daily report)
+After=network-online.target blex-mode.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=blex
+ExecStart=/usr/bin/python3 /home/blex/Desktop/blex/system/sage_watchdog.py
+ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/Desktop/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

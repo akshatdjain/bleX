@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import TimeoutError as DBTimeoutError
 import os
 import redis.asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
@@ -48,6 +49,13 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
+
+@app.exception_handler(DBTimeoutError)
+async def db_pool_exhausted_handler(request: Request, exc: DBTimeoutError):
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Server busy — please retry in a moment"},
+    )
 
 # ── Device / Android / Pi endpoints (/asset/api/*) ───────────────────────────
 

@@ -216,13 +216,11 @@ def main():
                     print(f"[SCANNER_BOOT] Broker {master_ip}:1883 unreachable ({_consecutive_mqtt_failures}/{MAX_MQTT_FAILURES})", flush=True)
                     if _consecutive_mqtt_failures >= MAX_MQTT_FAILURES:
                         print("[SCANNER_BOOT] Calling SAGE...", flush=True)
-                        sage_result = sage_module.run_diagnostics(
-                            master_ip=master_ip,
-                            tenant_id=tenant_id,
-                            pi_mac=get_pi_mac(),
-                            trigger=f"mqtt_failure_{_consecutive_mqtt_failures}"
+                        sage_result = sage_module.full_sweep(
+                            master_ip, tenant_id, get_pi_mac(),
+                            source=f"mqtt_failure_{_consecutive_mqtt_failures}"
                         )
-                        if sage_result.healed:
+                        if sage_result.get("checks_failed", 1) == 0:
                             print("[SAGE] Healed — staying in local mode", flush=True)
                             _consecutive_mqtt_failures = 0
                         else:

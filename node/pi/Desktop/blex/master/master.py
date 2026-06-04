@@ -3,28 +3,35 @@
 # Zone-based BLE Asset Movement Engine (MASTER)
 # With Dwell-Time Filtering
 # -------------------------------------------------
-print("[MASTER] Script started", flush=True)
 
 import json
 import time
+import os
+import sys
 from datetime import datetime, timezone
 from collections import defaultdict
+
+# cypher: shared structured logger
+_BLEX_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _BLEX_DIR not in sys.path:
+    sys.path.insert(0, _BLEX_DIR)
+from cypher import get_logger
+log = get_logger("master")
 
 import paho.mqtt.client as mqtt
 import redis
 import threading
+import requests
 
 from config import (
     MQTT_BROKER,
     MQTT_PORT,
     MQTT_TOPIC_BASE,
-
     REDIS_HOST,
     REDIS_PORT,
     REDIS_PASSWORD,
     REDIS_ASSET_ZONE_KEY,
     REDIS_ZONE_QUEUE_KEY,
-
     HYSTERESIS_DBM,
     SCANNER_TTL,
     ZONE_CONFIRM_COUNT,
@@ -35,6 +42,8 @@ from config import (
     HEALTH_PUSH_INTERVAL,
     HEALTH_API_BASE,
 )
+
+log.info("master started")
 
 last_seen_registry = {}
 scanner_last_seen   = {}
@@ -55,7 +64,6 @@ SCANNER_ZONE_MAP = {}
 SCANNER_ZONE_LOCK = threading.Lock()
 MAP_VERSION = 0
 
-import requests
 
 def load_scanner_zone_map():
     global MAP_VERSION
@@ -75,31 +83,35 @@ def load_scanner_zone_map():
                 global SCANNER_ZONE_MAP
                 if SCANNER_ZONE_MAP != new_map_upper:
                     SCANNER_ZONE_MAP = new_map_upper
-                    print(f"[MASTER] Scanner → Zone map reloaded (Version {new_version}):", flush=True)
-                    for mac, zid in new_map_upper.items():
-                        print(f"  {mac} → ZONE {zid}", flush=True)
+                    log.info("zone map reloaded", extra={
+                        "version": new_version,
+                        "scanner_count": len(new_map_upper),
+                    })
                 MAP_VERSION = new_version
             return True
         else:
-            print(f"[MASTER] API returned non-200 for zone map: {resp.status_code}", flush=True)
+            log.warning("zone map api non-200", extra={"status": resp.status_code})
             return False
 
     except requests.exceptions.ReadTimeout:
         return True
-    except Exception as e:
-        print(f"[MASTER] Failed to fetch scanner-zone map: {e}", flush=True)
+    except Exception:
+        log.error("zone map fetch failed", exc_info=True)
         return False
 
-print("[MASTER] Fetching initial scanner-zone map...", flush=True)
+
+log.info("fetching initial zone map")
 while not load_scanner_zone_map():
-    print("[MASTER] API not ready... retrying in 5s", flush=True)
+    log.warning("api not ready, retrying in 5s")
     time.sleep(5)
 
+
 def scanner_zone_reload_loop():
-    print("[MASTER] Started zone map watcher thread (long-polling)", flush=True)
+    log.info("zone map watcher thread started")
     while True:
         if not load_scanner_zone_map():
             time.sleep(5)
+
 
 ASSET_STATE = defaultdict(lambda: {
     "zones": defaultdict(dict),
@@ -107,27 +119,32 @@ ASSET_STATE = defaultdict(lambda: {
     "pending_move": None,
 })
 
+
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
+
 
 def redis_get_last_zone(asset_mac):
     try:
         return redis_client.get(REDIS_ASSET_ZONE_KEY.format(asset_mac))
-    except Exception as e:
-        print(f"[REDIS-ERROR] get_last_zone failed for {asset_mac}: {e}", flush=True)
+    except Exception:
+        log.error("redis get_last_zone failed", extra={"asset_mac": asset_mac}, exc_info=True)
         return None
+
 
 def redis_set_last_zone(asset_mac, zone_id):
     try:
         redis_client.set(REDIS_ASSET_ZONE_KEY.format(asset_mac), zone_id)
-    except Exception as e:
-        print(f"[REDIS-ERROR] set_last_zone failed for {asset_mac}: {e}", flush=True)
+    except Exception:
+        log.error("redis set_last_zone failed", extra={"asset_mac": asset_mac}, exc_info=True)
+
 
 def push_fifo(event: dict):
     try:
         redis_client.rpush(REDIS_ZONE_QUEUE_KEY, json.dumps(event))
     except Exception:
         pass
+
 
 def handle_lost_assets():
     now = time.time()
@@ -149,7 +166,11 @@ def handle_lost_assets():
             "timestamp": now_iso(),
         }
         push_fifo(event)
-        print(f"[EXIT] {asset_mac} marked as EXIT", flush=True)
+        log.info("asset exit", extra={
+            "asset_mac": asset_mac,
+            "from_zone": int(last_zone) if last_zone and last_zone != "EXIT" else None,
+        })
+
 
 def compute_zone_scores(zones: dict):
     scores = {}
@@ -163,6 +184,7 @@ def compute_zone_scores(zones: dict):
         if values:
             scores[zone_id] = max(values)
     return scores
+
 
 def process_asset(asset_mac: str):
     state = ASSET_STATE[asset_mac]
@@ -195,7 +217,12 @@ def process_asset(asset_mac: str):
         return
     state["confirm"][proposed_zone] += 1
     if ENABLE_DEBUG_LOGS:
-        print(f"[CONFIRM] {asset_mac} → ZONE {proposed_zone} ({state['confirm'][proposed_zone]}/{ZONE_CONFIRM_COUNT})", flush=True)
+        log.debug("zone confirm tick", extra={
+            "asset_mac": asset_mac,
+            "proposed_zone": proposed_zone,
+            "count": state["confirm"][proposed_zone],
+            "needed": ZONE_CONFIRM_COUNT,
+        })
     if state["confirm"][proposed_zone] < ZONE_CONFIRM_COUNT:
         return
     now = time.time()
@@ -206,11 +233,11 @@ def process_asset(asset_mac: str):
         )
         state["pending_move"] = {"zone_id": proposed_zone, "start_time": now, "movement_ts": earliest_ts}
         if ENABLE_DEBUG_LOGS:
-            print(f"[DWELL-START] {asset_mac} → ZONE {proposed_zone}", flush=True)
+            log.debug("dwell started", extra={"asset_mac": asset_mac, "zone": proposed_zone})
         return
     if now - pending["start_time"] < DWELL_TIME_SEC:
         if ENABLE_DEBUG_LOGS:
-            print(f"[DWELL-WAIT] {asset_mac} → ZONE {proposed_zone}", flush=True)
+            log.debug("dwell waiting", extra={"asset_mac": asset_mac, "zone": proposed_zone})
         return
     redis_set_last_zone(asset_mac, proposed_zone)
     state["confirm"].clear()
@@ -226,7 +253,13 @@ def process_asset(asset_mac: str):
         "timestamp": pending["movement_ts"],
     }
     push_fifo(event)
-    print(f"[ZONE] {asset_mac}: {last_zone} → {proposed_zone}", flush=True)
+    log.info("zone change", extra={
+        "asset_mac": asset_mac,
+        "from_zone": last_zone,
+        "to_zone": proposed_zone,
+        "rssi": round(proposed_rssi, 2),
+    })
+
 
 def check_scanner_health():
     from config import PUBLISH_INTERVAL
@@ -240,10 +273,7 @@ def check_scanner_health():
         last_act  = scanner_last_active.get(mac_upper, 0)
         elapsed   = now - last_hb
         if last_hb > 0 and elapsed < SCANNER_HEALTH_TIMEOUT:
-            if last_act > 0 and (now - last_act) < (PUBLISH_INTERVAL * 3):
-                scanner_status = "active"
-            else:
-                scanner_status = "idle"
+            scanner_status = "active" if last_act > 0 and (now - last_act) < (PUBLISH_INTERVAL * 3) else "idle"
         else:
             scanner_status = "offline"
         report.append({
@@ -255,8 +285,9 @@ def check_scanner_health():
         })
     return report
 
+
 def health_push_loop():
-    print("[HEALTH] Health push loop started", flush=True)
+    log.info("health push loop started")
     while True:
         time.sleep(HEALTH_PUSH_INTERVAL)
         now = time.time()
@@ -265,9 +296,9 @@ def health_push_loop():
         scanner_health = check_scanner_health()
         try:
             resp = requests.post(f"{HEALTH_API_BASE}/scanners/bulk", json=scanner_health, headers=headers, timeout=5)
-            print(f"[HEALTH] Scanner push: {resp.status_code} ({len(scanner_health)} scanners)", flush=True)
-        except Exception as e:
-            print(f"[HEALTH] Scanner push failed: {e}", flush=True)
+            log.debug("scanner health pushed", extra={"status": resp.status_code, "count": len(scanner_health)})
+        except Exception:
+            log.error("scanner health push failed", exc_info=True)
         beacon_health = []
         for asset_mac, last_ts in list(last_seen_registry.items()):
             beacon_health.append({
@@ -278,16 +309,19 @@ def health_push_loop():
             })
         try:
             resp = requests.post(f"{HEALTH_API_BASE}/beacons/bulk", json=beacon_health, headers=headers, timeout=5)
-            print(f"[HEALTH] Beacon push: {resp.status_code} ({len(beacon_health)} beacons)", flush=True)
-        except Exception as e:
-            print(f"[HEALTH] Beacon push failed: {e}", flush=True)
+            log.debug("beacon health pushed", extra={"status": resp.status_code, "count": len(beacon_health)})
+        except Exception:
+            log.error("beacon health push failed", exc_info=True)
+
 
 threading.Thread(target=scanner_zone_reload_loop, daemon=True).start()
 threading.Thread(target=health_push_loop, daemon=True, name="health-push").start()
 
+
 def normalize_id(scanner_id):
     if not scanner_id: return ""
     return str(scanner_id).replace(":", "").lower()
+
 
 def process_single_beacon(payload_dict, scanner_id):
     if not scanner_id:
@@ -331,6 +365,7 @@ def process_single_beacon(payload_dict, scanner_id):
     }
     process_asset(asset_mac)
 
+
 def on_message(client, userdata, msg):
     try:
         topic_parts = msg.topic.split("/")
@@ -361,6 +396,7 @@ def on_message(client, userdata, msg):
         scanner_id = payload.get("scanner_id") or payload.get("scanner_mac")
         process_single_beacon(payload, scanner_id)
 
+
 mqtt_client = mqtt.Client(
     client_id="master-zone-engine",
     protocol=mqtt.MQTTv311,
@@ -368,14 +404,14 @@ mqtt_client = mqtt.Client(
 )
 mqtt_client.on_message = on_message
 
-print("[MASTER] Zone-based master starting MQTT loop", flush=True)
+log.info("starting mqtt loop", extra={"broker": MQTT_BROKER, "port": MQTT_PORT})
 
 while True:
     try:
         mqtt_client.connect(MQTT_BROKER, MQTT_PORT, keepalive=60)
         mqtt_client.subscribe(f"{MQTT_TOPIC_BASE}/#")
-        print(f"[MASTER] MQTT connected, subscribed to {MQTT_TOPIC_BASE}/#", flush=True)
+        log.info("mqtt connected", extra={"broker": MQTT_BROKER, "topic": f"{MQTT_TOPIC_BASE}/#"})
         mqtt_client.loop_forever()
-    except Exception as e:
-        print(f"[MASTER] MQTT error: {e}", flush=True)
+    except Exception:
+        log.error("mqtt error, retrying in 5s", exc_info=True)
         time.sleep(5)

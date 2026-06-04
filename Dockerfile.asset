@@ -1,9 +1,9 @@
 # Stage 1: Build React UI
 FROM node:20-alpine AS ui-builder
 WORKDIR /ui
-COPY beam_ui/package*.json ./
+COPY frontend/package*.json ./
 RUN npm ci --silent
-COPY beam_ui/ ./
+COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Python API + built UI
@@ -15,10 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY asset_api/requirements.txt .
+COPY api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY asset_api/ .
+COPY api/ .
 
 # Copy built UI into www/ where FastAPI serves it
 COPY --from=ui-builder /ui/dist ./www

@@ -2,7 +2,9 @@ package com.blex.app.ui.screens.configurator
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -201,7 +203,7 @@ fun ScannersTab() {
     LaunchedEffect(Unit) { refreshScanners() }
 
     // Reusable push function — now includes MQTT broker IP and port
-    fun pushWifiToScanner(ip: String, ssid: String, psk: String, onResult: (Boolean, String) -> Unit) {
+    fun pushWifiToScanner(ip: String, ssid: String, psk: String, role: String = "scanner", onResult: (Boolean, String) -> Unit) {
         scope.launch(Dispatchers.IO) {
             try {
                 val url = java.net.URL("http://$ip:8888/provision")
@@ -212,7 +214,11 @@ fun ScannersTab() {
                 conn.connectTimeout = 5000
                 conn.readTimeout = 5000
                 val isCloudMode = provisionMode == "cloud"
-                val mqttHost = if (isCloudMode) AppConfig.REMOTE_MQTT_HOST else getDeviceIpAddress()
+                val mqttHost = when {
+                    isCloudMode      -> AppConfig.REMOTE_MQTT_HOST
+                    role == "master" -> ip
+                    else             -> settings.mqttHost
+                }
                 val mqttPort = if (isCloudMode) AppConfig.REMOTE_MQTT_PORT_TLS
                                else if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
                 val body = org.json.JSONObject().apply {
@@ -226,6 +232,7 @@ fun ScannersTab() {
                     put("use_tls", isCloudMode)
                     put("tenant_id", settings.tenantId)
                     put("mode", provisionMode)
+                    put("role", role)
                 }.toString()
                 conn.outputStream.write(body.toByteArray())
                 conn.outputStream.flush()
@@ -253,7 +260,7 @@ fun ScannersTab() {
                 conn.connectTimeout = 5000
                 conn.readTimeout = 5000
                 val isCloudMode = settings.remoteUseWebSocket
-                val mqttHost = if (isCloudMode) AppConfig.REMOTE_MQTT_HOST else getDeviceIpAddress()
+                val mqttHost = if (isCloudMode) AppConfig.REMOTE_MQTT_HOST else settings.mqttHost
                 val mqttPort = if (isCloudMode) AppConfig.REMOTE_MQTT_PORT_TLS
                                else if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
                 val body = org.json.JSONObject().apply {
@@ -616,11 +623,10 @@ fun ScannersTab() {
                 Button(onClick = {
                     showProvisionRoleDialog = false
                     val scanner = provisionRoleTarget ?: return@Button
-                    val ssid = settings.siteWifiSsid
-                    val psk = settings.siteWifiPsk
                     pushingMac = scanner.mac
                     scannerPushState = scannerPushState + (scanner.mac to "Provisioning as ${selectedProvisionRole}...")
-                    pushWifiToScanner(scanner.ip, ssid, psk) { success, msg ->
+                    // No WiFi creds — Provision only changes mode/role, not WiFi
+                    pushWifiToScanner(scanner.ip, "", "", selectedProvisionRole) { success, msg ->
                         val result = if (success) "✓ Provisioned as $selectedProvisionRole" else "Failed: $msg"
                         scannerPushState = scannerPushState + (scanner.mac to result)
                         if (pushingMac == scanner.mac) pushingMac = null
@@ -964,6 +970,19 @@ fun ScannersTab() {
                         registerScannerName = scanner.name
                         registerScannerResult = null
                         showRegisterScannerDialog = true
+                    },
+                    onUnregister = {
+                        val dbScanner = dbScanners.find { it.macId.uppercase() == scanner.mac.uppercase() }
+                        if (dbScanner != null) {
+                            scope.launch {
+                                try {
+                                    ApiService.configuredBaseUrl = settings.apiBaseUrl
+                                    ApiService.deleteScanner(dbScanner.id)
+                                    dbScanners = dbScanners.filter { it.id != dbScanner.id }
+                                    settings.setScannerRole(scanner.mac, "scanner")
+                                } catch (_: Exception) {}
+                            }
+                        }
                     }
                 )
             }
@@ -1146,6 +1165,7 @@ fun SkeletonTabletCard() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ScannerCard(
     scanner: DiscoveredScanner,
@@ -1154,8 +1174,33 @@ fun ScannerCard(
     pushResult: String? = null,
     savedSsid: String = "",
     onProvision: () -> Unit,
-    onRegister: () -> Unit
+    onRegister: () -> Unit,
+    onUnregister: (() -> Unit)? = null
 ) {
+    var showUnregisterConfirm by remember { mutableStateOf(false) }
+
+    if (showUnregisterConfirm) {
+        AlertDialog(
+            onDismissRequest = { showUnregisterConfirm = false },
+            icon = { Icon(Icons.Default.DeleteForever, null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("Unregister Scanner?") },
+            text = {
+                Text(
+                    "This removes ${scanner.name} (${scanner.mac}) from the database. The Pi itself is unaffected — re-provision to add it back.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { showUnregisterConfirm = false; onUnregister?.invoke() },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) { Text("Unregister") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnregisterConfirm = false }) { Text("Cancel") }
+            }
+        )
+    }
     val typeColor = when (scanner.type) {
         "pi" -> MaterialTheme.colorScheme.tertiary
         "esp32" -> MaterialTheme.colorScheme.secondary
@@ -1167,7 +1212,14 @@ fun ScannerCard(
         else -> scanner.type.uppercase()
     }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {},
+                onLongClick = { if (isRegistered) showUnregisterConfirm = true }
+            )
+    ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1180,7 +1232,7 @@ fun ScannerCard(
                     ) {
                         Text(typeLabel, color = typeColor, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                     }
-                    Text(scanner.ip, style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace)
+                    Text(scanner.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (isRegistered) {
@@ -1195,7 +1247,7 @@ fun ScannerCard(
                 }
             }
             Text(
-                scanner.mac,
+                "${scanner.ip} · ${scanner.mac}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline,
                 fontFamily = FontFamily.Monospace

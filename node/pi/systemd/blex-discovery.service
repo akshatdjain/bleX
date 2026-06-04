@@ -1,0 +1,19 @@
+[Unit]
+OnFailure=blex-sage@%n.service
+Description=BleX Discovery Broadcast (always runs — makes Pi visible to app)
+After=network-online.target blex-mode.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=blex
+WorkingDirectory=/home/blex/Desktop/blex/scanner
+ExecStart=/usr/bin/python3 discovery_broadcast.py
+ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/Desktop/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
