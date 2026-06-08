@@ -14,7 +14,7 @@ import os
 import redis.asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 
-from routers import movement, runtime, zones, assets, scanners, health, tenants, tenants_config, auth, system, admin_users
+from routers import movement, runtime, zones, assets, scanners, health, tenants, tenants_config, auth, system, admin_users, devices
 from routers.dashboard import assets as dash_assets
 from routers.dashboard import zones as dash_zones
 from routers.dashboard import scanners as dash_scanners
@@ -50,6 +50,10 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+
+from middleware import security_headers_middleware
+app.middleware("http")(security_headers_middleware)
+
 @app.exception_handler(DBTimeoutError)
 async def db_pool_exhausted_handler(request: Request, exc: DBTimeoutError):
     return JSONResponse(
@@ -70,6 +74,7 @@ app.include_router(tenants.router)
 app.include_router(tenants_config.router)
 app.include_router(system.router)
 app.include_router(admin_users.router)
+app.include_router(devices.router)
 
 # ── Web dashboard endpoints (/asset/dashboard/*) ─────────────────────────────
 
