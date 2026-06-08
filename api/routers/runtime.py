@@ -12,6 +12,7 @@ import asyncio
 from database import get_tenant_db, AsyncSessionLocal
 from models import MstScanner, MstZoneScanner, MstZone, MstMaster
 from events import master_ip_event, notify_master_ip_changed, zone_map_event, ZONE_MAP_VERSION
+from routers.auth import get_principal
 
 router = APIRouter(prefix="/api/runtime", tags=["Runtime"])
 
@@ -45,7 +46,8 @@ async def _fetch_scanner_zone_map(db: AsyncSession):
     return {"scanner_zone_map": mapping, "version": ZONE_MAP_VERSION}
 
 @router.get("/scanner-zone-map")
-async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db)):
+async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db),
+                               principal: dict = Depends(get_principal)):
     """
     Returns {scanner_mac: zone_id} mapping.
     The master engine calls this to instantly load mappings.
@@ -56,6 +58,7 @@ async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db)):
 async def watch_scanner_zone_map(
     version: int = 0,
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+    principal: dict = Depends(get_principal),
 ):
     """
     Long-polling endpoint for the Master script.
@@ -90,7 +93,9 @@ async def watch_scanner_zone_map(
 # ─── Master ──────────────────────────────────────────────────────────────────
 
 @router.post("/master")
-async def register_master(payload: MasterRegisterIn, db: AsyncSession = Depends(get_tenant_db)):
+async def register_master(payload: MasterRegisterIn,
+                          db: AsyncSession = Depends(get_tenant_db),
+                          principal: dict = Depends(get_principal)):
     """
     Master Node registers its IP and MAC here upon boot or IP change.
     Now also accepts tenant_id and mode for multi-tenant local master setups.
@@ -128,7 +133,8 @@ async def register_master(payload: MasterRegisterIn, db: AsyncSession = Depends(
     }
 
 @router.get("/master")
-async def get_master(db: AsyncSession = Depends(get_tenant_db)):
+async def get_master(db: AsyncSession = Depends(get_tenant_db),
+                     principal: dict = Depends(get_principal)):
     """
     Returns the current Master IP and tenant_id.
     Android app calls this after login to auto-fill remoteHost.
@@ -148,6 +154,7 @@ async def get_master(db: AsyncSession = Depends(get_tenant_db)):
 async def watch_master_ip(
     current_ip: str,
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+    principal: dict = Depends(get_principal),
 ):
     """
     Long-polling endpoint for Scanner scripts and Android app.
@@ -187,9 +194,11 @@ async def watch_master_ip(
 # ─── Scanner ─────────────────────────────────────────────────────────────────
 
 @router.post("/scanner")
-async def register_scanner(payload: ScannerRegisterIn, db: AsyncSession = Depends(get_tenant_db)):
+async def register_scanner(payload: ScannerRegisterIn,
+                           db: AsyncSession = Depends(get_tenant_db),
+                           principal: dict = Depends(get_principal)):
     """
     Scanners can hit this to log their runtime boot.
     It returns the master IP immediately to serve as a bootstrap.
     """
-    return await get_master(db)
+    return await get_master(db, principal)

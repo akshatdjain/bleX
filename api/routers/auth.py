@@ -206,17 +206,20 @@ async def register(payload: RegisterIn, request: Request, response: Response,
     """), {"tid": tenant_id, "nm": payload.org_name, "pfx": mqtt_prefix,
            "sch": schema, "em": email})
 
+    # Public registration always creates role='user'.
+    # Admin accounts are seeded once in DB and managed via /api/admin/users
+    # (admin-only endpoint) — never via public signup.
     pw_hash = await _hash_pw(payload.password)
     user_row = (await db.execute(text("""
         INSERT INTO shared.users (tenant_id, name, email, password_hash, role, is_active)
-        VALUES (:tid, :nm, :em, :ph, 'admin', true)
+        VALUES (:tid, :nm, :em, :ph, 'user', true)
         RETURNING id
     """), {"tid": tenant_id, "nm": payload.name, "em": email, "ph": pw_hash})).fetchone()
 
     await db.commit()
 
     user_id = user_row.id
-    return await _issue_session_response(db, response, request, user_id, "admin",
+    return await _issue_session_response(db, response, request, user_id, "user",
                                          tenant_id, payload.name, email)
 
 
@@ -351,14 +354,6 @@ async def logout(request: Request, response: Response,
     return {"ok": True}
 
 
-# ── Me ───────────────────────────────────────────────────────────────────────
-
-@router.get("/me", response_model=UserOut)
-async def me(principal: dict = Depends(lambda: None)):  # type: ignore
-    """Returns the current user. Wire to require_user (declared below) at runtime."""
-    raise HTTPException(500, "Wiring error: /me dep not bound")
-
-
 # ── Auth dependencies (used by all protected routers) ───────────────────────
 
 async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) -> dict:
@@ -449,20 +444,10 @@ def require_device(tenant_id_param: str = "tenant_id"):
 get_current_user = require_user
 
 
-# Now properly wire /me with the dep (the placeholder above was a stub)
-@router.get("/me-v2", include_in_schema=False)
-async def _me_unused():
-    return {}
-
-
-# Replace stub: rebuild /me route with the right dep
-for r in list(router.routes):
-    if getattr(r, "path", None) == "/me" and getattr(r, "name", None) == "me":
-        router.routes.remove(r)
-
+# ── Me ──────────────────────────────────────────────────────────────────────
 
 @router.get("/me", response_model=UserOut)
-async def me(p: dict = Depends(require_user)):  # noqa: F811
+async def me(p: dict = Depends(require_user)):
     return UserOut(
         id=p["id"], email=p["email"], name=p["name"],
         role=p["role"], tenant_id=p["tenant_id"],
