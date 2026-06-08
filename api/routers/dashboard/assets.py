@@ -5,6 +5,7 @@ from datetime import date, datetime, timezone
 
 from database import get_dashboard_db as get_tenant_db
 from models import MstAsset, MovementLog, MstZone
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/assets", tags=["Assets"])
 
@@ -52,7 +53,7 @@ def _extra(row) -> dict:
 # so FastAPI doesn't swallow them as integer path params.
 
 @router.get("/current")
-async def get_current_assets(db: AsyncSession = Depends(get_tenant_db)):
+async def get_current_assets(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """All assets (inventory view) with live status, battery, shape, zone name."""
 
     # Check whether mst_asset.extra exists — graceful fallback if not
@@ -119,6 +120,7 @@ async def get_history(
     start_date: date | None = Query(default=None),
     asset_id: int | None = Query(default=None),
     limit: int = Query(default=200, le=1000),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_tenant_db),
 ):
     """Global movement history feed. Optional filters: start_date, asset_id, limit."""
@@ -188,7 +190,7 @@ async def get_history(
 
 # --------------------------------------------------------- GET /assets/{id} --
 @router.get("/{asset_id}")
-async def get_asset(asset_id: int, db: AsyncSession = Depends(get_tenant_db)):
+async def get_asset(asset_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Single asset detail."""
     has_extra = await _col_exists(db, "mst_asset", "extra")
 
@@ -240,7 +242,7 @@ async def get_asset(asset_id: int, db: AsyncSession = Depends(get_tenant_db)):
 
 # ------------------------------------------------ GET /assets/{id}/history --
 @router.get("/{asset_id}/history")
-async def get_asset_history(asset_id: int, db: AsyncSession = Depends(get_tenant_db)):
+async def get_asset_history(asset_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Movement history for a single asset."""
     asset = (
         await db.execute(select(MstAsset).where(MstAsset.id == asset_id))

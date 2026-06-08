@@ -69,6 +69,7 @@ class MeOut(BaseModel):
     name: str
     email: str
     org_name: str
+    role: str
 
 
 # Register
@@ -91,6 +92,7 @@ async def register(payload: RegisterIn, db: AsyncSession = Depends(get_db)):
 
     # Generate unique tenant_id
     tenant_id = None
+    is_new_tenant = True
     for _ in range(5):
         candidate = _gen_tenant_id()
         row = await db.execute(
@@ -106,6 +108,9 @@ async def register(payload: RegisterIn, db: AsyncSession = Depends(get_db)):
     schema = f"t_{tenant_id.lower()}"
     mqtt_prefix = f"ble/{tenant_id}"
     org_name = payload.org_name.strip()
+
+    # First user of new tenant is admin, subsequent users are 'user'
+    user_role = "admin" if is_new_tenant else "user"
 
     # Create tenant schema + all 6 tables
     stmts = [
@@ -147,13 +152,14 @@ async def register(payload: RegisterIn, db: AsyncSession = Depends(get_db)):
     hashed = hash_password(payload.password)
     result = await db.execute(text("""
         INSERT INTO shared.users (tenant_id, name, email, password_hash, role)
-        VALUES (:tid, :name, :email, :hash, 'admin')
+        VALUES (:tid, :name, :email, :hash, :role)
         RETURNING id
     """), {
         "tid": tenant_id,
         "name": payload.name.strip(),
         "email": payload.email.lower().strip(),
         "hash": hashed,
+        "role": user_role,
     })
     user_id = result.fetchone()[0]
     await db.commit()
@@ -162,7 +168,7 @@ async def register(payload: RegisterIn, db: AsyncSession = Depends(get_db)):
         "sub": str(user_id),
         "tenant_id": tenant_id,
         "email": payload.email.lower().strip(),
-        "role": "admin",
+        "role": user_role,
     })
 
     response_data = AuthOut(
@@ -264,22 +270,23 @@ async def get_me(request: Request, db: AsyncSession = Depends(get_db)):
     
     user_id = int(claims.get("sub", ""))
     result = await db.execute(text("""
-        SELECT u.name, u.email, u.tenant_id,
+        SELECT u.name, u.email, u.tenant_id, u.role,
                t.name as org_name
         FROM shared.users u
         JOIN shared.tenants t ON t.tenant_id = u.tenant_id
         WHERE u.id = :uid AND u.is_active = TRUE
     """), {"uid": user_id})
     row = result.fetchone()
-    
+
     if not row:
         raise HTTPException(status_code=401, detail="User not found")
-    
+
     return MeOut(
         tenant_id=row.tenant_id,
         name=row.name,
         email=row.email,
         org_name=row.org_name,
+        role=row.role,
     )
 
 
@@ -464,3 +471,59 @@ async def weblogin(nonce: str, request: Request):
     # HSTS header — enforce HTTPS for all future requests
     redirect.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return redirect
+
+
+# ── Authentication Dependencies ───────────────────────────────────────────────
+
+async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)) -> dict:
+    """
+    Extracts user from blex_token httpOnly cookie OR Authorization: Bearer header.
+    Web clients use the cookie (set by /login). Android/native clients send the
+    JWT they received from /login as `Authorization: Bearer <token>`.
+    Returns user dict with id, email, name, role, tenant_id, is_active.
+    Raises 401 if missing/invalid token or inactive user.
+    """
+    token = request.cookies.get("blex_token")
+    if not token:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1].strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="No authentication credentials")
+
+    try:
+        claims = decode_token(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+    user_id = int(claims.get("sub", "0"))
+    result = await db.execute(text("""
+        SELECT id, email, name, role, tenant_id, is_active
+        FROM shared.users
+        WHERE id = :uid
+    """), {"uid": user_id})
+    row = result.fetchone()
+
+    if not row:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    if not row.is_active:
+        raise HTTPException(status_code=403, detail="Account disabled")
+
+    return {
+        "id": row.id,
+        "email": row.email,
+        "name": row.name,
+        "role": row.role,
+        "tenant_id": row.tenant_id,
+        "is_active": row.is_active,
+    }
+
+
+async def require_admin(user: dict = Depends(get_current_user)) -> dict:
+    """
+    Requires admin role. Raises 403 if user is not admin.
+    """
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user

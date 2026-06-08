@@ -6,7 +6,9 @@ import os
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
-SECRET_KEY = os.getenv("SECRET_KEY", "blex-dev-secret-change-in-prod-please")
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8   # 8 hours — auto-logout after 8h
 

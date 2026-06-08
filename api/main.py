@@ -14,7 +14,7 @@ import os
 import redis.asyncio as aioredis
 from fastapi_limiter import FastAPILimiter
 
-from routers import movement, runtime, zones, assets, scanners, health, tenants, auth, system
+from routers import movement, runtime, zones, assets, scanners, health, tenants, tenants_config, auth, system, admin_users
 from routers.dashboard import assets as dash_assets
 from routers.dashboard import zones as dash_zones
 from routers.dashboard import scanners as dash_scanners
@@ -67,7 +67,9 @@ app.include_router(assets.router)
 app.include_router(scanners.router)
 app.include_router(health.router)
 app.include_router(tenants.router)
+app.include_router(tenants_config.router)
 app.include_router(system.router)
+app.include_router(admin_users.router)
 
 # ── Web dashboard endpoints (/asset/dashboard/*) ─────────────────────────────
 

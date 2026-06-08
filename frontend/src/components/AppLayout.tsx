@@ -1,12 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/sigmatic_logo_teal.png";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ScrollText, Radio, LogOut, ChevronDown, Menu } from "lucide-react";
+import { LayoutDashboard, ScrollText, Radio, LogOut, ChevronDown, Menu, Shield } from "lucide-react";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import { HealthBar } from "@/components/HealthBar";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { useEffect, useState, useRef } from "react";
-import { getMe, logout, AuthUser } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 
@@ -57,16 +57,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    getMe().then((u) => {
-      if (u) setUser(u);
-    });
-  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -173,6 +167,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           {user.org_name} · {user.tenant_id}
                         </p>
                       </div>
+                      <Link
+                        to="/admin"
+                        onClick={() => setMenuOpen(false)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Panel
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"

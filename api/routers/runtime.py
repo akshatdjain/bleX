@@ -2,14 +2,14 @@
 Runtime registration — master APIs and long-polling.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
-from sqlalchemy import select, update
+from sqlalchemy import select, update, text
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 
-from database import get_tenant_db
+from database import get_tenant_db, AsyncSessionLocal
 from models import MstScanner, MstZoneScanner, MstZone, MstMaster
 from events import master_ip_event, notify_master_ip_changed, zone_map_event, ZONE_MAP_VERSION
 
@@ -34,12 +34,7 @@ class ScannerRegisterIn(BaseModel):
 
 # ─── Scanner → Zone Map (for master engine) ──────────────────────────────────
 
-@router.get("/scanner-zone-map")
-async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db)):
-    """
-    Returns {scanner_mac: zone_id} mapping.
-    The master engine calls this to instantly load mappings.
-    """
+async def _fetch_scanner_zone_map(db: AsyncSession):
     stmt = (
         select(MstScanner.mac_id, MstZone.id)
         .join(MstZoneScanner, MstZoneScanner.mst_scanner_id == MstScanner.id)
@@ -49,22 +44,47 @@ async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db)):
     mapping = {row.mac_id.upper(): row.id for row in result}
     return {"scanner_zone_map": mapping, "version": ZONE_MAP_VERSION}
 
+@router.get("/scanner-zone-map")
+async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db)):
+    """
+    Returns {scanner_mac: zone_id} mapping.
+    The master engine calls this to instantly load mappings.
+    """
+    return await _fetch_scanner_zone_map(db)
+
 @router.get("/scanner-zone-map/watch")
-async def watch_scanner_zone_map(version: int = 0, db: AsyncSession = Depends(get_tenant_db)):
+async def watch_scanner_zone_map(
+    version: int = 0,
+    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+):
     """
     Long-polling endpoint for the Master script.
     Hangs until an atomic commit to zones happens, then returns the new map.
     If the requested version != current ZONE_MAP_VERSION, it returns immediately.
+    DB session is released before the wait — no connection held during the 60s poll.
     """
+    schema = "public" if (not x_tenant_id or x_tenant_id == "default") else f"t_{x_tenant_id.lower()}"
+
+    async def fetch():
+        async with AsyncSessionLocal() as db:
+            await db.execute(text(f"SET search_path TO {schema}, public"))
+            try:
+                return await _fetch_scanner_zone_map(db)
+            finally:
+                try:
+                    await db.execute(text("SET search_path TO public"))
+                except Exception:
+                    pass
+
     if version != ZONE_MAP_VERSION:
-        return await get_scanner_zone_map(db)
+        return await fetch()
 
     try:
         await asyncio.wait_for(zone_map_event.wait(), timeout=60.0)
     except asyncio.TimeoutError:
-        pass # If no event triggered in 60s, just return the current map safely to keep connection alive
-        
-    return await get_scanner_zone_map(db)
+        pass
+
+    return await fetch()
 
 
 # ─── Master ──────────────────────────────────────────────────────────────────
@@ -76,12 +96,12 @@ async def register_master(payload: MasterRegisterIn, db: AsyncSession = Depends(
     Now also accepts tenant_id and mode for multi-tenant local master setups.
     """
     mac = payload.mac.upper()
-    
+
     result = await db.execute(select(MstMaster).where(MstMaster.mac == mac))
     existing = result.scalars().first()
-    
+
     ip_changed = False
-    
+
     if existing:
         if existing.ip != payload.ip:
             ip_changed = True
@@ -94,10 +114,10 @@ async def register_master(payload: MasterRegisterIn, db: AsyncSession = Depends(
         name = f"Master Pi ({payload.tenant_id})" if payload.tenant_id else "Master Pi"
         new_master = MstMaster(mac=mac, ip=payload.ip, name=name)
         db.add(new_master)
-        
+
     await db.flush()
     await db.commit()
-    
+
     if ip_changed:
         await notify_master_ip_changed()
 
@@ -125,30 +145,43 @@ async def get_master(db: AsyncSession = Depends(get_tenant_db)):
 
 
 @router.get("/master/watch")
-async def watch_master_ip(current_ip: str, db: AsyncSession = Depends(get_tenant_db)):
+async def watch_master_ip(
+    current_ip: str,
+    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+):
     """
     Long-polling endpoint for Scanner scripts and Android app.
     Returns instantly if the IP in DB differs from current_ip.
     Otherwise hangs until the Master IP changes in the DB.
+    DB session is released before the wait — no connection held during the 60s poll.
     """
-    # Check immediately
-    result = await db.execute(select(MstMaster).order_by(MstMaster.id.desc()).limit(1))
-    master = result.scalars().first()
+    schema = "public" if (not x_tenant_id or x_tenant_id == "default") else f"t_{x_tenant_id.lower()}"
+
+    async def fetch_master():
+        async with AsyncSessionLocal() as db:
+            await db.execute(text(f"SET search_path TO {schema}, public"))
+            try:
+                result = await db.execute(select(MstMaster).order_by(MstMaster.id.desc()).limit(1))
+                return result.scalars().first()
+            finally:
+                try:
+                    await db.execute(text("SET search_path TO public"))
+                except Exception:
+                    pass
+
+    master = await fetch_master()
     if master and master.ip != current_ip:
         return {"ok": True, "master_ip": master.ip}
-        
-    # Wait for change event
+
     try:
         await asyncio.wait_for(master_ip_event.wait(), timeout=60.0)
     except asyncio.TimeoutError:
         pass
-        
-    # Fetch latest
-    result = await db.execute(select(MstMaster).order_by(MstMaster.id.desc()).limit(1))
-    master = result.scalars().first()
+
+    master = await fetch_master()
     if not master:
         raise HTTPException(status_code=404, detail="Master disconnected")
-        
+
     return {"ok": True, "master_ip": master.ip}
 
 # ─── Scanner ─────────────────────────────────────────────────────────────────
@@ -156,7 +189,7 @@ async def watch_master_ip(current_ip: str, db: AsyncSession = Depends(get_tenant
 @router.post("/scanner")
 async def register_scanner(payload: ScannerRegisterIn, db: AsyncSession = Depends(get_tenant_db)):
     """
-    Scanners can hit this to log their runtime boot. 
+    Scanners can hit this to log their runtime boot.
     It returns the master IP immediately to serve as a bootstrap.
     """
     return await get_master(db)

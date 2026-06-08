@@ -1,26 +1,29 @@
 /**
  * api.ts — Central API client for BleX UI.
- *
- * Base URL comes from VITE_API_BASE_URL env (empty = same origin in prod).
- * In dev the Vite proxy (vite.config.ts) forwards /api → http://localhost:8001.
- * credentials: 'include' is set on all requests so the httpOnly blex_token cookie is sent.
+ * Now delegates to lib/api-client.ts so every call carries the Bearer token
+ * and benefits from 401 → refresh → retry. The /asset prefix is added by
+ * apiFetch, so paths here must NOT include it (use "/api/..." style).
  */
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+import { apiFetch } from "./api-client";
+
+// apiFetch prepends "/asset/api" already. Existing callers pass paths like
+// "/api/assets/history" — strip that leading "/api" so we don't double up.
+function normalize(path: string): string {
+  if (path.startsWith("/api/")) return path.slice(4);   // "/api/foo" → "/foo"
+  if (path.startsWith("/api")) return path.slice(4) || "/";
+  return path.startsWith("/") ? path : `/${path}`;
+}
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { credentials: "include" });
-  if (!res.ok) {
-    throw new Error(`API error ${res.status}: ${path}`);
-  }
+  const res = await apiFetch(normalize(path));
+  if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);
   return res.json() as Promise<T>;
 }
 
 async function post<T>(path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await apiFetch(normalize(path), {
     method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);

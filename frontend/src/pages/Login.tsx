@@ -1,6 +1,6 @@
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 
 const T = {
   tealDark:  "#005F67",
@@ -26,11 +26,19 @@ function Sunburst() {
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Role-aware redirect after login (user state populates inside useAuth().login)
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === "admin" ? "/admin" : "/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -38,11 +46,8 @@ export default function Login() {
     setLoading(true);
     const result = await login(email, password);
     setLoading(false);
-    if ("error" in result) {
-      setError(result.error);
-    } else {
-      navigate("/dashboard", { replace: true });
-    }
+    if (!result.ok) setError(result.error);
+    // Redirect handled by the useEffect above once user state is set
   }
 
   return (

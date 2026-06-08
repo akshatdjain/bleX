@@ -1,6 +1,22 @@
 import { useState, FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
+
+// Direct fetch — register isn't part of useAuth (it auto-logs you in afterwards anyway).
+async function register(name: string, email: string, password: string, orgName: string) {
+  const r = await fetch("/asset/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ name, email, password, org_name: orgName }),
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    return { error: err.detail ?? "Registration failed" } as const;
+  }
+  const data = await r.json();
+  return { user: data.user, accessToken: data.access_token } as const;
+}
 
 const T = {
   tealDark:  "#005F67",

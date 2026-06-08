@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getMe, AuthUser } from "@/lib/auth";
+import { useAuth, AuthUser } from "@/lib/auth-context";
 
-// Module-level cache — survives re-mounts from back/forward navigation
-// Cleared on explicit logout (logout() in auth.ts sets this to null)
-let _cachedUser: AuthUser | null | undefined = undefined; // undefined = not checked yet
-
+// Backwards-compat: some old call sites import clearAuthCache. The new auth-context
+// is the source of truth and clears its own state on logout, so this is a no-op.
 export function clearAuthCache() {
-  _cachedUser = undefined;
+  /* deprecated — auth-context handles this internally */
 }
 
 interface ProtectedRouteProps {
@@ -16,30 +13,9 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, onUser }: ProtectedRouteProps) {
-  // If already cached, skip the loading state entirely
-  const [state, setState] = useState<"loading" | "auth" | "unauth">(
-    _cachedUser !== undefined ? (_cachedUser ? "auth" : "unauth") : "loading"
-  );
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    // Already resolved from cache — no network call needed
-    if (_cachedUser !== undefined) {
-      if (_cachedUser) onUser?.(_cachedUser);
-      return;
-    }
-
-    getMe().then((user) => {
-      _cachedUser = user ?? null;
-      if (user) {
-        onUser?.(user);
-        setState("auth");
-      } else {
-        setState("unauth");
-      }
-    });
-  }, []);
-
-  if (state === "loading") {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
@@ -50,9 +26,10 @@ export function ProtectedRoute({ children, onUser }: ProtectedRouteProps) {
     );
   }
 
-  if (state === "unauth") {
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
+  if (onUser) onUser(user);
   return <>{children}</>;
 }

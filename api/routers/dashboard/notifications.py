@@ -18,6 +18,7 @@ from datetime import datetime, timezone
 
 from database import get_dashboard_db as get_tenant_db
 from routers.dashboard.health import get_scanner_health, get_beacon_health
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
@@ -49,7 +50,7 @@ def _stable_id(*parts) -> str:
 
 # ---------------------------------------------- GET /notifications --
 @router.get("")
-async def get_notifications(db: AsyncSession = Depends(get_tenant_db)):
+async def get_notifications(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """
     Returns a dynamically generated list of alerts sorted by priority.
     Each notification has a stable id so the UI can mark it as read.
@@ -149,7 +150,7 @@ async def get_notifications(db: AsyncSession = Depends(get_tenant_db)):
 
 # --------------------------------- POST /notifications/{id}/read --
 @router.post("/{notification_id}/read")
-async def mark_as_read(notification_id: str, db: AsyncSession = Depends(get_tenant_db)):
+async def mark_as_read(notification_id: str, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Mark a notification as read (persisted to disk)."""
     read = _load_receipts()
     read.add(notification_id)
@@ -159,9 +160,9 @@ async def mark_as_read(notification_id: str, db: AsyncSession = Depends(get_tena
 
 # --------------------------------- POST /notifications/read-all --
 @router.post("/read-all")
-async def mark_all_read(db: AsyncSession = Depends(get_tenant_db)):
+async def mark_all_read(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Mark all current notifications as read."""
-    notifications_resp = await get_notifications(db)
+    notifications_resp = await get_notifications(current_user=current_user, db=db)
     read = _load_receipts()
     for n in notifications_resp["notifications"]:
         read.add(n["id"])

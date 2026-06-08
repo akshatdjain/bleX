@@ -25,6 +25,7 @@ import random
 import string
 
 from database import get_db
+from routers.auth import require_admin
 
 router = APIRouter(prefix="/api/tenants", tags=["Tenants"])
 
@@ -71,6 +72,12 @@ class TenantUpdateIn(BaseModel):
     asset_limit: Optional[int] = None
     contact_email: Optional[str] = None
     metadata: Optional[dict] = None
+    # BleX deployment fields (set in admin panel; consumed by Pi provisioner)
+    mode: Optional[str] = None             # local | cloud
+    tablet_host: Optional[str] = None
+    tablet_port: Optional[int] = None
+    mqtt_username: Optional[str] = None
+    mqtt_password: Optional[str] = None
 
 class TenantEventIn(BaseModel):
     event_type: str
@@ -161,14 +168,16 @@ async def list_active_tenants(db: AsyncSession = Depends(get_db)):
 
 # ── Admin: list all tenants ───────────────────────────────────────────────────
 
-@router.get("")
+@router.get("", dependencies=[Depends(require_admin)])
 async def list_tenants(db: AsyncSession = Depends(get_db)):
     """Full tenant list for admin panel."""
     result = await db.execute(
         text("""
             SELECT t.tenant_id, t.name, t.mqtt_prefix, t.plan, t.tier, t.master_tier,
                    t.status, t.db_schema, t.scanner_limit, t.asset_limit,
-                   t.contact_email, t.created_at, t.metadata
+                   t.contact_email, t.created_at, t.metadata,
+                   t.mode, t.tablet_host, t.tablet_port,
+                   t.mqtt_username, t.mqtt_password
             FROM shared.tenants t
             ORDER BY t.created_at
         """)
@@ -189,6 +198,11 @@ async def list_tenants(db: AsyncSession = Depends(get_db)):
             "contact_email": r.contact_email,
             "created_at":    r.created_at.isoformat() if r.created_at else None,
             "metadata":      r.metadata or {},
+            "mode":          r.mode,
+            "tablet_host":   r.tablet_host,
+            "tablet_port":   r.tablet_port,
+            "mqtt_username": r.mqtt_username,
+            "mqtt_password": r.mqtt_password,
         }
         for r in rows
     ]
@@ -196,7 +210,7 @@ async def list_tenants(db: AsyncSession = Depends(get_db)):
 
 # ── Admin: per-tenant stats ───────────────────────────────────────────────────
 
-@router.get("/{tenant_id}/stats")
+@router.get("/{tenant_id}/stats", dependencies=[Depends(require_admin)])
 async def tenant_stats(tenant_id: str, db: AsyncSession = Depends(get_db)):
     """Counts of scanners, assets, zones, movements for admin panel."""
     row = (await db.execute(
@@ -234,7 +248,7 @@ async def tenant_stats(tenant_id: str, db: AsyncSession = Depends(get_db)):
 
 # ── Admin: update tenant ──────────────────────────────────────────────────────
 
-@router.patch("/{tenant_id}")
+@router.patch("/{tenant_id}", dependencies=[Depends(require_admin)])
 async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
                         db: AsyncSession = Depends(get_db)):
     """Update tenant fields — status, tier, limits, etc."""
@@ -255,6 +269,11 @@ async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
     if payload.asset_limit   is not None: updates["asset_limit"]   = payload.asset_limit
     if payload.contact_email is not None: updates["contact_email"] = payload.contact_email
     if payload.metadata      is not None: updates["metadata"]      = payload.metadata
+    if payload.mode           is not None: updates["mode"]           = payload.mode
+    if payload.tablet_host    is not None: updates["tablet_host"]    = payload.tablet_host
+    if payload.tablet_port    is not None: updates["tablet_port"]    = payload.tablet_port
+    if payload.mqtt_username  is not None: updates["mqtt_username"]  = payload.mqtt_username
+    if payload.mqtt_password  is not None: updates["mqtt_password"]  = payload.mqtt_password
 
     if not updates:
         raise HTTPException(status_code=400, detail="No fields to update")
@@ -268,7 +287,7 @@ async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
 
     await db.execute(
         text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
-             "VALUES (:tid, 'updated', 'admin', :p::jsonb)"),
+             "VALUES (:tid, 'updated', 'admin', CAST(:p AS jsonb))"),
         {"tid": tenant_id, "p": str({"fields": list(payload.model_dump(exclude_none=True).keys())})
                                    .replace("'", '"')},
     )
@@ -278,7 +297,7 @@ async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
 
 # ── Admin: audit events ───────────────────────────────────────────────────────
 
-@router.get("/{tenant_id}/events")
+@router.get("/{tenant_id}/events", dependencies=[Depends(require_admin)])
 async def tenant_events(tenant_id: str, limit: int = 50, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
         text("""SELECT id, event_type, actor, payload, created_at
@@ -294,7 +313,7 @@ async def tenant_events(tenant_id: str, limit: int = 50, db: AsyncSession = Depe
         for r in rows
     ]
 
-@router.post("/{tenant_id}/events")
+@router.post("/{tenant_id}/events", dependencies=[Depends(require_admin)])
 async def append_tenant_event(tenant_id: str, payload: TenantEventIn,
                                db: AsyncSession = Depends(get_db)):
     existing = (await db.execute(
@@ -305,7 +324,7 @@ async def append_tenant_event(tenant_id: str, payload: TenantEventIn,
         raise HTTPException(status_code=404, detail="Tenant not found")
     await db.execute(
         text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
-             "VALUES (:tid, :et, :actor, :p::jsonb)"),
+             "VALUES (:tid, :et, :actor, CAST(:p AS jsonb))"),
         {"tid": tenant_id, "et": payload.event_type,
          "actor": payload.actor, "p": str(payload.payload or {}).replace("'", '"')},
     )

@@ -54,7 +54,10 @@ async def get_tenant_db(
         try:
             yield session
         finally:
-            await session.execute(text("SET search_path TO public"))
+            try:
+                await session.execute(text("SET search_path TO public"))
+            except Exception:
+                pass
 
 
 async def get_smart_db(
@@ -92,7 +95,10 @@ async def get_smart_db(
         try:
             yield session
         finally:
-            await session.execute(text("SET search_path TO public"))
+            try:
+                await session.execute(text("SET search_path TO public"))
+            except Exception:
+                pass
 
 
 async def get_dashboard_db(request: Request) -> AsyncGenerator:
@@ -117,4 +123,7 @@ async def get_dashboard_db(request: Request) -> AsyncGenerator:
         try:
             yield session
         finally:
-            await session.execute(text("SET search_path TO public"))
+            try:
+                await session.execute(text("SET search_path TO public"))
+            except Exception:
+                pass

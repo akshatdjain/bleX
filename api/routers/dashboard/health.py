@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 
 from database import get_dashboard_db as get_tenant_db
 from models import MstScanner, MstZoneScanner, MstZone, MstAsset, MovementLog
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/health", tags=["Health"])
 
@@ -65,7 +66,7 @@ async def _col_exists(db: AsyncSession, table: str, column: str) -> bool:
 
 # ----------------------------------------- GET /health/scanners --
 @router.get("/scanners")
-async def get_scanner_health(db: AsyncSession = Depends(get_tenant_db)):
+async def get_scanner_health(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Per-scanner health: online/offline, last heartbeat, zone."""
 
     has_heartbeat = await _col_exists(db, "mst_scanner", "last_heartbeat")
@@ -118,7 +119,7 @@ async def get_scanner_health(db: AsyncSession = Depends(get_tenant_db)):
 
 # ------------------------------------------ GET /health/beacons --
 @router.get("/beacons")
-async def get_beacon_health(db: AsyncSession = Depends(get_tenant_db)):
+async def get_beacon_health(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Per-beacon health: alive/dead, battery %, last_seen."""
     has_extra = await _col_exists(db, "mst_asset", "extra")
 
@@ -175,7 +176,7 @@ async def get_beacon_health(db: AsyncSession = Depends(get_tenant_db)):
 
 # ---------------------------------- GET /health/summary (dashboard widget) --
 @router.get("/summary")
-async def get_health_summary(db: AsyncSession = Depends(get_tenant_db)):
+async def get_health_summary(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Quick counts for dashboard: total/online scanners, alive/dead beacons."""
     scanners = await get_scanner_health(db)
     beacons  = await get_beacon_health(db)

@@ -9,12 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_smart_db as get_tenant_db
 from models import MstAsset
 from schemas import AssetIn
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/api/assets", tags=["Assets"])
 
 
 @router.get("")
-async def list_assets(db: AsyncSession = Depends(get_tenant_db)):
+async def list_assets(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstAsset).order_by(MstAsset.id))
     assets = result.scalars().all()
     return [
@@ -29,7 +30,7 @@ async def list_assets(db: AsyncSession = Depends(get_tenant_db)):
 
 
 @router.post("")
-async def register_asset(payload: AssetIn, db: AsyncSession = Depends(get_tenant_db)):
+async def register_asset(payload: AssetIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     mac = payload.bluetooth_id.upper()
     existing = await db.execute(
         select(MstAsset).where(MstAsset.bluetooth_id == mac)
@@ -46,7 +47,7 @@ async def register_asset(payload: AssetIn, db: AsyncSession = Depends(get_tenant
 
 
 @router.put("/{asset_id}")
-async def update_asset(asset_id: int, payload: AssetIn, db: AsyncSession = Depends(get_tenant_db)):
+async def update_asset(asset_id: int, payload: AssetIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstAsset).where(MstAsset.id == asset_id))
     asset = result.scalars().first()
     if not asset:
@@ -59,7 +60,7 @@ async def update_asset(asset_id: int, payload: AssetIn, db: AsyncSession = Depen
 
 
 @router.delete("/{asset_id}")
-async def delete_asset(asset_id: int, db: AsyncSession = Depends(get_tenant_db)):
+async def delete_asset(asset_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstAsset).where(MstAsset.id == asset_id))
     asset = result.scalars().first()
     if not asset:

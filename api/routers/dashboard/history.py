@@ -5,12 +5,14 @@ from datetime import date
 
 from database import get_dashboard_db as get_tenant_db
 from models import MovementLog
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/assets", tags=["History"])
 
 @router.get("/history")
 async def get_history(
     start_date: date | None = Query(default=None),
+    current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_tenant_db),
 ):
     stmt = select(MovementLog).order_by(MovementLog.timestamp_movement.desc())

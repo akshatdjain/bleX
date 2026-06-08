@@ -10,12 +10,13 @@ from database import get_smart_db as get_tenant_db
 from models import MstScanner, MstZoneScanner
 from schemas import ScannerIn
 from events import notify_zone_map_changed
+from routers.auth import get_current_user
 
 router = APIRouter(prefix="/api/scanners", tags=["Scanners"])
 
 
 @router.get("")
-async def list_scanners(db: AsyncSession = Depends(get_tenant_db)):
+async def list_scanners(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstScanner).order_by(MstScanner.id))
     scanners = result.scalars().all()
     return [
@@ -32,7 +33,7 @@ async def list_scanners(db: AsyncSession = Depends(get_tenant_db)):
 
 
 @router.post("")
-async def register_scanner(payload: ScannerIn, db: AsyncSession = Depends(get_tenant_db)):
+async def register_scanner(payload: ScannerIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     mac = payload.mac_id.upper()
     existing = await db.execute(
         select(MstScanner).where(MstScanner.mac_id == mac)
@@ -49,7 +50,7 @@ async def register_scanner(payload: ScannerIn, db: AsyncSession = Depends(get_te
 
 
 @router.delete("/{scanner_id}")
-async def delete_scanner(scanner_id: int, db: AsyncSession = Depends(get_tenant_db)):
+async def delete_scanner(scanner_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     await db.execute(
         delete(MstZoneScanner).where(MstZoneScanner.mst_scanner_id == scanner_id)
     )
@@ -65,7 +66,7 @@ async def delete_scanner(scanner_id: int, db: AsyncSession = Depends(get_tenant_
 
 
 @router.put("/by-mac/{mac}")
-async def upsert_scanner(mac: str, payload: ScannerIn, db: AsyncSession = Depends(get_tenant_db)):
+async def upsert_scanner(mac: str, payload: ScannerIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
     """Register or update a scanner by MAC address (upsert behavior)."""
     normalized_mac = mac.upper()
     result = await db.execute(
