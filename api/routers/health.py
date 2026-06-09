@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_limiter.depends import RateLimiter
 
 from database import get_tenant_db
-from routers.auth import get_principal
+from routers.auth import get_principal, get_principal_db
 
 router = APIRouter(prefix="/api/health", tags=["Health Write"])
 
@@ -48,7 +48,7 @@ class BeaconHealthItem(BaseModel):
 @router.post("/scanners/bulk", dependencies=[Depends(RateLimiter(times=60, seconds=60))])
 async def bulk_update_scanner_health(
     items: List[ScannerHealthItem],
-    db: AsyncSession = Depends(get_tenant_db),
+    db: AsyncSession = Depends(get_principal_db),
     principal: dict = Depends(get_principal),
 ):
     """
@@ -97,7 +97,7 @@ async def bulk_update_scanner_health(
 @router.post("/beacons/bulk", dependencies=[Depends(RateLimiter(times=60, seconds=60))])
 async def bulk_update_beacon_health(
     items: List[BeaconHealthItem],
-    db: AsyncSession = Depends(get_tenant_db),
+    db: AsyncSession = Depends(get_principal_db),
     principal: dict = Depends(get_principal),
 ):
     """

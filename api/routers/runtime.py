@@ -12,7 +12,7 @@ import asyncio
 from database import get_tenant_db, AsyncSessionLocal
 from models import MstScanner, MstZoneScanner, MstZone, MstMaster
 from events import master_ip_event, notify_master_ip_changed, zone_map_event, ZONE_MAP_VERSION
-from routers.auth import get_principal
+from routers.auth import get_principal, get_principal_db
 
 router = APIRouter(prefix="/api/runtime", tags=["Runtime"])
 
@@ -54,33 +54,30 @@ async def _fetch_scanner_zone_map(db: AsyncSession):
 
 @router.get("/scanner-zone-map")
 async def get_scanner_zone_map(
-    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
-    tenant_id: Optional[str] = None,
-    db: AsyncSession = Depends(get_tenant_db),
+    db: AsyncSession = Depends(get_principal_db),
     principal: dict = Depends(get_principal),
 ):
     """
     Returns {scanner_mac: zone_id} mapping.
     The master engine calls this to instantly load mappings.
+    Schema is derived from the authenticated principal's tenant_id — no header trust.
     """
-    _check_device_tenant(principal, tenant_id or x_tenant_id)
     return await _fetch_scanner_zone_map(db)
 
 @router.get("/scanner-zone-map/watch")
 async def watch_scanner_zone_map(
     version: int = 0,
-    tenant_id: Optional[str] = None,
-    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
     principal: dict = Depends(get_principal),
 ):
-    _check_device_tenant(principal, tenant_id or x_tenant_id)
     """
     Long-polling endpoint for the Master script.
     Hangs until an atomic commit to zones happens, then returns the new map.
     If the requested version != current ZONE_MAP_VERSION, it returns immediately.
     DB session is released before the wait — no connection held during the 60s poll.
+    Schema is derived from the authenticated principal's tenant_id — no header trust.
     """
-    schema = "public" if (not x_tenant_id or x_tenant_id == "default") else f"t_{x_tenant_id.lower()}"
+    tid = principal.get("tenant_id")
+    schema = f"t_{tid.lower()}" if tid else "public"
 
     async def fetch():
         async with AsyncSessionLocal() as db:
@@ -108,7 +105,7 @@ async def watch_scanner_zone_map(
 
 @router.post("/master")
 async def register_master(payload: MasterRegisterIn,
-                          db: AsyncSession = Depends(get_tenant_db),
+                          db: AsyncSession = Depends(get_principal_db),
                           principal: dict = Depends(get_principal)):
     """
     Master Node registers its IP and MAC here upon boot or IP change.
@@ -149,16 +146,14 @@ async def register_master(payload: MasterRegisterIn,
 
 @router.get("/master")
 async def get_master(
-    tenant_id: Optional[str] = None,
-    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
-    db: AsyncSession = Depends(get_tenant_db),
+    db: AsyncSession = Depends(get_principal_db),
     principal: dict = Depends(get_principal),
 ):
     """
     Returns the current Master IP and tenant_id.
     Android app calls this after login to auto-fill remoteHost.
+    Schema is derived from the authenticated principal's tenant_id — no header trust.
     """
-    _check_device_tenant(principal, tenant_id or x_tenant_id)
     result = await db.execute(select(MstMaster).order_by(MstMaster.id.desc()).limit(1))
     master = result.scalars().first()
     if not master:
@@ -173,18 +168,17 @@ async def get_master(
 @router.get("/master/watch")
 async def watch_master_ip(
     current_ip: str,
-    tenant_id: Optional[str] = None,
-    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
     principal: dict = Depends(get_principal),
 ):
-    _check_device_tenant(principal, tenant_id or x_tenant_id)
     """
     Long-polling endpoint for Scanner scripts and Android app.
     Returns instantly if the IP in DB differs from current_ip.
     Otherwise hangs until the Master IP changes in the DB.
     DB session is released before the wait — no connection held during the 60s poll.
+    Schema is derived from the authenticated principal's tenant_id — no header trust.
     """
-    schema = "public" if (not x_tenant_id or x_tenant_id == "default") else f"t_{x_tenant_id.lower()}"
+    tid = principal.get("tenant_id")
+    schema = f"t_{tid.lower()}" if tid else "public"
 
     async def fetch_master():
         async with AsyncSessionLocal() as db:
@@ -217,10 +211,11 @@ async def watch_master_ip(
 
 @router.post("/scanner")
 async def register_scanner(payload: ScannerRegisterIn,
-                           db: AsyncSession = Depends(get_tenant_db),
+                           db: AsyncSession = Depends(get_principal_db),
                            principal: dict = Depends(get_principal)):
     """
     Scanners can hit this to log their runtime boot.
     It returns the master IP immediately to serve as a bootstrap.
+    Schema is derived from the authenticated principal's tenant_id — no header trust.
     """
-    return await get_master(None, None, db, principal)
+    return await get_master(db, principal)

@@ -497,6 +497,25 @@ async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) ->
     raise HTTPException(401, "Invalid token")
 
 
+async def get_principal_db(principal: dict = Depends(get_principal)):
+    """Tenant-scoped DB session derived from the authenticated principal's
+    tenant_id. The token (JWT or device) is the single source of truth —
+    no X-Tenant-ID header trust, no silent `public` fallback."""
+    from database import AsyncSessionLocal, _TENANT_RE
+    from sqlalchemy import text
+    tid = principal.get("tenant_id")
+    schema = f"t_{tid.lower()}" if tid and _TENANT_RE.match(tid) else "public"
+    async with AsyncSessionLocal() as session:
+        await session.execute(text(f"SET search_path TO {schema}, public"))
+        try:
+            yield session
+        finally:
+            try:
+                await session.execute(text("SET search_path TO public"))
+            except Exception:
+                pass
+
+
 async def require_user(p: dict = Depends(get_principal)) -> dict:
     """Tenant user only (admins rejected here — they use require_admin)."""
     if p["type"] != "user":
