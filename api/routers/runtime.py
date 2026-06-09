@@ -16,6 +16,13 @@ from routers.auth import get_principal
 
 router = APIRouter(prefix="/api/runtime", tags=["Runtime"])
 
+
+def _check_device_tenant(principal: dict, requested: Optional[str]):
+    """Defense in depth: device tokens can only access their own tenant_id."""
+    if principal.get("type") == "device" and requested and requested != principal.get("tenant_id"):
+        raise HTTPException(403, "Device tenant mismatch")
+
+
 # ─── Schemas ─────────────────────────────────────────────────────────────────
 
 class MasterRegisterIn(BaseModel):
@@ -46,20 +53,27 @@ async def _fetch_scanner_zone_map(db: AsyncSession):
     return {"scanner_zone_map": mapping, "version": ZONE_MAP_VERSION}
 
 @router.get("/scanner-zone-map")
-async def get_scanner_zone_map(db: AsyncSession = Depends(get_tenant_db),
-                               principal: dict = Depends(get_principal)):
+async def get_scanner_zone_map(
+    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+    tenant_id: Optional[str] = None,
+    db: AsyncSession = Depends(get_tenant_db),
+    principal: dict = Depends(get_principal),
+):
     """
     Returns {scanner_mac: zone_id} mapping.
     The master engine calls this to instantly load mappings.
     """
+    _check_device_tenant(principal, tenant_id or x_tenant_id)
     return await _fetch_scanner_zone_map(db)
 
 @router.get("/scanner-zone-map/watch")
 async def watch_scanner_zone_map(
     version: int = 0,
+    tenant_id: Optional[str] = None,
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
     principal: dict = Depends(get_principal),
 ):
+    _check_device_tenant(principal, tenant_id or x_tenant_id)
     """
     Long-polling endpoint for the Master script.
     Hangs until an atomic commit to zones happens, then returns the new map.
@@ -100,6 +114,7 @@ async def register_master(payload: MasterRegisterIn,
     Master Node registers its IP and MAC here upon boot or IP change.
     Now also accepts tenant_id and mode for multi-tenant local master setups.
     """
+    _check_device_tenant(principal, payload.tenant_id)
     mac = payload.mac.upper()
 
     result = await db.execute(select(MstMaster).where(MstMaster.mac == mac))
@@ -133,12 +148,17 @@ async def register_master(payload: MasterRegisterIn,
     }
 
 @router.get("/master")
-async def get_master(db: AsyncSession = Depends(get_tenant_db),
-                     principal: dict = Depends(get_principal)):
+async def get_master(
+    tenant_id: Optional[str] = None,
+    x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
+    db: AsyncSession = Depends(get_tenant_db),
+    principal: dict = Depends(get_principal),
+):
     """
     Returns the current Master IP and tenant_id.
     Android app calls this after login to auto-fill remoteHost.
     """
+    _check_device_tenant(principal, tenant_id or x_tenant_id)
     result = await db.execute(select(MstMaster).order_by(MstMaster.id.desc()).limit(1))
     master = result.scalars().first()
     if not master:
@@ -153,9 +173,11 @@ async def get_master(db: AsyncSession = Depends(get_tenant_db),
 @router.get("/master/watch")
 async def watch_master_ip(
     current_ip: str,
+    tenant_id: Optional[str] = None,
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
     principal: dict = Depends(get_principal),
 ):
+    _check_device_tenant(principal, tenant_id or x_tenant_id)
     """
     Long-polling endpoint for Scanner scripts and Android app.
     Returns instantly if the IP in DB differs from current_ip.
@@ -201,4 +223,4 @@ async def register_scanner(payload: ScannerRegisterIn,
     Scanners can hit this to log their runtime boot.
     It returns the master IP immediately to serve as a bootstrap.
     """
-    return await get_master(db, principal)
+    return await get_master(None, None, db, principal)

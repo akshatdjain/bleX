@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from database import get_dashboard_db as get_tenant_db
 from models import MstScanner, MstZoneScanner, MstZone
-from routers.auth import get_current_user
+from routers.auth import require_tenant_match
 
 router = APIRouter(prefix="/scanners", tags=["Scanners"])
 
@@ -22,7 +22,7 @@ def _scanner_status(last_heartbeat) -> str:
 
 
 @router.get("")
-async def get_scanners(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def get_scanners(current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     """All scanners with zone, type, last_heartbeat, and online/offline status."""
     stmt = (
         select(

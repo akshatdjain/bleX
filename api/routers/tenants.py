@@ -23,6 +23,7 @@ from pydantic import BaseModel
 from typing import Optional, Any
 import random
 import string
+import json
 
 from database import get_db
 from routers.auth import require_admin
@@ -248,9 +249,10 @@ async def tenant_stats(tenant_id: str, db: AsyncSession = Depends(get_db)):
 
 # ── Admin: update tenant ──────────────────────────────────────────────────────
 
-@router.patch("/{tenant_id}", dependencies=[Depends(require_admin)])
+@router.patch("/{tenant_id}")
 async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
-                        db: AsyncSession = Depends(get_db)):
+                        db: AsyncSession = Depends(get_db),
+                        admin: dict = Depends(require_admin)):
     """Update tenant fields — status, tier, limits, etc."""
     existing = (await db.execute(
         text("SELECT tenant_id FROM shared.tenants WHERE tenant_id = :tid"),
@@ -285,14 +287,15 @@ async def update_tenant(tenant_id: str, payload: TenantUpdateIn,
         updates,
     )
 
+    audit_payload = {k: v for k, v in updates.items() if k != "tid"}
     await db.execute(
         text("INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload) "
-             "VALUES (:tid, 'updated', 'admin', CAST(:p AS jsonb))"),
-        {"tid": tenant_id, "p": str({"fields": list(payload.model_dump(exclude_none=True).keys())})
-                                   .replace("'", '"')},
+             "VALUES (:tid, 'admin_update', :actor, CAST(:p AS jsonb))"),
+        {"tid": tenant_id, "actor": admin.get("email", "admin"),
+         "p": json.dumps(audit_payload, default=str)},
     )
     await db.commit()
-    return {"ok": True, "updated": list(updates.keys())}
+    return {"ok": True, "updated": [k for k in updates.keys() if k != "tid"]}
 
 
 # ── Admin: audit events ───────────────────────────────────────────────────────

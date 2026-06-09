@@ -6,6 +6,7 @@ from typing import AsyncGenerator, Optional
 from fastapi import Header, Request
 from jose import JWTError, jwt
 import os
+import re
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
@@ -33,6 +34,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise RuntimeError("SECRET_KEY environment variable is not set")
 ALGORITHM = "HS256"
+
+_TENANT_RE = re.compile(r"^[A-Z0-9_]{1,32}$")
 
 
 async def get_db():
@@ -65,30 +68,36 @@ async def get_smart_db(
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
 ) -> AsyncGenerator:
     """
-    Smart tenant resolver: uses X-Tenant-ID header if present, falls back to JWT cookie.
-    Use this on endpoints that need to serve both Android/Pi (header) and web dashboard (cookie).
+    Smart tenant resolver: uses X-Tenant-ID header if present, falls back to RS256 Bearer JWT.
+    Use this on endpoints that need to serve both Android/Pi (header+Bearer) and web dashboard (Bearer).
     Raises 401 if neither is valid.
     """
     from fastapi import HTTPException
+    from auth import decode_token  # RS256 helper
+
     schema = None
 
-    # Priority 1: explicit header (Android app, Pi scripts)
+    # Priority 1: explicit X-Tenant-ID header (must be valid format)
     if x_tenant_id and x_tenant_id != "default":
+        if not _TENANT_RE.match(x_tenant_id):
+            raise HTTPException(400, "Invalid X-Tenant-ID format")
         schema = f"t_{x_tenant_id.lower()}"
-    else:
-        # Priority 2: JWT cookie (web dashboard)
-        token = request.cookies.get("blex_token")
-        if token:
+
+    # Priority 2: Bearer JWT (web app, Pi device tokens with tenant_id, Android)
+    if not schema:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1].strip()
             try:
-                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-                tenant_id = payload.get("tenant_id", "")
-                if tenant_id:
-                    schema = f"t_{tenant_id.lower()}"
-            except JWTError:
+                claims = decode_token(token, expected_typ="access")
+                tid = claims.get("tenant_id", "")
+                if tid and _TENANT_RE.match(tid):
+                    schema = f"t_{tid.lower()}"
+            except Exception:
                 pass
 
     if not schema:
-        raise HTTPException(status_code=401, detail="Not authenticated — provide X-Tenant-ID header or login cookie")
+        raise HTTPException(status_code=401, detail="Not authenticated — provide X-Tenant-ID header or Bearer token")
 
     async with AsyncSessionLocal() as session:
         await session.execute(text(f"SET search_path TO {schema}, public"))
@@ -103,21 +112,33 @@ async def get_smart_db(
 
 async def get_dashboard_db(request: Request) -> AsyncGenerator:
     """
-    DB session scoped to tenant schema via blex_token httpOnly cookie.
-    Raises 401 if no valid cookie — never falls back to public schema.
+    DB session scoped to tenant schema via RS256 Bearer JWT.
+    Raises 401 if no valid token — never falls back to public schema.
     """
     from fastapi import HTTPException
-    token = request.cookies.get("blex_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        tenant_id = payload.get("tenant_id", "")
-        if not tenant_id:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        schema = f"t_{tenant_id.lower()}"
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    from auth import decode_token  # RS256 helper
+
+    schema = None
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header.split(" ", 1)[1].strip()
+        try:
+            claims = decode_token(token, expected_typ="access")
+            tid = claims.get("tenant_id", "")
+            if tid and _TENANT_RE.match(tid):
+                schema = f"t_{tid.lower()}"
+        except Exception:
+            pass
+
+    if not schema:
+        # Fallback to header
+        x_tid = request.headers.get("X-Tenant-ID")
+        if x_tid and _TENANT_RE.match(x_tid):
+            schema = f"t_{x_tid.lower()}"
+
+    if not schema:
+        raise HTTPException(401, "Not authenticated")
+
     async with AsyncSessionLocal() as session:
         await session.execute(text(f"SET search_path TO {schema}, public"))
         try:

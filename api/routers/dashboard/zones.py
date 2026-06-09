@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from database import get_dashboard_db as get_tenant_db
 from models import MstZone, MstZoneScanner, MstScanner, MstAsset, MovementLog
-from routers.auth import get_current_user
+from routers.auth import require_tenant_match
 
 router = APIRouter(prefix="/zones", tags=["Zones"])
 
@@ -48,7 +48,7 @@ def _today_start():
 
 # --------------------------------------------------------------- GET /zones --
 @router.get("")
-async def get_zones(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def get_zones(current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     """All zones with asset count, movement count today, scanner id, is_active."""
 
     # asset count per zone
@@ -118,7 +118,7 @@ async def get_zones(current_user: dict = Depends(get_current_user), db: AsyncSes
 
 # -------------------------------------------------------- GET /zones/{id} --
 @router.get("/{zone_id}")
-async def get_zone_detail(zone_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def get_zone_detail(zone_id: int, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     """Zone detail including embedded list of current assets."""
 
     zone = (await db.execute(select(MstZone).where(MstZone.id == zone_id))).scalar_one_or_none()

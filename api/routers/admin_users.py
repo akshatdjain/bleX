@@ -3,6 +3,7 @@ Admin user management endpoints.
 All endpoints require admin role.
 """
 
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
@@ -13,6 +14,15 @@ from datetime import datetime
 from database import get_db
 from routers.auth import require_admin
 from auth import hash_password
+
+
+async def _audit(db: AsyncSession, tenant_id: str, event_type: str, actor: str, payload: dict):
+    """Insert tenant_event audit row. Best-effort: caller commits."""
+    await db.execute(text("""
+        INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload)
+        VALUES (:tid, :et, :actor, CAST(:p AS jsonb))
+    """), {"tid": tenant_id, "et": event_type, "actor": actor,
+           "p": json.dumps(payload, default=str)})
 
 router = APIRouter(prefix="/api/admin/users", tags=["Admin - Users"])
 
@@ -92,8 +102,10 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
 
 # ── POST /api/admin/users ─────────────────────────────────────────────────────
 
-@router.post("", status_code=201, dependencies=[Depends(require_admin)])
-async def create_user(payload: UserCreateIn, db: AsyncSession = Depends(get_db)):
+@router.post("", status_code=201)
+async def create_user(payload: UserCreateIn,
+                      admin: dict = Depends(require_admin),
+                      db: AsyncSession = Depends(get_db)):
     """Create a new user."""
     # Check email not already registered
     existing = await db.execute(
@@ -127,6 +139,9 @@ async def create_user(payload: UserCreateIn, db: AsyncSession = Depends(get_db))
         "active": payload.is_active,
     })
     user_id = result.fetchone()[0]
+    await _audit(db, payload.tenant_id, "user_created",
+                 admin.get("email", "admin"),
+                 {"user_id": user_id, "email": payload.email.lower().strip()})
     await db.commit()
 
     return {"ok": True, "id": user_id, "email": payload.email.lower().strip()}
@@ -134,15 +149,16 @@ async def create_user(payload: UserCreateIn, db: AsyncSession = Depends(get_db))
 
 # ── PATCH /api/admin/users/{user_id} ──────────────────────────────────────────
 
-@router.patch("/{user_id}", dependencies=[Depends(require_admin)])
-async def update_user(user_id: int, payload: UserUpdateIn, db: AsyncSession = Depends(get_db)):
+@router.patch("/{user_id}")
+async def update_user(user_id: int, payload: UserUpdateIn,
+                      admin: dict = Depends(require_admin),
+                      db: AsyncSession = Depends(get_db)):
     """Update user fields."""
-    # Check user exists
-    existing = await db.execute(
-        text("SELECT id FROM shared.users WHERE id = :uid"),
+    existing = (await db.execute(
+        text("SELECT id, tenant_id FROM shared.users WHERE id = :uid"),
         {"uid": user_id}
-    )
-    if not existing.fetchone():
+    )).fetchone()
+    if not existing:
         raise HTTPException(status_code=404, detail="User not found")
 
     updates = {}
@@ -157,12 +173,17 @@ async def update_user(user_id: int, payload: UserUpdateIn, db: AsyncSession = De
         raise HTTPException(status_code=400, detail="No fields to update")
 
     set_clause = ", ".join(f"{k} = :{k}" for k in updates)
-    updates["uid"] = user_id
+    params = dict(updates)
+    params["uid"] = user_id
 
     await db.execute(
         text(f"UPDATE shared.users SET {set_clause} WHERE id = :uid"),
-        updates
+        params
     )
+    audit_payload = {k: ("***" if k == "password_hash" else v) for k, v in updates.items()}
+    audit_payload["user_id"] = user_id
+    await _audit(db, existing.tenant_id, "user_updated",
+                 admin.get("email", "admin"), audit_payload)
     await db.commit()
 
     return {"ok": True, "updated": list(updates.keys())}
@@ -170,20 +191,24 @@ async def update_user(user_id: int, payload: UserUpdateIn, db: AsyncSession = De
 
 # ── DELETE /api/admin/users/{user_id} ─────────────────────────────────────────
 
-@router.delete("/{user_id}", dependencies=[Depends(require_admin)])
-async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
+@router.delete("/{user_id}")
+async def delete_user(user_id: int,
+                      admin: dict = Depends(require_admin),
+                      db: AsyncSession = Depends(get_db)):
     """Soft delete user (set is_active = false)."""
-    existing = await db.execute(
-        text("SELECT id FROM shared.users WHERE id = :uid"),
+    existing = (await db.execute(
+        text("SELECT id, tenant_id FROM shared.users WHERE id = :uid"),
         {"uid": user_id}
-    )
-    if not existing.fetchone():
+    )).fetchone()
+    if not existing:
         raise HTTPException(status_code=404, detail="User not found")
 
     await db.execute(
         text("UPDATE shared.users SET is_active = FALSE WHERE id = :uid"),
         {"uid": user_id}
     )
+    await _audit(db, existing.tenant_id, "user_deleted",
+                 admin.get("email", "admin"), {"user_id": user_id})
     await db.commit()
 
     return {"ok": True, "deleted": user_id}

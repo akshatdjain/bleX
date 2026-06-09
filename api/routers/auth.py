@@ -547,8 +547,10 @@ async def require_tenant_match(
 # ── Me ──────────────────────────────────────────────────────────────────────
 
 @router.get("/me", response_model=UserOut)
-async def me(p: dict = Depends(require_user)):
+async def me(p: dict = Depends(get_principal)):
+    if p["type"] not in ("user", "admin"):
+        raise HTTPException(403, "User authentication required")
     return UserOut(
         id=p["id"], email=p["email"], name=p["name"],
-        role=p["role"], tenant_id=p["tenant_id"],
+        role=p["role"], tenant_id=p.get("tenant_id") or "",
     )

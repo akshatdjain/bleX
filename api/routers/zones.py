@@ -10,13 +10,13 @@ from database import get_smart_db as get_tenant_db
 from models import MstZone, MstZoneScanner, MstScanner, MstAsset, MovementLog
 from schemas import ZoneIn, ZoneScannerIn
 from events import notify_zone_map_changed
-from routers.auth import get_current_user
+from routers.auth import require_tenant_match
 
 router = APIRouter(prefix="/api/zones", tags=["Zones"])
 
 
 @router.get("")
-async def list_zones(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def list_zones(current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstZone).order_by(MstZone.id))
     zones = result.scalars().all()
     out = []
@@ -41,7 +41,7 @@ async def list_zones(current_user: dict = Depends(get_current_user), db: AsyncSe
 
 
 @router.post("")
-async def create_zone(payload: ZoneIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def create_zone(payload: ZoneIn, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     zone = MstZone(zone_name=payload.zone_name, description=payload.description)
     db.add(zone)
     await db.flush()
@@ -51,7 +51,7 @@ async def create_zone(payload: ZoneIn, current_user: dict = Depends(get_current_
 
 
 @router.put("/{zone_id}")
-async def update_zone(zone_id: int, payload: ZoneIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def update_zone(zone_id: int, payload: ZoneIn, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     result = await db.execute(select(MstZone).where(MstZone.id == zone_id))
     zone = result.scalars().first()
     if not zone:
@@ -65,7 +65,7 @@ async def update_zone(zone_id: int, payload: ZoneIn, current_user: dict = Depend
 
 
 @router.delete("/{zone_id}")
-async def delete_zone(zone_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)):
+async def delete_zone(zone_id: int, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
     # 1. Clear associations in MstZoneScanner
     await db.execute(
         delete(MstZoneScanner).where(MstZoneScanner.mst_zone_id == zone_id)
@@ -105,7 +105,7 @@ async def delete_zone(zone_id: int, current_user: dict = Depends(get_current_use
 
 @router.post("/{zone_id}/scanners")
 async def assign_scanner_to_zone(
-    zone_id: int, payload: ZoneScannerIn, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)
+    zone_id: int, payload: ZoneScannerIn, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)
 ):
     z = await db.execute(select(MstZone).where(MstZone.id == zone_id))
     if not z.scalars().first():
@@ -133,7 +133,7 @@ async def assign_scanner_to_zone(
 
 @router.delete("/{zone_id}/scanners/{scanner_id}")
 async def unassign_scanner_from_zone(
-    zone_id: int, scanner_id: int, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_tenant_db)
+    zone_id: int, scanner_id: int, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)
 ):
     await db.execute(
         delete(MstZoneScanner)

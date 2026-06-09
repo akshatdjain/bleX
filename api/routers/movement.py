@@ -12,7 +12,7 @@ from datetime import datetime
 from database import get_smart_db as get_tenant_db
 from models import MovementLog, MstAsset
 from schemas import MovementIn, MovementOut
-from routers.auth import get_principal, require_user, require_device
+from routers.auth import get_principal, require_user, require_device, require_tenant_match
 
 router = APIRouter(prefix="/api", tags=["Movement"])
 
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api", tags=["Movement"])
 
 @router.get("/assets/current")
 async def get_current_status(db: AsyncSession = Depends(get_tenant_db),
-                             user: dict = Depends(require_user)):
+                             user: dict = Depends(require_tenant_match)):
     """
     Returns the most recent location of every registered beacon.
     Used by UI Live View.
@@ -50,7 +50,7 @@ async def get_current_status(db: AsyncSession = Depends(get_tenant_db),
 
 @router.get("/assets/history")
 async def get_history(db: AsyncSession = Depends(get_tenant_db),
-                      user: dict = Depends(require_user)):
+                      user: dict = Depends(require_tenant_match)):
     """
     Returns the last 50 zone-change events.
     Used by UI Ledger.

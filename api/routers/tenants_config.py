@@ -15,6 +15,7 @@ Source of truth: shared.tenants table. Mode and broker creds are tenant-level.
 """
 import os
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -51,7 +52,8 @@ class TenantConfigOut(BaseModel):
 
 # ── Endpoint ─────────────────────────────────────────────────────────────────
 
-@router.get("/{tenant_id}/config", response_model=TenantConfigOut)
+@router.get("/{tenant_id}/config", response_model=TenantConfigOut,
+            dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def get_tenant_config(tenant_id: str, db: AsyncSession = Depends(get_db)):
     """Return the full provisioning config for a tenant."""
     row = (await db.execute(

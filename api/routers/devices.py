@@ -9,6 +9,7 @@ Endpoints:
   GET    /api/devices?tenant_id=X  — list (admin only)
   DELETE /api/devices/{id}         — revoke (admin only)
 """
+import json
 import secrets
 from typing import Optional
 
@@ -93,6 +94,11 @@ async def issue_device(payload: DeviceIssueIn,
         "d": device_id, "m": mac, "t": payload.tenant_id,
         "r": payload.role, "h": token_hash, "u": admin["id"],
     })).fetchone()
+    await db.execute(text("""
+        INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload)
+        VALUES (:tid, 'device_issued', :actor, CAST(:p AS jsonb))
+    """), {"tid": payload.tenant_id, "actor": admin.get("email", "admin"),
+           "p": json.dumps({"mac": mac, "role": payload.role, "device_id": device_id})})
     await db.commit()
 
     return DeviceIssueOut(
@@ -138,10 +144,20 @@ async def list_devices(tenant_id: Optional[str] = None,
 async def revoke_device(device_id: int,
                         admin: dict = Depends(require_admin),
                         db: AsyncSession = Depends(get_db)):
+    drow = (await db.execute(text(
+        "SELECT mac, tenant_id FROM shared.devices WHERE id = :i"
+    ), {"i": device_id})).fetchone()
     res = await db.execute(text("""
         UPDATE shared.devices SET is_active = false WHERE id = :i
     """), {"i": device_id})
-    await db.commit()
     if res.rowcount == 0:
+        await db.commit()
         raise HTTPException(404, "Device not found")
+    if drow:
+        await db.execute(text("""
+            INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload)
+            VALUES (:tid, 'device_revoked', :actor, CAST(:p AS jsonb))
+        """), {"tid": drow.tenant_id, "actor": admin.get("email", "admin"),
+               "p": json.dumps({"mac": drow.mac, "device_pk": device_id})})
+    await db.commit()
     return {"ok": True, "revoked": device_id}
