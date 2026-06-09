@@ -12,5 +12,5 @@
 # Keep Gson serialization (uses reflection to read @SerializedName)
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class com.blegod.app.BeaconData { *; }
--keep class com.blegod.app.ScanBatch { *; }
+-keep class com.blex.app.BeaconData { *; }
+-keep class com.blex.app.ScanBatch { *; }

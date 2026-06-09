@@ -19,7 +19,7 @@ MQTT_TOPIC_BASE = os.getenv("MQTT_TOPIC_BASE", f"ble/{TENANT_ID}/scanner" if TEN
 # ---------------- REDIS ----------------
 REDIS_HOST = os.getenv("REDIS_HOST", "127.0.0.1")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "1234")
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 
 # Redis keys
 REDIS_ASSET_ZONE_KEY = f"asset:zone:{TENANT_ID}:{{}}" if TENANT_ID else "asset:zone:{}"

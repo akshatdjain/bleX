@@ -135,6 +135,7 @@ fun ScannerScreen() {
             try {
                 ApiService.configuredBaseUrl = settingsMgr.apiBaseUrl
                 ApiService.tenantId = settingsMgr.tenantId
+                ApiService.authToken = settingsMgr.authToken
                 val assets = ApiService.getAssets()
                 ScanRepository.setRegisteredAssets(assets)
             } catch (_: Exception) {

@@ -32,6 +32,7 @@ async function tryRefresh(): Promise<string | null> {
   if (_refreshInflight) return _refreshInflight;
   _refreshInflight = (async () => {
     try {
+      // Single refresh endpoint — server reads role from JWT cookie and dispatches
       const r = await fetch(`${API}/auth/refresh`, {
         method: "POST",
         credentials: "include",

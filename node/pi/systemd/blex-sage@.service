@@ -3,8 +3,9 @@ Description=BleX SAGE Trigger for %i
 After=network-online.target
 
 [Service]
+EnvironmentFile=-/etc/blex/blex.env
 Type=oneshot
 User=blex
-ExecStart=/usr/bin/python3 /home/blex/Desktop/blex/system/sage_trigger.py %i
+ExecStart=/usr/bin/python3 /home/blex/blex/system/sage_trigger.py %i
 StandardOutput=journal
 StandardError=journal

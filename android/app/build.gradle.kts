@@ -1,7 +1,16 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+}
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -12,16 +21,20 @@ android {
         applicationId = "com.blex.app"
         minSdk = 31
         targetSdk = 35
-        versionCode = 14
-        versionName = "3.1.1"
+        versionCode = 15
+        versionName = "3.1.3"
+
+        buildConfigField("String", "MQTT_USERNAME", "\"${keystoreProperties.getProperty("mqttUsername") ?: ""}\"")
+        buildConfigField("String", "MQTT_PASSWORD", "\"${keystoreProperties.getProperty("mqttPassword") ?: ""}\"")
+        buildConfigField("String", "HOTSPOT_PSK", "\"${keystoreProperties.getProperty("hotspotPsk") ?: "setup@1234"}\"")
     }
 
     signingConfigs {
         create("release") {
-            storeFile = file("blegod-release.jks")
-            storePassword = "blegod123"
-            keyAlias = "blegod"
-            keyPassword = "blegod123"
+            storeFile = file("blex-release.jks")
+            storePassword = keystoreProperties.getProperty("storePassword") ?: ""
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: "blex"
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
         }
     }
 
@@ -38,6 +51,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeCompiler {

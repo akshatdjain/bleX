@@ -20,15 +20,10 @@ WATCH_INTERVAL_SEC  = 300   # 5 minutes
 DAILY_REPORT_HOUR   = 0     # midnight UTC
 
 def _read_identity():
-    tenant_id, pi_mac = "", ""
-    for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
-        try:
-            with open(path) as f:
-                cfg = json.load(f)
-            tenant_id = cfg.get("tenant_id", "")
-            break
-        except:
-            pass
+    tenant_id = os.getenv("TENANT_ID", "")
+    if not tenant_id:
+        tenant_id = sage._read_mode().get("tenant_id", "")
+    pi_mac = ""
     try:
         with open("/sys/class/net/wlan0/address") as f:
             pi_mac = f.read().strip().upper()

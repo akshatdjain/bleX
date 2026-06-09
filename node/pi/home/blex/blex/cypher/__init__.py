@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from logging.handlers import TimedRotatingFileHandler
 
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-_LOG_DIR  = os.path.join(_BASE_DIR, "logs")
+_LOG_DIR  = os.path.join(os.path.dirname(_BASE_DIR), "logs")
 
 _RECORD_BUILTINS = frozenset({
     "args", "created", "exc_info", "exc_text", "filename", "funcName",
@@ -52,21 +52,12 @@ def _get_identity():
     if _identity_cache is not None:
         return _identity_cache
     pi_mac = ""
-    tenant_id = ""
     try:
         with open("/sys/class/net/wlan0/address") as f:
             pi_mac = f.read().strip().upper()
     except Exception:
         pass
-    for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
-        try:
-            with open(path) as f:
-                cfg = json.load(f)
-            tenant_id = cfg.get("tenant_id", "")
-            if tenant_id:
-                break
-        except Exception:
-            pass
+    tenant_id = os.getenv("TENANT_ID", "")
     _identity_cache = (pi_mac, tenant_id)
     return _identity_cache
 

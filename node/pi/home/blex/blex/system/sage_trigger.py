@@ -16,17 +16,11 @@ import json
 import sage
 
 def _read_identity():
-    """Read tenant_id and pi_mac for log context."""
-    tenant_id = ""
-    pi_mac    = ""
-    for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
-        try:
-            with open(path) as f:
-                cfg = json.load(f)
-            tenant_id = cfg.get("tenant_id", "")
-            break
-        except:
-            pass
+    """Read tenant_id and pi_mac for log context (env first, MAC from sysfs)."""
+    tenant_id = os.getenv("TENANT_ID", "")
+    if not tenant_id:
+        tenant_id = sage._read_mode().get("tenant_id", "")
+    pi_mac = ""
     try:
         with open("/sys/class/net/wlan0/address") as f:
             pi_mac = f.read().strip().upper()

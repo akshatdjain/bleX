@@ -6,15 +6,16 @@ Wants=network-online.target
 ConditionPathExists=!/run/blex/unprovisioned
 
 [Service]
+EnvironmentFile=-/etc/blex/blex.env
 Type=simple
 User=root
-WorkingDirectory=/home/blex/Desktop/blex/scanner
+WorkingDirectory=/home/blex/blex/scanner
 ExecStartPre=-/usr/sbin/rfkill unblock all
 ExecStartPre=-/usr/bin/bluetoothctl power on
 ExecStartPre=/bin/sleep 10
-ExecStartPre=+/bin/sh -c 'mkdir -p /home/blex/Desktop/blex/logs && chown blex:blex /home/blex/Desktop/blex/logs && touch /home/blex/Desktop/blex/logs/blex.log && chown blex:blex /home/blex/Desktop/blex/logs/blex.log && chmod 664 /home/blex/Desktop/blex/logs/blex.log'
+ExecStartPre=+/bin/sh -c 'mkdir -p /home/blex/blex/logs && chown blex:blex /home/blex/blex/logs && touch /home/blex/blex/logs/blex.log && chown blex:blex /home/blex/blex/logs/blex.log && chmod 664 /home/blex/blex/logs/blex.log'
 ExecStart=/usr/bin/python3 scanner_boot.py
-ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/Desktop/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
+ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
 KillMode=control-group
 Restart=always
 RestartSec=5

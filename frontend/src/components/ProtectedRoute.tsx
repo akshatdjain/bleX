@@ -30,6 +30,11 @@ export function ProtectedRoute({ children, onUser }: ProtectedRouteProps) {
     return <Navigate to="/login" replace />;
   }
 
+  // Admins should use /admin routes, not tenant dashboard
+  if (user.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+
   if (onUser) onUser(user);
   return <>{children}</>;
 }

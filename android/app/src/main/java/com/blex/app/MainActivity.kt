@@ -205,6 +205,7 @@ fun BleXNavHost() {
         try {
             ApiService.configuredBaseUrl = settings.apiBaseUrl
             ApiService.tenantId = settings.tenantId
+            ApiService.authToken = settings.authToken
             val assets = ApiService.getAssets()
             ScanRepository.setRegisteredAssets(assets)
         } catch (_: Exception) {}

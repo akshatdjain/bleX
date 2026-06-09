@@ -21,6 +21,9 @@ object ApiService {
     /** Set at login from SettingsManager.tenantId. Injected as X-Tenant-ID on every request. */
     var tenantId: String = ""
 
+    /** Set at login from SettingsManager.authToken. Injected as Authorization: Bearer on every request. */
+    var authToken: String = ""
+
     private fun baseUrl(): String =
         configuredBaseUrl.trimEnd('/').ifBlank { AppConfig.REMOTE_API_URL.trimEnd('/') }
 
@@ -32,6 +35,7 @@ object ApiService {
         connectTimeout = 15000
         readTimeout = 15000
         if (tenantId.isNotBlank()) setRequestProperty("X-Tenant-ID", tenantId)
+        if (authToken.isNotBlank()) setRequestProperty("Authorization", "Bearer $authToken")
     }
 
     private fun HttpURLConnection.readResponse(): String {
@@ -269,6 +273,50 @@ object ApiService {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // TENANT CONFIG (server-side source of truth for provisioning)
+    // ═══════════════════════════════════════════════════════════
+
+    data class TabletFallback(val host: String, val port: Int)
+
+    data class TenantConfig(
+        val tenantId: String,
+        val mode: String,                 // "local" or "cloud"
+        val mqttHost: String,
+        val mqttPort: Int,
+        val useTls: Boolean,
+        val mqttUsername: String?,
+        val mqttPassword: String?,
+        val tabletFallback: TabletFallback?
+    )
+
+    /** Get full provisioning config for a tenant.
+     *  Used by ScannersTab when provisioning a Pi — DGX is source of truth for
+     *  mode/credentials, app no longer asks the user. */
+    suspend fun getTenantConfig(tenantId: String): TenantConfig? = withContext(Dispatchers.IO) {
+        try {
+            val resp = httpGet("/api/tenants/$tenantId/config")
+            val j = JSONObject(resp)
+            val tabletObj = j.optJSONObject("tablet_fallback")
+            val tablet = if (tabletObj != null) TabletFallback(
+                host = tabletObj.optString("host", ""),
+                port = tabletObj.optInt("port", 1883),
+            ) else null
+            TenantConfig(
+                tenantId     = j.optString("tenant_id", tenantId),
+                mode         = j.optString("mode", "cloud"),
+                mqttHost     = j.optString("mqtt_host", ""),
+                mqttPort     = j.optInt("mqtt_port", 8883),
+                useTls       = j.optBoolean("use_tls", true),
+                mqttUsername = j.optString("mqtt_username", "").ifBlank { null },
+                mqttPassword = j.optString("mqtt_password", "").ifBlank { null },
+                tabletFallback = tablet,
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // AUTHENTICATION
     // ═══════════════════════════════════════════════════════════
 
@@ -278,9 +326,40 @@ object ApiService {
         val userId: Long,
         val name: String,
         val email: String,
+        val role: String,
         val orgName: String,
         val mqttPrefix: String
     )
+
+    /** Parses the unified auth response shape: {access_token, token_type, user: {...}}.
+     *  Top-level org_name/mqtt_prefix are no longer guaranteed; fall back to nested. */
+    private fun parseAuthResponse(json: JSONObject): AuthResponse {
+        val userObj = json.optJSONObject("user")
+        return if (userObj != null) {
+            AuthResponse(
+                accessToken = json.getString("access_token"),
+                tenantId    = userObj.optString("tenant_id", json.optString("tenant_id", "")),
+                userId      = userObj.optLong("id", json.optLong("user_id", 0L)),
+                name        = userObj.optString("name", json.optString("name", "")),
+                email       = userObj.optString("email", json.optString("email", "")),
+                role        = userObj.optString("role", "user"),
+                orgName     = userObj.optString("org_name", json.optString("org_name", "")),
+                mqttPrefix  = userObj.optString("mqtt_prefix", json.optString("mqtt_prefix", "")),
+            )
+        } else {
+            // Legacy flat shape
+            AuthResponse(
+                accessToken = json.getString("access_token"),
+                tenantId    = json.optString("tenant_id", ""),
+                userId      = json.optLong("user_id", 0L),
+                name        = json.optString("name", ""),
+                email       = json.optString("email", ""),
+                role        = json.optString("role", "user"),
+                orgName     = json.optString("org_name", ""),
+                mqttPrefix  = json.optString("mqtt_prefix", ""),
+            )
+        }
+    }
 
     suspend fun register(name: String, email: String, password: String, orgName: String): AuthResponse =
         withContext(Dispatchers.IO) {
@@ -306,16 +385,11 @@ object ApiService {
                 val err = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Unknown error"
                 throw Exception(JSONObject(err).optString("detail", "Registration failed"))
             }
-            val json = JSONObject(resp)
-            AuthResponse(
-                accessToken = json.getString("access_token"),
-                tenantId = json.getString("tenant_id"),
-                userId = json.getLong("user_id"),
-                name = json.getString("name"),
-                email = json.getString("email"),
-                orgName = json.getString("org_name"),
-                mqttPrefix = json.getString("mqtt_prefix")
-            )
+            val parsed = parseAuthResponse(JSONObject(resp))
+            // Wire ApiService for subsequent calls
+            authToken = parsed.accessToken
+            if (parsed.tenantId.isNotBlank()) tenantId = parsed.tenantId
+            parsed
         }
 
     suspend fun login(email: String, password: String): AuthResponse =
@@ -340,15 +414,41 @@ object ApiService {
                 val err = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Unknown error"
                 throw Exception(JSONObject(err).optString("detail", "Login failed"))
             }
-            val json = JSONObject(resp)
-            AuthResponse(
-                accessToken = json.getString("access_token"),
-                tenantId = json.getString("tenant_id"),
-                userId = json.getLong("user_id"),
-                name = json.getString("name"),
-                email = json.getString("email"),
-                orgName = json.getString("org_name"),
-                mqttPrefix = json.getString("mqtt_prefix")
+            val parsed = parseAuthResponse(JSONObject(resp))
+            // Wire ApiService for subsequent calls
+            authToken = parsed.accessToken
+            if (parsed.tenantId.isNotBlank()) tenantId = parsed.tenantId
+            parsed
+        }
+
+    // ═══════════════════════════════════════════════════════════
+    // DEVICE TOKEN ISSUANCE (admin-only)
+    // ═══════════════════════════════════════════════════════════
+
+    data class DeviceIssueResult(
+        val deviceId: String,
+        val mac: String,
+        val tenantId: String,
+        val role: String,
+        val apiToken: String,  // ONLY available immediately after issuance — never persisted
+    )
+
+    /** Admin-only. Issues a per-Pi API token. Server stores sha256(token); the
+     *  plaintext returned here must be pushed to the Pi (via provisioning POST)
+     *  and immediately forgotten by the app. Throws on non-200. */
+    suspend fun issueDeviceToken(tenantId: String, mac: String, role: String = "scanner"): DeviceIssueResult =
+        withContext(Dispatchers.IO) {
+            val resp = httpPost("/api/devices", JSONObject().apply {
+                put("tenant_id", tenantId)
+                put("mac", mac.uppercase())
+                put("role", role)
+            })
+            DeviceIssueResult(
+                deviceId  = resp.getString("device_id"),
+                mac       = resp.getString("mac"),
+                tenantId  = resp.getString("tenant_id"),
+                role      = resp.getString("role"),
+                apiToken  = resp.getString("api_token"),
             )
         }
 }

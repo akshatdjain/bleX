@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.items
 import com.blex.app.AppConfig
+import com.blex.app.BuildConfig
 import com.blex.app.data.ApiService
 import com.blex.app.data.DiscoveredScanner
 import com.blex.app.data.ScanRepository
@@ -202,54 +203,57 @@ fun ScannersTab() {
     // Load registered scanners on mount
     LaunchedEffect(Unit) { refreshScanners() }
 
-    // Reusable push function — now includes MQTT broker IP and port
-    fun pushWifiToScanner(ip: String, ssid: String, psk: String, role: String = "scanner", onResult: (Boolean, String) -> Unit) {
-        scope.launch(Dispatchers.IO) {
+    /** Build the provisioning JSON for a Pi.
+     *  Source of truth = DGX tenant config (mode, broker, creds).
+     *  Tablet fallback host falls back to this device's own LAN IP if the
+     *  tenant has no tablet configured server-side. */
+    suspend fun buildProvisionBody(mac: String, ssid: String, psk: String, role: String): org.json.JSONObject {
+        val cfg = ApiService.getTenantConfig(settings.tenantId)
+        val tabletHost = cfg?.tabletFallback?.host?.takeIf { it.isNotBlank() } ?: getDeviceIpAddress()
+        val tabletPort = cfg?.tabletFallback?.port ?: (if (settings.brokerEnabled) settings.brokerPort else 1883)
+        val mode  = cfg?.mode ?: "cloud"
+        val host  = cfg?.mqttHost?.takeIf { it.isNotBlank() } ?: AppConfig.REMOTE_MQTT_HOST
+        val port  = cfg?.mqttPort ?: AppConfig.REMOTE_MQTT_PORT_TLS
+        val tls   = cfg?.useTls ?: true
+        val user  = cfg?.mqttUsername ?: BuildConfig.MQTT_USERNAME
+        val pass  = cfg?.mqttPassword ?: BuildConfig.MQTT_PASSWORD
+
+        // Issue a per-device API token from DGX BEFORE we POST to the Pi.
+        // Server stores sha256(token); plaintext lives only in this provisioning POST.
+        // If issuance fails (non-admin, network), proceed with empty token — Pi still
+        // provisions locally but cannot call DGX until an admin issues a token.
+        val deviceToken: String = if (mac.isNotBlank() && settings.tenantId.isNotBlank()) {
             try {
-                val url = java.net.URL("http://$ip:8888/provision")
-                val conn = url.openConnection() as java.net.HttpURLConnection
-                conn.requestMethod = "POST"
-                conn.setRequestProperty("Content-Type", "application/json")
-                conn.doOutput = true
-                conn.connectTimeout = 5000
-                conn.readTimeout = 5000
-                val isCloudMode = provisionMode == "cloud"
-                val mqttHost = when {
-                    isCloudMode      -> AppConfig.REMOTE_MQTT_HOST
-                    role == "master" -> ip
-                    else             -> settings.mqttHost
-                }
-                val mqttPort = if (isCloudMode) AppConfig.REMOTE_MQTT_PORT_TLS
-                               else if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
-                val body = org.json.JSONObject().apply {
-                    // Only include WiFi creds if provided — Pi skips WiFi setup if absent
-                    if (ssid.isNotBlank()) {
-                        put("ssid", ssid)
-                        put("psk", psk)
-                    }
-                    put("mqtt_host", mqttHost)
-                    put("mqtt_port", mqttPort)
-                    put("use_tls", isCloudMode)
-                    put("tenant_id", settings.tenantId)
-                    put("mode", provisionMode)
-                    put("role", role)
-                }.toString()
-                conn.outputStream.write(body.toByteArray())
-                conn.outputStream.flush()
-                val code = conn.responseCode
-                withContext(Dispatchers.Main) {
-                    if (code == 200) onResult(true, ip)
-                    else onResult(false, "$ip: HTTP $code")
-                }
+                ApiService.issueDeviceToken(
+                    tenantId = settings.tenantId,
+                    mac = mac,
+                    role = role,
+                ).apiToken
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    onResult(false, "$ip: ${e.message}")
-                }
+                android.util.Log.w("ScannersTab", "issueDeviceToken failed for $mac: ${e.message}")
+                ""
             }
+        } else ""
+
+        return org.json.JSONObject().apply {
+            if (ssid.isNotBlank()) { put("ssid", ssid); put("psk", psk) }
+            put("tenant_id", settings.tenantId)
+            put("role", role)
+            put("mode", mode)
+            put("mqtt_host", host)
+            put("mqtt_port", port)
+            put("use_tls", tls)
+            put("mqtt_username", user)
+            put("mqtt_password", pass)
+            put("api_token", deviceToken)
+            put("tablet_fallback", org.json.JSONObject().apply {
+                put("host", tabletHost)
+                put("port", tabletPort)
+            })
         }
     }
 
-    fun pushMqttToScanner(ip: String, onResult: (Boolean, String) -> Unit) {
+    fun pushWifiToScanner(ip: String, mac: String, ssid: String, psk: String, role: String = "scanner", onResult: (Boolean, String) -> Unit) {
         scope.launch(Dispatchers.IO) {
             try {
                 val url = java.net.URL("http://$ip:8888/provision")
@@ -259,17 +263,7 @@ fun ScannersTab() {
                 conn.doOutput = true
                 conn.connectTimeout = 5000
                 conn.readTimeout = 5000
-                val isCloudMode = settings.remoteUseWebSocket
-                val mqttHost = if (isCloudMode) AppConfig.REMOTE_MQTT_HOST else settings.mqttHost
-                val mqttPort = if (isCloudMode) AppConfig.REMOTE_MQTT_PORT_TLS
-                               else if (settings.brokerEnabled) settings.brokerPort else settings.mqttPort
-                val body = org.json.JSONObject().apply {
-                    put("mqtt_host", mqttHost)
-                    put("mqtt_port", mqttPort)
-                    put("use_tls", isCloudMode)
-                    put("tenant_id", settings.tenantId)
-                    put("mode", if (isCloudMode) "cloud" else "local")
-                }.toString()
+                val body = buildProvisionBody(mac, ssid, psk, role).toString()
                 conn.outputStream.write(body.toByteArray())
                 conn.outputStream.flush()
                 val code = conn.responseCode
@@ -496,7 +490,7 @@ fun ScannersTab() {
                         context.sendBroadcast(Intent("com.blex.app.ACTION_RESTART_SERVICE"))
                         // Auto-push local mode to all discovered Pis (no WiFi creds — mode change only)
                         for (s in scanners) {
-                            pushWifiToScanner(s.ip, "", "") { _, _ -> }
+                            pushWifiToScanner(s.ip, s.mac, "", "") { _, _ -> }
                         }
                     }
                 }) {
@@ -548,12 +542,12 @@ fun ScannersTab() {
                             settings.remoteTlsEnabled = true
                             settings.remoteUseWebSocket = true
                             settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
-                            settings.remoteUsername = "tab"
-                            settings.remotePassword = "1234"
+                            settings.remoteUsername = BuildConfig.MQTT_USERNAME
+                            settings.remotePassword = BuildConfig.MQTT_PASSWORD
                             context.sendBroadcast(Intent("com.blex.app.ACTION_RESTART_SERVICE"))
                             // Auto-push cloud mode to all discovered Pis (no WiFi creds — mode change only)
                             for (s in scanners) {
-                                pushWifiToScanner(s.ip, "", "") { _, _ -> }
+                                pushWifiToScanner(s.ip, s.mac, "", "") { _, _ -> }
                             }
                         }
                     },
@@ -626,7 +620,7 @@ fun ScannersTab() {
                     pushingMac = scanner.mac
                     scannerPushState = scannerPushState + (scanner.mac to "Provisioning as ${selectedProvisionRole}...")
                     // No WiFi creds — Provision only changes mode/role, not WiFi
-                    pushWifiToScanner(scanner.ip, "", "", selectedProvisionRole) { success, msg ->
+                    pushWifiToScanner(scanner.ip, scanner.mac, "", "", selectedProvisionRole) { success, msg ->
                         val result = if (success) "✓ Provisioned as $selectedProvisionRole" else "Failed: $msg"
                         scannerPushState = scannerPushState + (scanner.mac to result)
                         if (pushingMac == scanner.mac) pushingMac = null
@@ -851,7 +845,7 @@ fun ScannersTab() {
                                     pushAllResultMsg = "Pushing $label to ${scanners.size} scanner(s)..."
                                     var successCount = 0; var failCount = 0; val total = scanners.size
                                     for (s in scanners) {
-                                        pushWifiToScanner(s.ip, ssid, psk) { success, _ ->
+                                        pushWifiToScanner(s.ip, s.mac, ssid, psk) { success, _ ->
                                             if (success) successCount++ else failCount++
                                             if (successCount + failCount == total) {
                                                 isPushingAll = false
@@ -883,9 +877,10 @@ fun ScannersTab() {
 
         // ── Scanner Mode Card ──────────────────────────────────────
         item {
-            ElevatedCard(
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.elevatedCardColors(
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                colors = CardDefaults.cardColors(
                     containerColor = if (provisionMode == "local")
                         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                     else
@@ -960,6 +955,7 @@ fun ScannersTab() {
                     isPushing = pushingMac == scanner.mac,
                     pushResult = scannerPushState[scanner.mac],
                     savedSsid = settings.siteWifiSsid,
+                    registeredName = dbScanners.find { it.macId.uppercase() == scanner.mac.uppercase() }?.name,
                     onProvision = {
                         provisionRoleTarget = scanner
                         selectedProvisionRole = settings.getScannerRole(scanner.mac)
@@ -995,9 +991,10 @@ fun ScannersTab() {
 @Composable
 fun ThisTabletCard(modelName: String, mac: String, networkType: String = "Wi-Fi", isRegistered: Boolean, onRegister: () -> Unit) {
     val tabletColor = MaterialTheme.colorScheme.tertiary
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
             containerColor = if (!isRegistered)
                 MaterialTheme.colorScheme.surface
             else
@@ -1173,6 +1170,7 @@ fun ScannerCard(
     isPushing: Boolean = false,
     pushResult: String? = null,
     savedSsid: String = "",
+    registeredName: String? = null,
     onProvision: () -> Unit,
     onRegister: () -> Unit,
     onUnregister: (() -> Unit)? = null
@@ -1232,7 +1230,7 @@ fun ScannerCard(
                     ) {
                         Text(typeLabel, color = typeColor, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                     }
-                    Text(scanner.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(registeredName?.takeIf { it.isNotBlank() } ?: scanner.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (isRegistered) {

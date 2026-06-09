@@ -20,24 +20,21 @@ import paho.mqtt.client as mqtt
 from bleak import BleakScanner, BLEDevice, AdvertisementData
 
 from kalman import KalmanRSSI
-from config import (
-    MQTT_BROKER, MQTT_PORT, MQTT_TOPIC_BASE,
-    PUBLISH_INTERVAL, BEACON_TTL, MQTT_USE_TLS,
-    MQTT_USERNAME, MQTT_PASSWORD,
-)
+
+# Config from environment — single source of truth: /etc/blex/blex.env
+MQTT_BROKER   = os.getenv("MQTT_BROKER", "")
+MQTT_PORT     = int(os.getenv("MQTT_PORT", "8883"))
+MQTT_USE_TLS  = os.getenv("MQTT_USE_TLS", "false").lower() == "true"
+MQTT_USERNAME = os.getenv("MQTT_USERNAME", "")
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
+_TENANT_ENV   = os.getenv("TENANT_ID", "")
+MQTT_TOPIC_BASE  = f"ble/{_TENANT_ENV}/scanner" if _TENANT_ENV else "ble/scanner"
+PUBLISH_INTERVAL = float(os.getenv("PUBLISH_INTERVAL", "2.0"))
+BEACON_TTL       = float(os.getenv("BEACON_TTL", "5.0"))
 
 
 def _load_tenant_id() -> str:
-    for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
-        try:
-            with open(path) as f:
-                cfg = json.load(f)
-            tid = cfg.get("tenant_id", "default")
-            if tid and tid != "default":
-                return tid
-        except Exception:
-            continue
-    return "default"
+    return os.getenv("TENANT_ID") or "default"
 
 
 APPLE_COMPANY_ID = 76

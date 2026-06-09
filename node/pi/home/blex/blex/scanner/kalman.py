@@ -1,4 +1,8 @@
-from config import KALMAN_Q, KALMAN_R
+import os
+
+KALMAN_Q = float(os.getenv("KALMAN_Q", "0.008"))
+KALMAN_R = float(os.getenv("KALMAN_R", "4.0"))
+
 
 class KalmanRSSI:
     def __init__(self, process_noise=KALMAN_Q, measurement_noise=KALMAN_R):

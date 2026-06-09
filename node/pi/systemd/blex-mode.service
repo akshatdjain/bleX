@@ -1,0 +1,14 @@
+[Unit]
+Description=BleX Mode Flags (translate /etc/blex/blex.env into /run/blex/ flag files)
+After=local-fs.target
+Before=blex-master.service blex-scanner.service blex-provisioner.service blex-discovery.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/blex-flags.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

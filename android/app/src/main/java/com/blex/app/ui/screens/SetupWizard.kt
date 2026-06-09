@@ -56,6 +56,7 @@ fun SetupWizard(
     // Wire ApiService immediately (not in LaunchedEffect) so skip works correctly
     ApiService.configuredBaseUrl = settings.apiBaseUrl
     ApiService.tenantId = settings.tenantId
+    ApiService.authToken = settings.authToken
 
     var currentStep by remember { mutableStateOf(0) }
     var createdZoneId by remember { mutableStateOf<Int?>(null) }

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.blex.app.AppConfig
+import com.blex.app.BuildConfig
 import com.blex.app.data.ApiService
 import com.blex.app.data.SettingsManager
 import kotlinx.coroutines.launch
@@ -182,12 +183,13 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                             settings.remoteTlsEnabled = true
                             settings.remoteUseWebSocket = true
                             settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
-                            settings.remoteUsername = "tab"
-                            settings.remotePassword = "1234"
+                            settings.remoteUsername = BuildConfig.MQTT_USERNAME
+                            settings.remotePassword = BuildConfig.MQTT_PASSWORD
                         }
                         // Wire ApiService immediately so all CRUD calls use correct tenant
                         ApiService.configuredBaseUrl = settings.apiBaseUrl
                         ApiService.tenantId = result.tenantId
+                        ApiService.authToken = result.accessToken
 
                         // Auto-fetch master Pi IP for local master model
                         // If a Pi master has registered itself for this tenant, auto-fill remoteHost

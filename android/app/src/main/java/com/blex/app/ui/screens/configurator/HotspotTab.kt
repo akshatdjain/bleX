@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.blex.app.AppConfig
+import com.blex.app.BuildConfig
 import com.blex.app.data.SettingsManager
 import kotlinx.coroutines.delay
 
@@ -460,7 +461,7 @@ fun HotspotTab() {
                         }
                         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                             Text("Password", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)
-                            Text("setup@1234", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+                            Text(BuildConfig.HOTSPOT_PSK, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
                         }
                         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                             Text("Port (Provision)", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.outline)

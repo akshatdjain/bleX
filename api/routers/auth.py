@@ -122,7 +122,7 @@ async def _store_refresh(db: AsyncSession, user_id: int, family_id: str,
                          ip: Optional[str] = None) -> int:
     """Insert a new refresh-token row. Returns the row id."""
     row = (await db.execute(text("""
-        INSERT INTO shared.refresh_tokens
+        INSERT INTO shared.refresh_tokens_user
             (user_id, token_hash, family_id, parent_id, expires_at, user_agent, ip)
         VALUES (:uid, :h, :fam, :pid, :exp, :ua, :ip)
         RETURNING id
@@ -135,7 +135,7 @@ async def _store_refresh(db: AsyncSession, user_id: int, family_id: str,
 
 async def _revoke_family(db: AsyncSession, family_id: str, reason: str) -> None:
     await db.execute(text("""
-        UPDATE shared.refresh_tokens
+        UPDATE shared.refresh_tokens_user
            SET is_revoked = true, revoked_reason = :r
          WHERE family_id = :fam AND is_revoked = false
     """), {"fam": family_id, "r": reason})
@@ -211,16 +211,16 @@ async def register(payload: RegisterIn, request: Request, response: Response,
     # (admin-only endpoint) — never via public signup.
     pw_hash = await _hash_pw(payload.password)
     user_row = (await db.execute(text("""
-        INSERT INTO shared.users (tenant_id, name, email, password_hash, role, is_active)
-        VALUES (:tid, :nm, :em, :ph, 'user', true)
+        INSERT INTO shared.users (tenant_id, name, email, password_hash, is_active)
+        VALUES (:tid, :nm, :em, :ph, true)
         RETURNING id
     """), {"tid": tenant_id, "nm": payload.name, "em": email, "ph": pw_hash})).fetchone()
 
     await db.commit()
 
     user_id = user_row.id
-    return await _issue_session_response(db, response, request, user_id, "user",
-                                         tenant_id, payload.name, email)
+    return await _issue_user_session(db, response, request, user_id,
+                                     tenant_id, payload.name, email)
 
 
 # ── Login ────────────────────────────────────────────────────────────────────
@@ -229,31 +229,62 @@ async def register(payload: RegisterIn, request: Request, response: Response,
              dependencies=[Depends(RateLimiter(times=10, seconds=60))])
 async def login(payload: LoginIn, request: Request, response: Response,
                 db: AsyncSession = Depends(get_db)):
+    """Single login endpoint — tries admin first, then tenant user."""
     email = payload.email.strip().lower()
-    row = (await db.execute(text("""
-        SELECT id, tenant_id, name, email, password_hash, role, is_active
+
+    # Try admin first
+    arow = (await db.execute(text("""
+        SELECT id, name, email, password_hash, is_active
+          FROM shared.admins WHERE email = :e
+    """), {"e": email})).fetchone()
+    if arow and arow.is_active and await _verify_pw(payload.password, arow.password_hash):
+        await db.execute(text("UPDATE shared.admins SET last_login=now() WHERE id=:i"), {"i": arow.id})
+        await db.commit()
+        return await _issue_admin_session(db, response, request, arow.id, arow.name, arow.email)
+
+    # Try tenant user
+    urow = (await db.execute(text("""
+        SELECT id, tenant_id, name, email, password_hash, is_active
           FROM shared.users WHERE email = :e
     """), {"e": email})).fetchone()
-    if not row or not row.is_active:
-        raise HTTPException(401, "Invalid credentials")
-    if not await _verify_pw(payload.password, row.password_hash):
-        raise HTTPException(401, "Invalid credentials")
+    if urow and urow.is_active and await _verify_pw(payload.password, urow.password_hash):
+        await db.execute(text("UPDATE shared.users SET last_login=now() WHERE id=:i"), {"i": urow.id})
+        await db.commit()
+        return await _issue_user_session(db, response, request, urow.id, urow.tenant_id, urow.name, urow.email)
 
-    await db.execute(text("UPDATE shared.users SET last_login = now() WHERE id = :i"),
-                     {"i": row.id})
-    await db.commit()
-
-    return await _issue_session_response(db, response, request,
-                                         row.id, row.role, row.tenant_id,
-                                         row.name, row.email)
+    raise HTTPException(401, "Invalid credentials")
 
 
-async def _issue_session_response(db: AsyncSession, response: Response, request: Request,
-                                  user_id: int, role: str, tenant_id: str,
-                                  name: str, email: str) -> AuthOut:
-    """Mint access + refresh, set refresh cookie, return AuthOut."""
+async def _store_refresh_admin(db: AsyncSession, admin_id: int, family_id: str,
+                                token: str, expires_at, parent_id: Optional[int] = None,
+                                user_agent: Optional[str] = None,
+                                ip: Optional[str] = None) -> int:
+    """Insert a new admin refresh-token row. Returns the row id."""
+    row = (await db.execute(text("""
+        INSERT INTO shared.refresh_tokens_admin
+            (admin_id, token_hash, family_id, parent_id, expires_at, user_agent, ip)
+        VALUES (:aid, :h, :fam, :pid, :exp, :ua, :ip)
+        RETURNING id
+    """), {
+        "aid": admin_id, "h": sha256_hex(token), "fam": family_id,
+        "pid": parent_id, "exp": expires_at, "ua": user_agent, "ip": ip,
+    })).fetchone()
+    return row.id
+
+
+async def _revoke_admin_family(db: AsyncSession, family_id: str, reason: str) -> None:
+    await db.execute(text("""
+        UPDATE shared.refresh_tokens_admin
+           SET is_revoked = true, revoked_reason = :r
+         WHERE family_id = :fam AND is_revoked = false
+    """), {"fam": family_id, "r": reason})
+
+
+async def _issue_user_session(db: AsyncSession, response: Response, request: Request,
+                               user_id: int, tenant_id: str, name: str, email: str) -> AuthOut:
+    """Mint user session: JWT with role=user, refresh stored in refresh_tokens_user."""
     family_id = str(uuid.uuid4())
-    refresh, exp = create_refresh_token(user_id, family_id)
+    refresh, exp = create_refresh_token(user_id, family_id, "user")
     await _store_refresh(
         db, user_id, family_id, refresh, exp,
         user_agent=request.headers.get("user-agent", "")[:500],
@@ -261,12 +292,33 @@ async def _issue_session_response(db: AsyncSession, response: Response, request:
     )
     await db.commit()
 
-    access = create_access_token(user_id, role, tenant_id)
+    access = create_access_token(user_id, "user", tenant_id)
     _set_refresh_cookie(response, refresh)
 
     return AuthOut(
         access_token=access,
-        user=UserOut(id=user_id, email=email, name=name, role=role, tenant_id=tenant_id),
+        user=UserOut(id=user_id, email=email, name=name, role="user", tenant_id=tenant_id),
+    )
+
+
+async def _issue_admin_session(db: AsyncSession, response: Response, request: Request,
+                                admin_id: int, name: str, email: str) -> AuthOut:
+    """Mint admin session: JWT with role=admin, refresh stored in refresh_tokens_admin."""
+    family_id = str(uuid.uuid4())
+    refresh, exp = create_refresh_token(admin_id, family_id, "admin")
+    await _store_refresh_admin(
+        db, admin_id, family_id, refresh, exp,
+        user_agent=request.headers.get("user-agent", "")[:500],
+        ip=(request.client.host if request.client else None),
+    )
+    await db.commit()
+
+    access = create_access_token(admin_id, "admin", "")
+    _set_refresh_cookie(response, refresh)
+
+    return AuthOut(
+        access_token=access,
+        user=UserOut(id=admin_id, email=email, name=name, role="admin", tenant_id=""),
     )
 
 
@@ -276,7 +328,7 @@ async def _issue_session_response(db: AsyncSession, response: Response, request:
              dependencies=[Depends(RateLimiter(times=60, seconds=60))])
 async def refresh_token(request: Request, response: Response,
                         db: AsyncSession = Depends(get_db)):
-    """Rotate refresh token. Reuse of revoked token → revoke entire family."""
+    """Unified refresh: branches by role claim in JWT (admin vs user)."""
     cookie = request.cookies.get(REFRESH_COOKIE_NAME)
     if not cookie:
         raise HTTPException(401, "No refresh cookie")
@@ -287,51 +339,66 @@ async def refresh_token(request: Request, response: Response,
         _clear_refresh_cookie(response)
         raise HTTPException(401, "Invalid refresh token")
 
-    user_id   = int(claims["sub"])
+    sub       = int(claims["sub"])
     family_id = claims["fam"]
+    role      = claims.get("role", "user")
     th        = sha256_hex(cookie)
 
-    row = (await db.execute(text("""
-        SELECT id, is_revoked FROM shared.refresh_tokens WHERE token_hash = :h
+    if role == "admin":
+        table = "shared.refresh_tokens_admin"
+        revoke_fn = _revoke_admin_family
+        store_fn = _store_refresh_admin
+        # Fetch admin
+        principal = (await db.execute(text("""
+            SELECT id, is_active FROM shared.admins WHERE id = :i
+        """), {"i": sub})).fetchone()
+        principal_type = "admin"
+        tenant_id = ""
+    else:
+        table = "shared.refresh_tokens_user"
+        revoke_fn = _revoke_family
+        store_fn = _store_refresh
+        # Fetch user
+        principal = (await db.execute(text("""
+            SELECT id, tenant_id, is_active FROM shared.users WHERE id = :i
+        """), {"i": sub})).fetchone()
+        principal_type = "user"
+        tenant_id = principal.tenant_id if principal else ""
+
+    row = (await db.execute(text(f"""
+        SELECT id, is_revoked FROM {table} WHERE token_hash = :h
     """), {"h": th})).fetchone()
 
     if not row:
-        # Token not in DB at all (forged / pruned). Be defensive: revoke family.
-        await _revoke_family(db, family_id, "unknown_token")
+        await revoke_fn(db, family_id, "unknown_token")
         await db.commit()
         _clear_refresh_cookie(response)
         raise HTTPException(401, "Refresh token not recognized")
 
     if row.is_revoked:
-        # REUSE DETECTED — token was already revoked. Family compromised.
-        await _revoke_family(db, family_id, "reuse_detected")
+        await revoke_fn(db, family_id, "reuse_detected")
         await db.commit()
         _clear_refresh_cookie(response)
         raise HTTPException(401, "Refresh token reuse detected; please log in again")
 
-    # Fetch user (to embed role + tenant_id in new access token)
-    user = (await db.execute(text("""
-        SELECT id, role, tenant_id, is_active FROM shared.users WHERE id = :i
-    """), {"i": user_id})).fetchone()
-    if not user or not user.is_active:
-        await _revoke_family(db, family_id, "user_disabled")
+    if not principal or not principal.is_active:
+        await revoke_fn(db, family_id, f"{principal_type}_disabled")
         await db.commit()
         _clear_refresh_cookie(response)
-        raise HTTPException(401, "User no longer active")
+        raise HTTPException(401, f"{principal_type.capitalize()} no longer active")
 
-    # Mark this row revoked, mint new token in same family
-    await db.execute(text("""
-        UPDATE shared.refresh_tokens SET is_revoked = true, revoked_reason = 'rotated'
-         WHERE id = :i
+    # Mark old row revoked, mint new token
+    await db.execute(text(f"""
+        UPDATE {table} SET is_revoked = true, revoked_reason = 'rotated' WHERE id = :i
     """), {"i": row.id})
-    new_refresh, new_exp = create_refresh_token(user_id, family_id)
-    await _store_refresh(db, user_id, family_id, new_refresh, new_exp,
-                        parent_id=row.id,
-                        user_agent=request.headers.get("user-agent", "")[:500],
-                        ip=(request.client.host if request.client else None))
+    new_refresh, new_exp = create_refresh_token(sub, family_id, role)
+    await store_fn(db, sub, family_id, new_refresh, new_exp,
+                   parent_id=row.id,
+                   user_agent=request.headers.get("user-agent", "")[:500],
+                   ip=(request.client.host if request.client else None))
     await db.commit()
 
-    access = create_access_token(user_id, user.role, user.tenant_id)
+    access = create_access_token(sub, role, tenant_id)
     _set_refresh_cookie(response, new_refresh)
     return RefreshOut(access_token=access)
 
@@ -341,12 +408,14 @@ async def refresh_token(request: Request, response: Response,
 @router.post("/logout")
 async def logout(request: Request, response: Response,
                  db: AsyncSession = Depends(get_db)):
-    """Revoke the current refresh family + clear cookie. Idempotent."""
+    """Revoke the current refresh family (admin or user) + clear cookie. Idempotent."""
     cookie = request.cookies.get(REFRESH_COOKIE_NAME)
     if cookie:
         try:
             claims = decode_token(cookie, expected_typ="refresh")
-            await _revoke_family(db, claims["fam"], "logout")
+            role = claims.get("role", "user")
+            revoke_fn = _revoke_admin_family if role == "admin" else _revoke_family
+            await revoke_fn(db, claims["fam"], "logout")
             await db.commit()
         except Exception:
             pass  # best-effort; clear cookie either way
@@ -358,10 +427,11 @@ async def logout(request: Request, response: Response,
 
 async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) -> dict:
     """
-    Returns either:
-      {"type":"user",   "id", "email", "name", "role", "tenant_id"}
+    Returns one of:
+      {"type":"user",   "id", "email", "name", "role":"user",  "tenant_id"}
+      {"type":"admin",  "id", "email", "name", "role":"admin", "tenant_id": None}
       {"type":"device", "id", "device_id", "mac", "tenant_id", "role"}
-    Reads `Authorization: Bearer <token>`. Tries JWT first, then device token.
+    Reads `Authorization: Bearer <token>`. JWT claim `role` decides which table.
     """
     auth = request.headers.get("Authorization", "")
     if not auth.lower().startswith("bearer "):
@@ -370,21 +440,36 @@ async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) ->
     if not token:
         raise HTTPException(401, "Empty Bearer token")
 
-    # Try JWT (user)
+    # Try JWT
     try:
         claims = decode_token(token, expected_typ="access")
-        user_id = int(claims["sub"])
-        row = (await db.execute(text("""
-            SELECT id, email, name, role, tenant_id, is_active
-              FROM shared.users WHERE id = :uid
-        """), {"uid": user_id})).fetchone()
-        if not row or not row.is_active:
-            raise HTTPException(401, "User not found or inactive")
-        return {
-            "type": "user",
-            "id": row.id, "email": row.email, "name": row.name,
-            "role": row.role, "tenant_id": row.tenant_id,
-        }
+        sub_id = int(claims["sub"])
+        claim_role = claims.get("role")
+
+        if claim_role == "admin":
+            row = (await db.execute(text("""
+                SELECT id, email, name, is_active
+                  FROM shared.admins WHERE id = :uid
+            """), {"uid": sub_id})).fetchone()
+            if not row or not row.is_active:
+                raise HTTPException(401, "Admin not found or inactive")
+            return {
+                "type": "admin",
+                "id": row.id, "email": row.email, "name": row.name,
+                "role": "admin", "tenant_id": None,
+            }
+        else:  # claim_role == "user" or anything else → tenant user
+            row = (await db.execute(text("""
+                SELECT id, email, name, tenant_id, is_active
+                  FROM shared.users WHERE id = :uid
+            """), {"uid": sub_id})).fetchone()
+            if not row or not row.is_active:
+                raise HTTPException(401, "User not found or inactive")
+            return {
+                "type": "user",
+                "id": row.id, "email": row.email, "name": row.name,
+                "role": "user", "tenant_id": row.tenant_id,
+            }
     except HTTPException:
         raise
     except Exception:
@@ -413,14 +498,16 @@ async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) ->
 
 
 async def require_user(p: dict = Depends(get_principal)) -> dict:
+    """Tenant user only (admins rejected here — they use require_admin)."""
     if p["type"] != "user":
-        raise HTTPException(403, "User authentication required")
+        raise HTTPException(403, "Tenant user authentication required")
     return p
 
 
-async def require_admin(p: dict = Depends(require_user)) -> dict:
-    if p.get("role") != "admin":
-        raise HTTPException(403, "Admin role required")
+async def require_admin(p: dict = Depends(get_principal)) -> dict:
+    """Platform admin only (not chained through require_user)."""
+    if p["type"] != "admin":
+        raise HTTPException(403, "Admin authentication required")
     return p
 
 
@@ -442,6 +529,19 @@ def require_device(tenant_id_param: str = "tenant_id"):
 
 # Backwards-compat alias used by older code paths
 get_current_user = require_user
+
+
+async def require_tenant_match(
+    request: Request,
+    p: dict = Depends(require_user),
+) -> dict:
+    """Tenant user only, AND verify the tenant_id in their JWT matches the
+    X-Tenant-ID header (or path param). Defense in depth — keeps a SF5WU6 user
+    from poking around YYJF2N data even if they craft headers."""
+    header_tid = request.headers.get("X-Tenant-ID")
+    if header_tid and header_tid != p["tenant_id"]:
+        raise HTTPException(403, f"Tenant mismatch: token={p['tenant_id']} header={header_tid}")
+    return p
 
 
 # ── Me ──────────────────────────────────────────────────────────────────────

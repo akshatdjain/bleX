@@ -37,6 +37,12 @@ mosquitto.passwd
 *.key
 *.crt
 *.pem
+.env
+.env.*
+!.env.example
+master/.env
+android/keystore.properties
+/etc/blex/blex.env
 
 # Python
 __pycache__/

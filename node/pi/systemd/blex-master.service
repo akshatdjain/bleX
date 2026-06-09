@@ -7,12 +7,13 @@ ConditionPathExists=/run/blex/mode-local
 ConditionPathExists=/run/blex/role-master
 
 [Service]
+EnvironmentFile=-/etc/blex/blex.env
 Type=simple
 User=blex
-WorkingDirectory=/home/blex/Desktop/blex/master
+WorkingDirectory=/home/blex/blex/master
 ExecStartPre=/bin/sleep 5
 ExecStart=/bin/bash master_stack.sh
-ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/Desktop/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
+ExecStopPost=/usr/bin/python3 -c "import sys,os; sys.path.insert(0,'/home/blex/blex'); from cypher import get_logger; get_logger('systemd').warning('%n stopped: '+os.environ.get('SERVICE_RESULT','?'))"
 Restart=always
 RestartSec=5
 StandardOutput=journal

@@ -12,12 +12,7 @@ BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
 import sys as _sys
 _sys.path.insert(0, os.path.join(os.path.dirname(BASE_DIR), "system"))
 import sage as sage_module
-CONFIG_FILE = os.path.join(BASE_DIR, "config.py")
-LOG_DIR     = os.path.join(BASE_DIR, "logs")
-MQTT_CONFIG = "/etc/blex/mode.json"
-if not os.path.exists(MQTT_CONFIG):
-    MQTT_CONFIG = os.path.expanduser("~/mqtt_config.json")
-
+LOG_DIR = os.path.join(os.path.dirname(BASE_DIR), "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
 
 API_BASE_URL      = "https://sigmatic-asc.tech/asset/api/runtime"
@@ -25,6 +20,16 @@ CLOUD_MQTT_HOST   = "sigmatic-asc.tech"
 CLOUD_MQTT_PORT   = 8883
 WATCHDOG_INTERVAL = 60   # seconds between health checks
 MAX_MQTT_FAILURES = 3    # consecutive failures before fallback
+BLEX_ENV_FILE     = "/etc/blex/blex.env"
+
+def _api_headers(tenant_id: str = "") -> dict:
+    h = {}
+    if tenant_id:
+        h["X-Tenant-ID"] = tenant_id
+    token = os.getenv("BLEX_API_TOKEN", "")
+    if token:
+        h["Authorization"] = f"Bearer {token}"
+    return h
 
 scanner_process   = None
 discovery_process = None
@@ -37,17 +42,24 @@ def get_pi_mac() -> str:
     except Exception:
         return ""
 
-def read_mqtt_config():
+def read_blex_env():
+    """Read /etc/blex/blex.env into a dict (also already in os.environ)."""
+    cfg = {}
     try:
-        with open(MQTT_CONFIG) as f:
-            return json.load(f)
+        with open(BLEX_ENV_FILE) as f:
+            for line in f:
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    k, v = line.split("=", 1)
+                    cfg[k.strip()] = v.strip()
     except Exception:
-        return {}
+        pass
+    return cfg
 
 def fetch_master_ip(tenant_id: str) -> str:
     """Ask DGX for the master Pi's IP."""
     try:
-        headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+        headers = _api_headers(tenant_id)
         resp = requests.get(f"{API_BASE_URL}/master", headers=headers, timeout=10)
         if resp.status_code == 200:
             ip = resp.json().get("master_ip", "")
@@ -67,43 +79,69 @@ def can_reach_mqtt(host: str, port: int, timeout: int = 5) -> bool:
     except Exception:
         return False
 
-def update_config(broker_host: str, broker_port: int = 1883,
-                  use_tls: bool = False,
-                  username: str = "tab", password: str = "1234"):
+def cloud_reachable(attempts: int = 3, timeout: int = 2) -> bool:
+    """Probe cloud broker via TCP. Pass if at least 2 of 3 attempts succeed."""
+    ok = 0
+    for _ in range(attempts):
+        if can_reach_mqtt(CLOUD_MQTT_HOST, CLOUD_MQTT_PORT, timeout=timeout):
+            ok += 1
+    return ok >= 2
+
+def pick_cloud_broker():
+    """Returns env dict for the active cloud-mode broker target.
+    Cloud reachable -> direct cloud broker.
+    Cloud down + TABLET_HOST set -> tablet's embedded Moquette (it bridges to cloud).
+    Else None -> caller keeps current broker (no change)."""
+    if cloud_reachable():
+        return {
+            "MQTT_BROKER":   CLOUD_MQTT_HOST,
+            "MQTT_PORT":     str(CLOUD_MQTT_PORT),
+            "MQTT_USE_TLS":  "true",
+            "MQTT_USERNAME": os.getenv("MQTT_USERNAME", ""),
+            "MQTT_PASSWORD": os.getenv("MQTT_PASSWORD", ""),
+        }
+    tablet_host = os.getenv("TABLET_HOST", "")
+    if tablet_host:
+        return {
+            "MQTT_BROKER":   tablet_host,
+            "MQTT_PORT":     os.getenv("TABLET_PORT", "1883"),
+            "MQTT_USE_TLS":  os.getenv("TABLET_USE_TLS", "false"),
+            "MQTT_USERNAME": os.getenv("TABLET_USERNAME", ""),
+            "MQTT_PASSWORD": os.getenv("TABLET_PASSWORD", ""),
+        }
+    return None
+
+def update_blex_env(updates: dict):
+    """Update keys in /etc/blex/blex.env AND os.environ so child processes inherit them.
+    updates: {"MQTT_BROKER": "1.2.3.4", "MQTT_PORT": "1883", ...} (values as strings)"""
     lines = []
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE) as f:
-            lines = f.readlines()
-
-    updates = {
-        "MQTT_BROKER":   f'MQTT_BROKER = "{broker_host}"',
-        "MQTT_PORT":     f'MQTT_PORT   = {broker_port}',
-        "MQTT_USE_TLS":  f'MQTT_USE_TLS = {use_tls}',
-        "MQTT_USERNAME": f'MQTT_USERNAME = "{username if use_tls else ""}"',
-        "MQTT_PASSWORD": f'MQTT_PASSWORD = "{password if use_tls else ""}"',
-    }
-
-    new_lines = []
+    try:
+        if os.path.exists(BLEX_ENV_FILE):
+            with open(BLEX_ENV_FILE) as f:
+                lines = f.readlines()
+    except Exception:
+        lines = []
     written = {k: False for k in updates}
+    out = []
     for line in lines:
+        stripped = line.strip()
         matched = False
-        for key, new_val in updates.items():
-            if line.strip().startswith(key):
-                new_lines.append(new_val + "\n")
-                written[key] = True
-                matched = True
-                break
+        for k, v in updates.items():
+            if stripped.startswith(k + "="):
+                out.append(f"{k}={v}\n"); written[k] = True; matched = True; break
         if not matched:
-            new_lines.append(line)
-
-    # append any keys that weren't already in the file
-    for key, new_val in updates.items():
-        if not written[key]:
-            new_lines.append(new_val + "\n")
-
-    with open(CONFIG_FILE, "w") as f:
-        f.writelines(new_lines)
-    print(f"[SCANNER_BOOT] config.py → broker={broker_host}:{broker_port} tls={use_tls}", flush=True)
+            out.append(line)
+    for k, v in updates.items():
+        if not written[k]:
+            out.append(f"{k}={v}\n")
+    try:
+        with open(BLEX_ENV_FILE, "w") as f:
+            f.writelines(out)
+    except Exception as e:
+        print(f"[SCANNER_BOOT] Could not write {BLEX_ENV_FILE}: {e}", flush=True)
+    # Make spawned children (scanner.py) inherit immediately
+    for k, v in updates.items():
+        os.environ[k] = v
 
 def start_all_processes():
     global scanner_process, discovery_process
@@ -112,7 +150,7 @@ def start_all_processes():
         scanner_process = subprocess.Popen(
             [sys.executable, os.path.join(BASE_DIR, "scanner.py")], cwd=BASE_DIR
         )
-    disc_script = os.path.join(BASE_DIR, "discovery_broadcast.py")
+    disc_script = os.path.join(os.path.dirname(BASE_DIR), "provisioner", "discovery_broadcast.py")
     if os.path.exists(disc_script):
         if not (discovery_process and discovery_process.poll() is None):
             print("[SCANNER_BOOT] Starting discovery_broadcast.py", flush=True)
@@ -132,29 +170,23 @@ def stop_all_processes():
     scanner_process = discovery_process = None
 
 def switch_to_cloud(tenant_id: str):
-    """Emergency fallback: switch to cloud MQTT, update mode.json."""
+    """Emergency fallback: switch broker to cloud and persist via blex.env."""
     print("[SCANNER_BOOT] Falling back to CLOUD mode", flush=True)
-    update_config(CLOUD_MQTT_HOST, CLOUD_MQTT_PORT, use_tls=True,
-                  username="tab", password="1234")
-    # Update mode.json so next boot also uses cloud
-    try:
-        cfg = read_mqtt_config()
-        cfg["mode"]      = "cloud"
-        cfg["mqtt_host"] = CLOUD_MQTT_HOST
-        cfg["mqtt_port"] = CLOUD_MQTT_PORT
-        cfg["use_tls"]   = True
-        with open(MQTT_CONFIG, "w") as f:
-            json.dump(cfg, f, indent=2)
-        print("[SCANNER_BOOT] mode.json updated → cloud mode", flush=True)
-    except Exception as e:
-        print(f"[SCANNER_BOOT] Could not update mode.json: {e}", flush=True)
+    update_blex_env({
+        "MODE": "cloud",
+        "MQTT_BROKER": CLOUD_MQTT_HOST,
+        "MQTT_PORT": str(CLOUD_MQTT_PORT),
+        "MQTT_USE_TLS": "true",
+        "MQTT_USERNAME": os.getenv("MQTT_USERNAME", ""),
+        "MQTT_PASSWORD": os.getenv("MQTT_PASSWORD", ""),
+    })
 
 def main():
     global _consecutive_mqtt_failures
 
-    mqtt_cfg  = read_mqtt_config()
-    mode      = mqtt_cfg.get("mode", "cloud")
-    tenant_id = mqtt_cfg.get("tenant_id", "")
+    mqtt_cfg  = read_blex_env()
+    mode      = os.getenv("MODE", mqtt_cfg.get("MODE", "cloud"))
+    tenant_id = os.getenv("TENANT_ID", mqtt_cfg.get("TENANT_ID", ""))
     print(f"[SCANNER_BOOT] mode={mode} tenant={tenant_id}", flush=True)
 
     if mode == "local":
@@ -171,19 +203,19 @@ def main():
                 retries += 1
 
         if not master_ip:
-            master_ip = mqtt_cfg.get("mqtt_host", "127.0.0.1")
+            master_ip = mqtt_cfg.get("MQTT_BROKER", "127.0.0.1")
             print(f"[SCANNER_BOOT] Using mode.json fallback: {master_ip}", flush=True)
 
         # Verify reachability before starting
         if not can_reach_mqtt(master_ip, 1883):
             print(f"[SCANNER_BOOT] Master {master_ip}:1883 unreachable — falling back to cloud", flush=True)
             switch_to_cloud(tenant_id)
-            update_config(CLOUD_MQTT_HOST, CLOUD_MQTT_PORT, use_tls=True)
+            update_blex_env({"MQTT_BROKER": CLOUD_MQTT_HOST, "MQTT_PORT": str(CLOUD_MQTT_PORT), "MQTT_USE_TLS": "true", "MQTT_USERNAME": os.getenv("MQTT_USERNAME", ""), "MQTT_PASSWORD": os.getenv("MQTT_PASSWORD", "")})
             start_all_processes()
             # Run watchdog in cloud mode
             mode = "cloud"
         else:
-            update_config(master_ip, 1883, use_tls=False, username="", password="")
+            update_blex_env({"MQTT_BROKER": master_ip, "MQTT_PORT": "1883", "MQTT_USE_TLS": "false", "MQTT_USERNAME": "", "MQTT_PASSWORD": ""})
             start_all_processes()
 
         if mode == "local":
@@ -193,8 +225,8 @@ def main():
                 start_all_processes()  # restart if crashed
 
                 # Re-check config in case provisioner changed mode
-                current_cfg = read_mqtt_config()
-                if current_cfg.get("mode") != "local":
+                current_cfg = read_blex_env()
+                if current_cfg.get("MODE") != "local":
                     print("[SCANNER_BOOT] Mode changed externally — restarting", flush=True)
                     stop_all_processes()
                     main()
@@ -206,7 +238,7 @@ def main():
                     print(f"[SCANNER_BOOT] Master IP changed: {master_ip} → {new_ip}", flush=True)
                     stop_all_processes()
                     master_ip = new_ip
-                    update_config(master_ip, 1883, use_tls=False, username="", password="")
+                    update_blex_env({"MQTT_BROKER": master_ip, "MQTT_PORT": "1883", "MQTT_USE_TLS": "false", "MQTT_USERNAME": "", "MQTT_PASSWORD": ""})
                     start_all_processes()
                     _consecutive_mqtt_failures = 0
 
@@ -238,22 +270,44 @@ def main():
 
     # ── Cloud watchdog loop ──────────────────────────────────────────────────
     if mode == "cloud":
-        mqtt_host = mqtt_cfg.get("mqtt_host", CLOUD_MQTT_HOST) if mode == "cloud" else CLOUD_MQTT_HOST
-        print(f"[SCANNER_BOOT] Cloud mode — broker={mqtt_host}", flush=True)
-        update_config(CLOUD_MQTT_HOST, CLOUD_MQTT_PORT, use_tls=True)
+        # Pick initial target: cloud if reachable, else tablet fallback if set.
+        target = pick_cloud_broker()
+        if target is None:
+            # No cloud, no tablet — fall back to whatever blex.env had.
+            target = {
+                "MQTT_BROKER":   mqtt_cfg.get("MQTT_BROKER", CLOUD_MQTT_HOST) or CLOUD_MQTT_HOST,
+                "MQTT_PORT":     str(mqtt_cfg.get("MQTT_PORT", CLOUD_MQTT_PORT)),
+                "MQTT_USE_TLS":  mqtt_cfg.get("MQTT_USE_TLS", "true"),
+                "MQTT_USERNAME": mqtt_cfg.get("MQTT_USERNAME", ""),
+                "MQTT_PASSWORD": mqtt_cfg.get("MQTT_PASSWORD", ""),
+            }
+        print(f"[SCANNER_BOOT] Cloud mode — broker={target['MQTT_BROKER']}:{target['MQTT_PORT']}", flush=True)
+        update_blex_env(target)
         start_all_processes()
+        current_broker = target["MQTT_BROKER"]
 
         while True:
             time.sleep(WATCHDOG_INTERVAL)
             start_all_processes()  # restart if crashed
 
-            # Check if mode changed back to local
-            current_cfg = read_mqtt_config()
-            if current_cfg.get("mode") == "local":
+            # Mode change check
+            current_cfg = read_blex_env()
+            if current_cfg.get("MODE") == "local":
                 print("[SCANNER_BOOT] Mode changed to local — restarting", flush=True)
                 stop_all_processes()
                 main()
                 return
+
+            # Internet-aware fallback: re-evaluate broker target.
+            new_target = pick_cloud_broker()
+            if new_target is None:
+                continue  # cloud down + no tablet — keep current
+            if new_target["MQTT_BROKER"] != current_broker:
+                print(f"[SCANNER_BOOT] Broker switching: {current_broker} → {new_target['MQTT_BROKER']}", flush=True)
+                stop_all_processes()
+                update_blex_env(new_target)
+                current_broker = new_target["MQTT_BROKER"]
+                start_all_processes()
 
 if __name__ == "__main__":
     main()

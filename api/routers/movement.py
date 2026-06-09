@@ -12,7 +12,7 @@ from datetime import datetime
 from database import get_smart_db as get_tenant_db
 from models import MovementLog, MstAsset
 from schemas import MovementIn, MovementOut
-from routers.auth import get_principal, require_user
+from routers.auth import get_principal, require_user, require_device
 
 router = APIRouter(prefix="/api", tags=["Movement"])
 
@@ -86,7 +86,7 @@ async def get_history(db: AsyncSession = Depends(get_tenant_db),
 async def asset_movement(
     payload: MovementIn,
     db: AsyncSession = Depends(get_tenant_db),
-    principal: dict = Depends(get_principal),
+    principal: dict = Depends(require_device()),
 ):
     """
     Receives CONFIRMED zone-change events from master.

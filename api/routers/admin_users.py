@@ -23,7 +23,6 @@ class UserOut(BaseModel):
     id: int
     email: str
     name: str
-    role: str
     tenant_id: str
     is_active: bool
     created_at: Optional[str]
@@ -33,13 +32,11 @@ class UserCreateIn(BaseModel):
     email: EmailStr
     name: str
     password: str
-    role: str  # "admin" or "user"
     tenant_id: str
     is_active: bool = True
 
 class UserUpdateIn(BaseModel):
     name: Optional[str] = None
-    role: Optional[str] = None
     is_active: Optional[bool] = None
     password: Optional[str] = None  # If provided, update password
 
@@ -50,7 +47,7 @@ class UserUpdateIn(BaseModel):
 async def list_users(db: AsyncSession = Depends(get_db)):
     """List all users across all tenants."""
     result = await db.execute(text("""
-        SELECT id, email, name, role, tenant_id, is_active, created_at, last_login
+        SELECT id, email, name, tenant_id, is_active, created_at, last_login
         FROM shared.users
         ORDER BY created_at DESC
     """))
@@ -60,7 +57,6 @@ async def list_users(db: AsyncSession = Depends(get_db)):
             id=r.id,
             email=r.email,
             name=r.name,
-            role=r.role,
             tenant_id=r.tenant_id,
             is_active=r.is_active,
             created_at=r.created_at.isoformat() if r.created_at else None,
@@ -76,7 +72,7 @@ async def list_users(db: AsyncSession = Depends(get_db)):
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     """Get single user detail."""
     result = await db.execute(text("""
-        SELECT id, email, name, role, tenant_id, is_active, created_at, last_login
+        SELECT id, email, name, tenant_id, is_active, created_at, last_login
         FROM shared.users
         WHERE id = :uid
     """), {"uid": user_id})
@@ -87,7 +83,6 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
         id=row.id,
         email=row.email,
         name=row.name,
-        role=row.role,
         tenant_id=row.tenant_id,
         is_active=row.is_active,
         created_at=row.created_at.isoformat() if row.created_at else None,
@@ -116,23 +111,18 @@ async def create_user(payload: UserCreateIn, db: AsyncSession = Depends(get_db))
     if not tenant_check.fetchone():
         raise HTTPException(status_code=400, detail="Tenant not found")
 
-    # Validate role
-    if payload.role not in ["admin", "user"]:
-        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'user'")
-
     # Hash password
     hashed = hash_password(payload.password)
 
-    # Create user
+    # Create user (role is always 'user' in shared.users table)
     result = await db.execute(text("""
-        INSERT INTO shared.users (email, name, password_hash, role, tenant_id, is_active)
-        VALUES (:email, :name, :hash, :role, :tid, :active)
+        INSERT INTO shared.users (email, name, password_hash, tenant_id, is_active)
+        VALUES (:email, :name, :hash, :tid, :active)
         RETURNING id
     """), {
         "email": payload.email.lower().strip(),
         "name": payload.name.strip(),
         "hash": hashed,
-        "role": payload.role,
         "tid": payload.tenant_id,
         "active": payload.is_active,
     })
@@ -158,10 +148,6 @@ async def update_user(user_id: int, payload: UserUpdateIn, db: AsyncSession = De
     updates = {}
     if payload.name is not None:
         updates["name"] = payload.name.strip()
-    if payload.role is not None:
-        if payload.role not in ["admin", "user"]:
-            raise HTTPException(status_code=400, detail="Role must be 'admin' or 'user'")
-        updates["role"] = payload.role
     if payload.is_active is not None:
         updates["is_active"] = payload.is_active
     if payload.password is not None:

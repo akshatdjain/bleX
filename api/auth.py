@@ -60,13 +60,14 @@ def create_access_token(user_id: int, role: str, tenant_id: str) -> str:
     return jwt.encode(claims, JWT_PRIVATE_KEY, algorithm=ALGORITHM)
 
 
-def create_refresh_token(user_id: int, family_id: str) -> Tuple[str, datetime]:
+def create_refresh_token(user_id: int, family_id: str, role: str = "user") -> Tuple[str, datetime]:
     """7-day refresh token. Sent in HttpOnly cookie. Rotated on every use."""
     now = datetime.now(timezone.utc)
     exp = now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     claims = {
         "sub": str(user_id),
         "fam": family_id,
+        "role": role,
         "typ": "refresh",
         "iat": int(now.timestamp()),
         "exp": int(exp.timestamp()),

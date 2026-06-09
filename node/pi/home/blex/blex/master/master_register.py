@@ -10,6 +10,15 @@ from datetime import datetime, timezone
 SERVER_URL = "https://sigmatic-asc.tech/asset/api/runtime/master"
 TIMEOUT    = 5
 
+def _api_headers(tenant_id: str = "") -> dict:
+    h = {}
+    if tenant_id:
+        h["X-Tenant-ID"] = tenant_id
+    token = os.getenv("BLEX_API_TOKEN", "")
+    if token:
+        h["Authorization"] = f"Bearer {token}"
+    return h
+
 def get_mac():
     for iface in ["wlan0", "eth0", "wlan1"]:
         try:
@@ -41,63 +50,21 @@ def get_ip():
 def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
-def read_mode_config():
-    for path in ["/etc/blex/mode.json", os.path.expanduser("~/mqtt_config.json")]:
-        try:
-            with open(path) as f:
-                return json.load(f)
-        except Exception:
-            continue
-    return {}
-
-def read_tenant_id():
-    try:
-        with open("/etc/blex/env") as f:
-            for line in f:
-                if line.startswith("TENANT_ID="):
-                    return line.strip().split("=", 1)[1]
-    except FileNotFoundError:
-        pass
-    return read_mode_config().get("tenant_id", "default")
-
 def get_broker_ip(mode, pi_ip):
     """
     Local mode: Pi IS the broker — use Pi's own IP so other scanners can connect.
-    Cloud mode: use what provisioner set in mode.json.
+    Cloud mode: use what provisioner set in MQTT_BROKER env var.
     """
     if mode == "local":
         return pi_ip
-    else:
-        cfg = read_mode_config()
-        return cfg.get("mqtt_host", "sigmatic-asc.tech")
-
-def update_config(broker_ip):
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.py")
-    lines = []
-    if os.path.exists(config_path):
-        with open(config_path) as f:
-            lines = f.readlines()
-    wrote = False
-    with open(config_path, "w") as f:
-        for line in lines:
-            if line.startswith("MQTT_BROKER"):
-                f.write(f'MQTT_BROKER = "{broker_ip}"\n')
-                wrote = True
-            else:
-                f.write(line)
-        if not wrote:
-            f.write(f'\nMQTT_BROKER = "{broker_ip}"\n')
-    print(f"[MASTER-REGISTER] config.py: MQTT_BROKER={broker_ip}", flush=True)
+    return os.getenv("MQTT_BROKER", "sigmatic-asc.tech")
 
 def main():
-    cfg       = read_mode_config()
-    mode      = cfg.get("mode", "cloud")
+    mode      = os.getenv("MODE", "cloud")
     pi_ip     = get_ip()
     pi_mac    = get_mac()
-    tenant_id = read_tenant_id()
+    tenant_id = os.getenv("TENANT_ID", "default")
     broker_ip = get_broker_ip(mode, pi_ip)
-
-    update_config(broker_ip)
 
     print(f"[MASTER-REGISTER] mode={mode} mac={pi_mac} pi_ip={pi_ip} broker={broker_ip} tenant={tenant_id}", flush=True)
 
@@ -114,7 +81,7 @@ def main():
     }
 
     try:
-        headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+        headers = _api_headers(tenant_id)
         r = requests.post(SERVER_URL, json=payload, headers=headers, timeout=TIMEOUT)
         print(f"[MASTER-REGISTER] Registered → status={r.status_code}", flush=True)
     except Exception as e:

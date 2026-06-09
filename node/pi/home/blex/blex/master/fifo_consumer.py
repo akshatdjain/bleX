@@ -12,11 +12,15 @@ log = get_logger("fifo")
 import requests
 import redis
 
-from config import (
-    REDIS_HOST, REDIS_PASSWORD, REDIS_PORT,
-    REDIS_ZONE_QUEUE_KEY, API_URL, API_TIMEOUT,
-    CONSUMER_SLEEP_SEC, TENANT_ID,
-)
+# Config from environment — single source of truth: /etc/blex/blex.env
+REDIS_HOST     = os.getenv("REDIS_HOST", "127.0.0.1")
+REDIS_PORT     = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+TENANT_ID      = os.getenv("TENANT_ID", "")
+REDIS_ZONE_QUEUE_KEY = f"zone:movement:queue:{TENANT_ID}" if TENANT_ID else "zone:movement:queue"
+API_URL          = os.getenv("API_URL", "https://sigmatic-asc.tech/asset/api/asset/movement")
+API_TIMEOUT      = int(os.getenv("API_TIMEOUT", "5"))
+CONSUMER_SLEEP_SEC = int(os.getenv("CONSUMER_SLEEP_SEC", "1"))
 
 redis_kwargs = {
     "host": REDIS_HOST,
@@ -29,6 +33,17 @@ if REDIS_PASSWORD:
 redis_client = redis.Redis(**redis_kwargs)
 log.info("fifo consumer started")
 
+
+def _api_headers(tenant_id: str = "") -> dict:
+    h = {}
+    if tenant_id:
+        h["X-Tenant-ID"] = tenant_id
+    token = os.getenv("BLEX_API_TOKEN", "")
+    if token:
+        h["Authorization"] = f"Bearer {token}"
+    return h
+
+
 while True:
     try:
         item = redis_client.blpop(REDIS_ZONE_QUEUE_KEY, timeout=5)
@@ -38,7 +53,7 @@ while True:
         _, raw_event = item
         event = json.loads(raw_event)
         tenant_id = event.get("tenant_id") or TENANT_ID or ""
-        headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+        headers = _api_headers(tenant_id)
         try:
             resp = requests.post(API_URL, json=event, headers=headers, timeout=API_TIMEOUT)
             if resp.status_code == 200:

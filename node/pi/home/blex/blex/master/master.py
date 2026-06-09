@@ -23,25 +23,32 @@ import redis
 import threading
 import requests
 
-from config import (
-    MQTT_BROKER,
-    MQTT_PORT,
-    MQTT_TOPIC_BASE,
-    REDIS_HOST,
-    REDIS_PORT,
-    REDIS_PASSWORD,
-    REDIS_ASSET_ZONE_KEY,
-    REDIS_ZONE_QUEUE_KEY,
-    HYSTERESIS_DBM,
-    SCANNER_TTL,
-    ZONE_CONFIRM_COUNT,
-    DWELL_TIME_SEC,
-    LOST_TIMEOUT,
-    ENABLE_DEBUG_LOGS,
-    SCANNER_HEALTH_TIMEOUT,
-    HEALTH_PUSH_INTERVAL,
-    HEALTH_API_BASE,
-)
+# Config from environment — single source of truth: /etc/blex/blex.env
+# master.py only runs in LOCAL mode, so broker is always the local mosquitto.
+MQTT_BROKER   = os.getenv("MQTT_BROKER", "127.0.0.1")
+MQTT_PORT     = int(os.getenv("MQTT_PORT", "1883"))
+TENANT_ID     = os.getenv("TENANT_ID", "")
+MQTT_TOPIC_BASE = f"ble/{TENANT_ID}/scanner" if TENANT_ID else "ble/scanner"
+
+REDIS_HOST     = os.getenv("REDIS_HOST", "127.0.0.1")
+REDIS_PORT     = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
+
+REDIS_ASSET_ZONE_KEY = f"asset:zone:{TENANT_ID}:{{}}" if TENANT_ID else "asset:zone:{}"
+REDIS_ZONE_QUEUE_KEY = f"zone:movement:queue:{TENANT_ID}" if TENANT_ID else "zone:movement:queue"
+
+SCANNER_ZONE_API = os.getenv("SCANNER_ZONE_API", "https://sigmatic-asc.tech/asset/api/runtime/scanner-zone-map")
+HEALTH_API_BASE  = os.getenv("HEALTH_API_BASE", "https://sigmatic-asc.tech/asset/api/health")
+
+HYSTERESIS_DBM     = int(os.getenv("HYSTERESIS_DBM", "8"))
+SCANNER_TTL        = int(os.getenv("SCANNER_TTL", "8"))
+ZONE_CONFIRM_COUNT = int(os.getenv("ZONE_CONFIRM_COUNT", "3"))
+DWELL_TIME_SEC     = float(os.getenv("DWELL_TIME_SEC", "8.0"))
+LOST_TIMEOUT       = float(os.getenv("LOST_TIMEOUT", "30.0"))
+PUBLISH_INTERVAL   = float(os.getenv("PUBLISH_INTERVAL", "2.0"))
+ENABLE_DEBUG_LOGS  = os.getenv("ENABLE_DEBUG_LOGS", "true").lower() == "true"
+SCANNER_HEALTH_TIMEOUT = int(os.getenv("SCANNER_HEALTH_TIMEOUT", "90"))
+HEALTH_PUSH_INTERVAL   = int(os.getenv("HEALTH_PUSH_INTERVAL", "60"))
 
 log.info("master started")
 
@@ -65,12 +72,21 @@ SCANNER_ZONE_LOCK = threading.Lock()
 MAP_VERSION = 0
 
 
+def _api_headers(tenant_id: str = "") -> dict:
+    h = {}
+    if tenant_id:
+        h["X-Tenant-ID"] = tenant_id
+    token = os.getenv("BLEX_API_TOKEN", "")
+    if token:
+        h["Authorization"] = f"Bearer {token}"
+    return h
+
+
 def load_scanner_zone_map():
     global MAP_VERSION
     try:
-        from config import SCANNER_ZONE_API, TENANT_ID
         url = f"{SCANNER_ZONE_API}/watch?version={MAP_VERSION}"
-        headers = {"X-Tenant-ID": TENANT_ID} if TENANT_ID else {}
+        headers = _api_headers(TENANT_ID)
         resp = requests.get(url, headers=headers, timeout=65)
 
         if resp.status_code == 200:
@@ -155,7 +171,6 @@ def handle_lost_assets():
         if last_zone == "EXIT":
             continue
         redis_set_last_zone(asset_mac, "EXIT")
-        from config import TENANT_ID
         event = {
             "tenant_id": TENANT_ID,
             "asset_mac": asset_mac,
@@ -242,7 +257,6 @@ def process_asset(asset_mac: str):
     redis_set_last_zone(asset_mac, proposed_zone)
     state["confirm"].clear()
     state["pending_move"] = None
-    from config import TENANT_ID
     event = {
         "tenant_id": TENANT_ID,
         "asset_mac": asset_mac,
@@ -262,7 +276,6 @@ def process_asset(asset_mac: str):
 
 
 def check_scanner_health():
-    from config import PUBLISH_INTERVAL
     now = time.time()
     report = []
     with SCANNER_ZONE_LOCK:
@@ -291,8 +304,7 @@ def health_push_loop():
     while True:
         time.sleep(HEALTH_PUSH_INTERVAL)
         now = time.time()
-        from config import TENANT_ID
-        headers = {"X-Tenant-ID": TENANT_ID} if TENANT_ID else {}
+        headers = _api_headers(TENANT_ID)
         scanner_health = check_scanner_health()
         try:
             resp = requests.post(f"{HEALTH_API_BASE}/scanners/bulk", json=scanner_health, headers=headers, timeout=5)

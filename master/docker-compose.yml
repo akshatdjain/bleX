@@ -20,15 +20,15 @@ services:
     environment:
       - MQTT_BROKER=sigmatic-asc.tech
       - MQTT_PORT=8883
-      - MQTT_USERNAME=tab
-      - MQTT_PASSWORD=1234
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
       - MQTT_TRANSPORT=tcp
       - MQTT_TLS=true
       - REDIS_HOST=master_redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=
-      - TENANT_ID=SF5WU6
-      - MQTT_TOPIC_BASE=ble/SF5WU6/scanner
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TENANT_ID=${TENANT_ID}
+      - MQTT_TOPIC_BASE=ble/${TENANT_ID}/scanner
       - SCANNER_ZONE_API=http://asset_tracking-asset_api-1:8000/api/runtime/scanner-zone-map
       - API_URL=http://asset_tracking-asset_api-1:8000/api/asset/movement
       - HEALTH_API_BASE=http://asset_tracking-asset_api-1:8000/api/health
@@ -46,8 +46,8 @@ services:
     environment:
       - REDIS_HOST=master_redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=
-      - TENANT_ID=SF5WU6
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TENANT_ID=${TENANT_ID}
       - API_URL=http://asset_tracking-asset_api-1:8000/api/asset/movement
 
 networks:
