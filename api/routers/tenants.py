@@ -8,7 +8,10 @@ Public (no auth):
 Internal (master.py):
   GET  /api/tenants/active           — List all active tenant IDs (used by master pre-load)
 
-Admin panel (future auth layer goes here):
+Tenant (user JWT, own tenant only):
+  GET  /api/tenants/{tenant_id}/config — Full provisioning config for Pi/Android
+
+Admin panel:
   GET  /api/tenants                  — List all tenants with stats
   GET  /api/tenants/{id}/stats       — Per-tenant stats (scanners, assets, zones, events)
   PATCH /api/tenants/{id}            — Update status / tier / limits / metadata
@@ -16,7 +19,9 @@ Admin panel (future auth layer goes here):
   POST /api/tenants/{id}/events      — Append audit event (admin action)
 """
 
+import os
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_limiter.depends import RateLimiter
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 from pydantic import BaseModel
@@ -26,7 +31,10 @@ import string
 import json
 
 from database import get_db
-from routers.auth import require_admin
+from routers.auth import require_admin, require_user
+
+CLOUD_MQTT_HOST = os.getenv("CLOUD_MQTT_HOST", "sigmatic-asc.tech")
+CLOUD_MQTT_PORT = int(os.getenv("CLOUD_MQTT_PORT", "8883"))
 
 router = APIRouter(prefix="/api/tenants", tags=["Tenants"])
 
@@ -84,6 +92,20 @@ class TenantEventIn(BaseModel):
     event_type: str
     actor: Optional[str] = "system"
     payload: Optional[dict] = {}
+
+class TabletFallback(BaseModel):
+    host: str
+    port: int
+
+class TenantConfigOut(BaseModel):
+    tenant_id: str
+    mode: str
+    mqtt_host: str
+    mqtt_port: int
+    use_tls: bool
+    mqtt_username: Optional[str]
+    mqtt_password: Optional[str]
+    tablet_fallback: Optional[TabletFallback]
 
 
 # ── Register (Android first launch) ──────────────────────────────────────────
@@ -333,6 +355,58 @@ async def append_tenant_event(tenant_id: str, payload: TenantEventIn,
     )
     await db.commit()
     return {"ok": True}
+
+
+# ── Tenant config (Android provisioning) ─────────────────────────────────────
+
+@router.get("/{tenant_id}/config", response_model=TenantConfigOut,
+            dependencies=[Depends(RateLimiter(times=10, seconds=60))])
+async def get_tenant_config(tenant_id: str,
+                             p: dict = Depends(require_user),
+                             db: AsyncSession = Depends(get_db)):
+    """Return provisioning config — requires the caller's JWT tenant to match."""
+    if p["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant mismatch")
+
+    row = (await db.execute(
+        text(
+            "SELECT tenant_id, mode, mqtt_username, mqtt_password, "
+            "       tablet_host, tablet_port "
+            "FROM shared.tenants WHERE tenant_id = :tid"
+        ),
+        {"tid": tenant_id},
+    )).fetchone()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    mode = row.mode
+    if mode == "local":
+        mqtt_host = "127.0.0.1"
+        mqtt_port = 1883
+        use_tls   = False
+    else:
+        mqtt_host = CLOUD_MQTT_HOST
+        mqtt_port = CLOUD_MQTT_PORT
+        use_tls   = True
+
+    tablet_fallback = None
+    if row.tablet_host:
+        tablet_fallback = TabletFallback(
+            host=row.tablet_host,
+            port=int(row.tablet_port or 1883),
+        )
+
+    return TenantConfigOut(
+        tenant_id=row.tenant_id,
+        mode=mode,
+        mqtt_host=mqtt_host,
+        mqtt_port=mqtt_port,
+        use_tls=use_tls,
+        mqtt_username=row.mqtt_username,
+        mqtt_password=row.mqtt_password,
+        tablet_fallback=tablet_fallback,
+    )
 
 
 # ── Verify tenant (Android subsequent launches) ───────────────────────────────
