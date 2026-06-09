@@ -44,14 +44,46 @@ async def get_db():
 
 
 async def get_tenant_db(
+    request: Request,
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-ID"),
 ) -> AsyncGenerator:
     """
-    DB session scoped to tenant schema via X-Tenant-ID header.
+    DB session scoped to tenant schema.
+    Resolution priority: X-Tenant-ID header → tenant_id from Bearer JWT → public.
     Used by Android app and Pi scripts.
     Schema: t_{tenant_id.lower()}  e.g. t_ry3ddd
+
+    The Bearer-token fallback (priority 2) exists so a tenant-scoped token can
+    never be silently served the legacy `public` schema just because the caller
+    omitted the X-Tenant-ID header.
     """
-    schema = "public" if (not x_tenant_id or x_tenant_id == "default") else f"t_{x_tenant_id.lower()}"
+    from fastapi import HTTPException
+    from auth import decode_token  # RS256 helper (deferred import avoids cycle)
+
+    schema = None
+
+    # Priority 1: explicit X-Tenant-ID header
+    if x_tenant_id and x_tenant_id != "default":
+        if not _TENANT_RE.match(x_tenant_id):
+            raise HTTPException(400, "Invalid X-Tenant-ID format")
+        schema = f"t_{x_tenant_id.lower()}"
+
+    # Priority 2: tenant_id baked into the Bearer JWT
+    if not schema:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            token = auth_header.split(" ", 1)[1].strip()
+            try:
+                claims = decode_token(token, expected_typ="access")
+                tid = claims.get("tenant_id", "")
+                if tid and _TENANT_RE.match(tid):
+                    schema = f"t_{tid.lower()}"
+            except Exception:
+                pass
+
+    # Last resort: legacy single-tenant public schema
+    schema = schema or "public"
+
     async with AsyncSessionLocal() as session:
         await session.execute(text(f"SET search_path TO {schema}, public"))
         try:
