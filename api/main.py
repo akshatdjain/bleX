@@ -42,9 +42,18 @@ async def startup():
 async def shutdown():
     await FastAPILimiter.close()
 
+# CORS: origins from env (comma-separated). allow_credentials=True is incompatible
+# with allow_origins=["*"] per CORS spec — browsers reject the combination —
+# so we always require an explicit allow-list. Override via ALLOWED_ORIGINS.
+_ALLOWED_ORIGINS = [
+    o.strip() for o in os.getenv(
+        "ALLOWED_ORIGINS",
+        "https://sigmatic-asc.tech,http://localhost:5173,http://localhost:8080"
+    ).split(",") if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
