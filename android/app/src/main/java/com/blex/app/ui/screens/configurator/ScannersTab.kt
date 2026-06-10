@@ -218,7 +218,7 @@ fun ScannersTab() {
         val cfg = ApiService.getTenantConfig(settings.tenantId)
         val tabletHost = cfg?.tabletFallback?.host?.takeIf { it.isNotBlank() } ?: getDeviceIpAddress()
         val tabletPort = cfg?.tabletFallback?.port ?: (if (settings.brokerEnabled) settings.brokerPort else 1883)
-        val mode  = cfg?.mode ?: "cloud"
+        val mode  = provisionMode  // app switch is source of truth; Option B will sync to server
         val host  = cfg?.mqttHost?.takeIf { it.isNotBlank() } ?: AppConfig.REMOTE_MQTT_HOST
         val port  = cfg?.mqttPort ?: AppConfig.REMOTE_MQTT_PORT_TLS
         val tls   = cfg?.useTls ?: true
