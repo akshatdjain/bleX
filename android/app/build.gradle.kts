@@ -21,8 +21,8 @@ android {
         applicationId = "com.blex.app"
         minSdk = 31
         targetSdk = 35
-        versionCode = 15
-        versionName = "3.1.3"
+        versionCode = 16
+        versionName = "3.2.0"
 
         buildConfigField("String", "MQTT_USERNAME", "\"${keystoreProperties.getProperty("mqttUsername") ?: ""}\"")
         buildConfigField("String", "MQTT_PASSWORD", "\"${keystoreProperties.getProperty("mqttPassword") ?: ""}\"")

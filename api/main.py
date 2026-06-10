@@ -29,7 +29,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 app = FastAPI(
     title="BleX API",
     description="BLE asset tracking — device API + web dashboard",
-    version="2.0.0",
+    version="3.2.0",
     root_path=os.getenv("APP_ROOT_PATH", ""),
 )
 
