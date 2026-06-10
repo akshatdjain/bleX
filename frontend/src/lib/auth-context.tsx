@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
-import { configureApiClient } from "./api-client";
+import { configureApiClient, tryRefresh } from "./api-client";
 
 const API = "/asset/api";
 
@@ -47,21 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }, [accessToken]);
 
-  // Bootstrap: try the refresh cookie on mount
+  // Bootstrap: try the refresh cookie on mount.
+  // Uses shared tryRefresh so it deduplicates with any concurrent apiFetch
+  // retries — prevents double-refresh / family revocation on page reload.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`${API}/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-        });
-        if (r.ok) {
-          const data = await r.json();
-          if (cancelled) return;
-          setAccessTokenState(data.access_token);
+        const tok = await tryRefresh();
+        if (tok && !cancelled) {
+          setAccessTokenState(tok);
           const me = await fetch(`${API}/auth/me`, {
-            headers: { Authorization: `Bearer ${data.access_token}` },
+            headers: { Authorization: `Bearer ${tok}` },
           });
           if (me.ok && !cancelled) {
             setUser(await me.json());

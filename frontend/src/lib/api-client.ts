@@ -28,7 +28,7 @@ export function configureApiClient(
 
 let _refreshInflight: Promise<string | null> | null = null;
 
-async function tryRefresh(): Promise<string | null> {
+export async function tryRefresh(): Promise<string | null> {
   if (_refreshInflight) return _refreshInflight;
   _refreshInflight = (async () => {
     try {

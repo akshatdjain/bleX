@@ -22,28 +22,115 @@ router = APIRouter(prefix="/api", tags=["Movement"])
 @router.get("/assets/current")
 async def get_current_status(db: AsyncSession = Depends(get_tenant_db),
                              user: dict = Depends(require_tenant_match)):
-    """
-    Returns the most recent location of every registered beacon.
-    Used by UI Live View.
-    """
+    """Returns all registered assets enriched with zone name, status, and health."""
     try:
-        stmt = select(MstAsset).where(MstAsset.current_zone_id.is_not(None))
-        result = await db.execute(stmt)
-        assets = result.scalars().all()
+        from datetime import timezone as _tz
+        rows = (await db.execute(text("""
+            SELECT
+                a.id,
+                a.bluetooth_id    AS mac,
+                COALESCE(a.asset_name, a.bluetooth_id) AS name,
+                a.current_zone_id AS zone_id,
+                z.zone_name,
+                a.last_movement_dt,
+                a.extra
+            FROM mst_asset a
+            LEFT JOIN mst_zone z ON z.id = a.current_zone_id
+            ORDER BY a.id
+        """))).fetchall()
 
-        return [
-            {
-                "mac": a.bluetooth_id,
-                "zone": a.current_zone_id,
-                "last_seen": a.last_movement_dt.isoformat() if a.last_movement_dt else None,
-                "rssi": a.extra.get("deciding_rssi", -99)
-                        if isinstance(a.extra, dict) else -99
-            }
-            for a in assets
-        ]
+        now = datetime.now(_tz.utc)
+        out = []
+        for r in rows:
+            extra = r.extra or {}
+            if isinstance(extra, str):
+                try:
+                    import json as _json; extra = _json.loads(extra)
+                except Exception:
+                    extra = {}
+
+            is_alive = extra.get("is_alive", True)
+            battery  = extra.get("battery")
+
+            # Derive status from last_movement_dt age
+            if r.last_movement_dt:
+                age_sec = (now - r.last_movement_dt.replace(tzinfo=_tz.utc)
+                           if r.last_movement_dt.tzinfo is None
+                           else (now - r.last_movement_dt)).total_seconds()
+                if not is_alive or age_sec > 300:
+                    status = "offline"
+                elif age_sec > 60:
+                    status = "idle"
+                else:
+                    status = "active"
+                # Human-readable relative time
+                if age_sec < 60:
+                    rel = f"{int(age_sec)}s ago"
+                elif age_sec < 3600:
+                    rel = f"{int(age_sec//60)}m ago"
+                else:
+                    rel = f"{int(age_sec//3600)}h ago"
+            else:
+                status = "offline"
+                rel    = "never"
+
+            out.append({
+                "id":               str(r.id),
+                "mac":              r.mac,
+                "name":             r.name,
+                "shape":            "oval",
+                "status":           status,
+                "battery":          battery,
+                "rssi":             extra.get("deciding_rssi") or extra.get("rssi"),
+                "last_seen":        r.last_movement_dt.isoformat() if r.last_movement_dt else None,
+                "last_seen_relative": rel,
+                "zone_id":          str(r.zone_id) if r.zone_id else None,
+                "zone_name":        r.zone_name or "Unknown",
+            })
+        return out
     except Exception as e:
         print(f"[API ERROR] Current Status Fetch: {e}")
         return []
+
+
+@router.get("/health/summary")
+async def health_summary(db: AsyncSession = Depends(get_tenant_db),
+                         user: dict = Depends(require_tenant_match)):
+    """Quick counts for the dashboard header."""
+    try:
+        sc = (await db.execute(text("""
+            SELECT
+                COUNT(*)                                          AS total,
+                COUNT(*) FILTER (WHERE scanner_status = 'active') AS online,
+                COUNT(*) FILTER (WHERE scanner_status = 'offline') AS offline
+            FROM mst_scanner
+        """))).fetchone()
+
+        bc = (await db.execute(text("""
+            SELECT
+                COUNT(*) AS total,
+                COUNT(*) FILTER (WHERE (extra->>'is_alive')::boolean IS NOT FALSE) AS alive,
+                COUNT(*) FILTER (WHERE (extra->>'is_alive')::boolean = FALSE)     AS dead,
+                COUNT(*) FILTER (WHERE (extra->>'battery') IS NOT NULL
+                                  AND (extra->>'battery')::int < 20
+                                  AND (extra->>'battery')::int >= 0) AS low_battery
+            FROM mst_asset
+        """))).fetchone()
+
+        return {
+            "scanners": {"total": sc.total, "online": sc.online, "offline": sc.offline},
+            "beacons":  {"total": bc.total, "alive": bc.alive, "dead": bc.dead, "low_battery": bc.low_battery},
+        }
+    except Exception as e:
+        print(f"[API ERROR] Health Summary: {e}")
+        return {"scanners": {"total": 0, "online": 0, "offline": 0},
+                "beacons":  {"total": 0, "alive": 0, "dead": 0, "low_battery": 0}}
+
+
+@router.get("/notifications")
+async def get_notifications(user: dict = Depends(require_tenant_match)):
+    """Stub — returns empty notifications list."""
+    return {"total": 0, "unread": 0, "notifications": []}
 
 
 # ─── History ─────────────────────────────────────────────────────────────────
