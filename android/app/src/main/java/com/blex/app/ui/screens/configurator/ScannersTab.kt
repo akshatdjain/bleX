@@ -390,19 +390,23 @@ fun ScannersTab() {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("MAC: ${registerScannerTarget!!.mac}", style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace, color = MaterialTheme.colorScheme.outline)
-                    // Role selector
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("scanner" to "Scanner", "master" to "Master").forEach { (role, label) ->
-                            FilterChip(
-                                selected = registerRole.value == role,
-                                onClick = { registerRole.value = role },
-                                label = { Text(label) },
-                                leadingIcon = if (registerRole.value == role) {
-                                    { Icon(Icons.Default.Check, null, modifier = Modifier.size(14.dp)) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
+                    // Role selector — Master only available in local mode
+                    if (provisionMode == "local") {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("scanner" to "Scanner", "master" to "Master").forEach { (role, label) ->
+                                FilterChip(
+                                    selected = registerRole.value == role,
+                                    onClick = { registerRole.value = role },
+                                    label = { Text(label) },
+                                    leadingIcon = if (registerRole.value == role) {
+                                        { Icon(Icons.Default.Check, null, modifier = Modifier.size(14.dp)) }
+                                    } else null,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
+                    } else {
+                        registerRole.value = "scanner"
                     }
                     if (registerRole.value == "master") {
                         Surface(
@@ -631,17 +635,31 @@ fun ScannersTab() {
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("scanner" to "Scanner", "master" to "Master").forEach { (role, label) ->
-                            FilterChip(
-                                selected = selectedProvisionRole == role,
-                                onClick = { selectedProvisionRole = role },
-                                label = { Text(label) },
-                                leadingIcon = if (selectedProvisionRole == role) {
-                                    { Icon(Icons.Default.Check, null, modifier = Modifier.size(14.dp)) }
-                                } else null,
-                                modifier = Modifier.weight(1f)
-                            )
+                    if (provisionMode == "cloud") {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(modifier = Modifier.padding(10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Cloud, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.secondary)
+                                Text("Cloud mode — provisioning as Scanner. Zone logic runs on the cloud master.",
+                                    style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            }
+                        }
+                    } else {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("scanner" to "Scanner", "master" to "Master").forEach { (role, label) ->
+                                FilterChip(
+                                    selected = selectedProvisionRole == role,
+                                    onClick = { selectedProvisionRole = role },
+                                    label = { Text(label) },
+                                    leadingIcon = if (selectedProvisionRole == role) {
+                                        { Icon(Icons.Default.Check, null, modifier = Modifier.size(14.dp)) }
+                                    } else null,
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
                     if (selectedProvisionRole == "master" && provisionMode == "local") {
@@ -1011,7 +1029,8 @@ fun ScannersTab() {
                     registeredName = dbScanners.find { it.macId.uppercase() == scanner.mac.uppercase() }?.name,
                     onProvision = {
                         provisionRoleTarget = scanner
-                        selectedProvisionRole = settings.getScannerRole(scanner.mac)
+                        selectedProvisionRole = if (provisionMode == "cloud") "scanner"
+                            else settings.getScannerRole(scanner.mac)
                         showProvisionRoleDialog = true
                     },
                     onRegister = {
