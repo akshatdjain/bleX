@@ -218,22 +218,10 @@ fun ScannersTab() {
         val user  = cfg?.mqttUsername ?: BuildConfig.MQTT_USERNAME
         val pass  = cfg?.mqttPassword ?: BuildConfig.MQTT_PASSWORD
 
-        // Issue a per-device API token from DGX BEFORE we POST to the Pi.
-        // Server stores sha256(token); plaintext lives only in this provisioning POST.
-        // If issuance fails (non-admin, network), proceed with empty token — Pi still
-        // provisions locally but cannot call DGX until an admin issues a token.
-        val deviceToken: String = if (mac.isNotBlank() && settings.tenantId.isNotBlank()) {
-            try {
-                ApiService.issueDeviceToken(
-                    tenantId = settings.tenantId,
-                    mac = mac,
-                    role = role,
-                ).apiToken
-            } catch (e: Exception) {
-                android.util.Log.w("ScannersTab", "issueDeviceToken failed for $mac: ${e.message}")
-                ""
-            }
-        } else ""
+        // Read the API token that was issued during Register and stored securely.
+        // If missing (not yet registered), fall back to empty — Pi will still
+        // receive config but cannot call DGX until registered.
+        val deviceToken: String = settings.getDeviceToken(mac) ?: ""
 
         return org.json.JSONObject().apply {
             if (ssid.isNotBlank()) { put("ssid", ssid); put("psk", psk) }
@@ -410,6 +398,21 @@ fun ScannersTab() {
                                 ApiService.configuredBaseUrl = settings.apiBaseUrl
                                 // Always register in mst_scanner
                                 ApiService.registerScanner(target.mac, registerScannerName.trim().ifBlank { target.name }, target.type)
+                                // Issue a per-device API token from DGX and store it securely.
+                                // Provision will read this token and push it to the Pi via port 8888.
+                                try {
+                                    val device = ApiService.issueDeviceToken(
+                                        mac = target.mac,
+                                        role = role,
+                                        tenantId = settings.tenantId,
+                                    )
+                                    if (device != null) {
+                                        settings.setDeviceToken(target.mac, device.apiToken)
+                                        android.util.Log.d("ScannersTab", "API token issued and stored for ${target.mac}")
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.w("ScannersTab", "issueDeviceToken failed for ${target.mac}: ${e.message}")
+                                }
                                 // If master: also register in mst_master so scanner_boot.py can fetch the IP
                                 if (role == "master") {
                                     ApiService.registerMaster(target.mac, target.ip, settings.tenantId)

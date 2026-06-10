@@ -2,6 +2,8 @@ package com.blex.app.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -11,6 +13,35 @@ class SettingsManager(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences("blex_settings", Context.MODE_PRIVATE)
+
+    // Encrypted store — Android Keystore AES256-GCM for sensitive device credentials
+    private val securePrefs: SharedPreferences by lazy {
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            EncryptedSharedPreferences.create(
+                context,
+                "blex_secure",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        } catch (_: Exception) {
+            // Fallback to regular prefs if Keystore unavailable (emulator edge cases)
+            context.getSharedPreferences("blex_secure_fb", Context.MODE_PRIVATE)
+        }
+    }
+
+    // Per-Pi API tokens — keyed by MAC, encrypted at rest
+    fun getDeviceToken(mac: String): String? =
+        securePrefs.getString("dt_${mac.uppercase()}", null)?.takeIf { it.isNotBlank() }
+
+    fun setDeviceToken(mac: String, token: String) =
+        securePrefs.edit().putString("dt_${mac.uppercase()}", token).apply()
+
+    fun clearDeviceToken(mac: String) =
+        securePrefs.edit().remove("dt_${mac.uppercase()}").apply()
 
     fun getPrefs(): SharedPreferences = prefs
 
