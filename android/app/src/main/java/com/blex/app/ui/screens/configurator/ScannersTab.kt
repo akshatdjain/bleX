@@ -140,6 +140,13 @@ fun ScannersTab() {
     var dbScanners by remember { mutableStateOf<List<ApiService.ApiScanner>>(emptyList()) }
     val registeredMacs = remember(dbScanners) { dbScanners.map { it.macId.uppercase() }.toSet() }
 
+    // Rename scanner dialog
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var renameTarget by remember { mutableStateOf<DiscoveredScanner?>(null) }
+    var renameText by remember { mutableStateOf("") }
+    var isRenaming by remember { mutableStateOf(false) }
+    var renameResult by remember { mutableStateOf<String?>(null) }
+
     // Monitor network changes — re-read MAC every 5 seconds
     LaunchedEffect(Unit) {
         while (true) {
@@ -267,6 +274,49 @@ fun ScannersTab() {
         }
     }
 
+
+    // ── Rename Scanner Dialog ──
+    if (showRenameDialog && renameTarget != null) {
+        AlertDialog(
+            onDismissRequest = { if (!isRenaming) { showRenameDialog = false; renameResult = null } },
+            icon = { Icon(Icons.Default.Edit, null) },
+            title = { Text("Rename Scanner") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("MAC: ${renameTarget!!.mac}", style = MaterialTheme.typography.bodySmall,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        color = MaterialTheme.colorScheme.outline)
+                    OutlinedTextField(value = renameText, onValueChange = { renameText = it },
+                        label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    renameResult?.let {
+                        Text(it, color = if (it.startsWith("✓")) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    val target = renameTarget ?: return@Button
+                    isRenaming = true; renameResult = "Saving..."
+                    scope.launch {
+                        try {
+                            ApiService.configuredBaseUrl = settings.apiBaseUrl
+                            ApiService.upsertScanner(target.mac, renameText.trim().ifBlank { target.name }, target.type)
+                            dbScanners = try { ApiService.getScanners() } catch (_: Exception) { dbScanners }
+                            isRenaming = false; showRenameDialog = false; renameResult = null
+                        } catch (e: Exception) { renameResult = "Failed: ${e.message}"; isRenaming = false }
+                    }
+                }, enabled = !isRenaming && renameText.isNotBlank()) {
+                    if (isRenaming) CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                    else Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { if (!isRenaming) { showRenameDialog = false; renameResult = null } }) { Text("Cancel") }
+            }
+        )
+    }
 
     // ── Tablet Registration Dialog ──
     if (showRegisterTabletDialog) {
@@ -970,6 +1020,12 @@ fun ScannersTab() {
                         registerScannerResult = null
                         showRegisterScannerDialog = true
                     },
+                    onRename = {
+                        renameTarget = scanner
+                        renameText = dbScanners.find { it.macId.uppercase() == scanner.mac.uppercase() }?.name ?: scanner.name
+                        renameResult = null
+                        showRenameDialog = true
+                    },
                     onUnregister = {
                         val dbScanner = dbScanners.find { it.macId.uppercase() == scanner.mac.uppercase() }
                         if (dbScanner != null) {
@@ -1176,6 +1232,7 @@ fun ScannerCard(
     registeredName: String? = null,
     onProvision: () -> Unit,
     onRegister: () -> Unit,
+    onRename: (() -> Unit)? = null,
     onUnregister: (() -> Unit)? = null
 ) {
     var showUnregisterConfirm by remember { mutableStateOf(false) }
@@ -1261,19 +1318,31 @@ fun ScannerCard(
             }
             Spacer(Modifier.height(4.dp))
             if (isRegistered) {
-                // Registered: only Re-Provision
-                OutlinedButton(
-                    onClick = onProvision,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isPushing,
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
-                ) {
-                    if (isPushing) {
-                        CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
-                    } else {
-                        Icon(Icons.Default.Refresh, null, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text("Re-Provision", style = MaterialTheme.typography.labelSmall)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    OutlinedButton(
+                        onClick = onProvision,
+                        modifier = Modifier.weight(1f),
+                        enabled = !isPushing,
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                    ) {
+                        if (isPushing) {
+                            CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
+                        } else {
+                            Icon(Icons.Default.Refresh, null, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Re-Provision", style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
+                    if (onRename != null) {
+                        FilledTonalButton(
+                            onClick = onRename,
+                            modifier = Modifier.weight(0.7f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Edit, null, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Rename", style = MaterialTheme.typography.labelSmall)
+                        }
                     }
                 }
             } else {
