@@ -4,7 +4,7 @@ Movement endpoints — zone-change events from master + live view + history.
 
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi_limiter.depends import RateLimiter
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
@@ -49,30 +49,67 @@ async def get_current_status(db: AsyncSession = Depends(get_tenant_db),
 # ─── History ─────────────────────────────────────────────────────────────────
 
 @router.get("/assets/history")
-async def get_history(db: AsyncSession = Depends(get_tenant_db),
-                      user: dict = Depends(require_tenant_match)):
+async def get_history(
+    db: AsyncSession = Depends(get_tenant_db),
+    user: dict = Depends(require_tenant_match),
+    limit: int = 100,
+    start_date: str | None = None,
+):
     """
-    Returns the last 50 zone-change events.
-    Used by UI Ledger.
+    Returns zone-change events enriched with asset names, zone names, and type.
+    Used by the UI Logs page.
     """
     try:
-        stmt = (
-            select(MovementLog)
-            .order_by(MovementLog.timestamp_movement.desc())
-            .limit(50)
-        )
-        result = await db.execute(stmt)
-        logs = result.scalars().all()
+        where = "WHERE 1=1"
+        params: dict = {"limit": min(limit, 500)}
+        if start_date:
+            where += " AND ml.timestamp_movement >= :start_date::date"
+            params["start_date"] = start_date
+
+        rows = (await db.execute(
+            text(f"""
+                SELECT
+                    ml.id,
+                    ml.bluetooth_id                         AS mac,
+                    ma.id                                   AS asset_id,
+                    COALESCE(ma.asset_name, ml.bluetooth_id) AS asset_name,
+                    ml.from_zone_id,
+                    fz.zone_name                            AS from_zone,
+                    ml.to_zone_id,
+                    tz.zone_name                            AS to_zone,
+                    ml.deciding_rssi                        AS rssi,
+                    ml.timestamp_movement                   AS timestamp,
+                    CASE
+                        WHEN ml.from_zone_id IS NULL THEN 'enter'
+                        WHEN ml.to_zone_id   IS NULL THEN 'exit'
+                        ELSE 'move'
+                    END                                     AS type
+                FROM movement_log ml
+                LEFT JOIN mst_asset ma ON ma.bluetooth_id = ml.bluetooth_id
+                LEFT JOIN mst_zone   fz ON fz.id = ml.from_zone_id
+                LEFT JOIN mst_zone   tz ON tz.id = ml.to_zone_id
+                {where}
+                ORDER BY ml.timestamp_movement DESC
+                LIMIT :limit
+            """),
+            params,
+        )).fetchall()
 
         return [
             {
-                "id": l.id,
-                "mac": l.bluetooth_id,
-                "from_zone": l.from_zone_id,
-                "to_zone": l.to_zone_id,
-                "timestamp": l.timestamp_movement.isoformat(),
+                "id":          str(r.id),
+                "mac":         r.mac,
+                "asset_id":    str(r.asset_id) if r.asset_id else None,
+                "asset_name":  r.asset_name,
+                "from_zone_id":str(r.from_zone_id) if r.from_zone_id else None,
+                "from_zone":   r.from_zone or "",
+                "to_zone_id":  str(r.to_zone_id) if r.to_zone_id else None,
+                "to_zone":     r.to_zone or "",
+                "rssi":        float(r.rssi) if r.rssi is not None else None,
+                "timestamp":   r.timestamp.isoformat(),
+                "type":        r.type,
             }
-            for l in logs
+            for r in rows
         ]
     except Exception as e:
         print(f"[API ERROR] History Fetch: {e}")
