@@ -6,6 +6,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
 import android.util.Log
+import com.blex.app.data.ApiService
+import com.blex.app.data.SettingsManager
 import kotlin.system.exitProcess
 
 /**
@@ -29,6 +31,16 @@ class BleXApp : Application() {
 
         createNotificationChannels()
         registerCrashHandler()
+
+        // Wire refresh cookie persistence so tokens survive app updates and restarts
+        val settings = SettingsManager.getInstance(this)
+        ApiService.configureRefreshCookie(
+            getter = { settings.refreshCookie },
+            setter = { settings.refreshCookie = it }
+        )
+        // Restore previously saved auth state
+        ApiService.authToken = settings.authToken
+        ApiService.tenantId  = settings.tenantId
 
         Log.i(TAG, "═══════════════════════════════════════")
         Log.i(TAG, "  BleX Application Started")

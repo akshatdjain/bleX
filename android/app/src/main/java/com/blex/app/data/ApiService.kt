@@ -2,6 +2,8 @@ package com.blex.app.data
 
 import com.blex.app.AppConfig
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
@@ -23,6 +25,63 @@ object ApiService {
 
     /** Set at login from SettingsManager.authToken. Injected as Authorization: Bearer on every request. */
     var authToken: String = ""
+
+    // Persisted refresh cookie — getter/setter injected at app startup so the
+    // cookie survives process death, app updates, and restarts.
+    private var _getRefreshCookie: () -> String = { "" }
+    private var _setRefreshCookie: (String) -> Unit = { }
+    private val refreshMutex = Mutex()
+
+    /** Call once at app startup with SettingsManager accessors. */
+    fun configureRefreshCookie(getter: () -> String, setter: (String) -> Unit) {
+        _getRefreshCookie = getter
+        _setRefreshCookie = setter
+    }
+
+    private fun captureRefreshCookie(conn: HttpURLConnection) {
+        conn.headerFields["Set-Cookie"]?.forEach { cookie ->
+            if (cookie.startsWith("refresh=")) {
+                val value = cookie.split(";").first()
+                _setRefreshCookie(value)
+            }
+        }
+    }
+
+    /** Try to get a fresh access token using the stored refresh cookie.
+     *  Returns true and updates authToken on success. Thread-safe via mutex. */
+    suspend fun tryRefreshToken(): Boolean = refreshMutex.withLock {
+        val cookie = _getRefreshCookie()
+        if (cookie.isBlank()) return@withLock false
+        withContext(Dispatchers.IO) {
+            try {
+                val conn = URL("${AppConfig.REMOTE_API_URL}/api/auth/refresh")
+                    .openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("Cookie", cookie)
+                conn.connectTimeout = 10000
+                conn.readTimeout = 10000
+                if (conn.responseCode in 200..299) {
+                    val resp = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                    authToken = resp.getString("access_token")
+                    captureRefreshCookie(conn) // capture rotated cookie if present
+                    true
+                } else false
+            } catch (_: Exception) { false }
+        }
+    }
+
+    /** Executes [block]. On 401, silently refreshes the token and retries once. */
+    private suspend fun <T> withRefresh(block: suspend () -> T): T {
+        return try {
+            block()
+        } catch (e: Exception) {
+            val isAuthError = e.message?.let {
+                it.contains("401") || it.contains("Invalid token", ignoreCase = true) ||
+                it.contains("Unauthorized", ignoreCase = true) || it.contains("Missing Bearer", ignoreCase = true)
+            } == true
+            if (isAuthError && tryRefreshToken()) block() else throw e
+        }
+    }
 
     private fun baseUrl(): String =
         configuredBaseUrl.trimEnd('/').ifBlank { AppConfig.REMOTE_API_URL.trimEnd('/') }
@@ -49,38 +108,46 @@ object ApiService {
         }
     }
 
-    private suspend fun httpGet(path: String): String = withContext(Dispatchers.IO) {
-        val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
-        conn.requestMethod = "GET"
-        conn.applyCommon()
-        conn.readResponse()
+    private suspend fun httpGet(path: String): String = withRefresh {
+        withContext(Dispatchers.IO) {
+            val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            conn.applyCommon()
+            conn.readResponse()
+        }
     }
 
-    private suspend fun httpPost(path: String, body: JSONObject): JSONObject = withContext(Dispatchers.IO) {
-        val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
-        conn.requestMethod = "POST"
-        conn.setRequestProperty("Content-Type", "application/json")
-        conn.doOutput = true
-        conn.applyCommon()
-        conn.outputStream.use { it.write(body.toString().toByteArray()) }
-        JSONObject(conn.readResponse())
+    private suspend fun httpPost(path: String, body: JSONObject): JSONObject = withRefresh {
+        withContext(Dispatchers.IO) {
+            val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+            conn.applyCommon()
+            conn.outputStream.use { it.write(body.toString().toByteArray()) }
+            JSONObject(conn.readResponse())
+        }
     }
 
-    private suspend fun httpPut(path: String, body: JSONObject): JSONObject = withContext(Dispatchers.IO) {
-        val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
-        conn.requestMethod = "PUT"
-        conn.setRequestProperty("Content-Type", "application/json")
-        conn.doOutput = true
-        conn.applyCommon()
-        conn.outputStream.use { it.write(body.toString().toByteArray()) }
-        JSONObject(conn.readResponse())
+    private suspend fun httpPut(path: String, body: JSONObject): JSONObject = withRefresh {
+        withContext(Dispatchers.IO) {
+            val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
+            conn.requestMethod = "PUT"
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.doOutput = true
+            conn.applyCommon()
+            conn.outputStream.use { it.write(body.toString().toByteArray()) }
+            JSONObject(conn.readResponse())
+        }
     }
 
-    private suspend fun httpDelete(path: String): JSONObject = withContext(Dispatchers.IO) {
-        val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
-        conn.requestMethod = "DELETE"
-        conn.applyCommon()
-        JSONObject(conn.readResponse())
+    private suspend fun httpDelete(path: String): JSONObject = withRefresh {
+        withContext(Dispatchers.IO) {
+            val conn = URL("${baseUrl()}$path").openConnection() as HttpURLConnection
+            conn.requestMethod = "DELETE"
+            conn.applyCommon()
+            JSONObject(conn.readResponse())
+        }
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -485,9 +552,9 @@ object ApiService {
                 throw Exception(JSONObject(err).optString("detail", "Login failed"))
             }
             val parsed = parseAuthResponse(JSONObject(resp))
-            // Wire ApiService for subsequent calls
             authToken = parsed.accessToken
             if (parsed.tenantId.isNotBlank()) tenantId = parsed.tenantId
+            captureRefreshCookie(conn)
             parsed
         }
 

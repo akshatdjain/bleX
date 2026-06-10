@@ -33,6 +33,11 @@ class SettingsManager(context: Context) {
         }
     }
 
+    // Refresh cookie — encrypted at rest, survives app updates/restarts
+    var refreshCookie: String
+        get() = securePrefs.getString("refresh_cookie", "") ?: ""
+        set(value) = securePrefs.edit().putString("refresh_cookie", value).apply()
+
     // Per-Pi API tokens — keyed by MAC, encrypted at rest
     fun getDeviceToken(mac: String): String? =
         securePrefs.getString("dt_${mac.uppercase()}", null)?.takeIf { it.isNotBlank() }
