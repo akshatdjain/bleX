@@ -219,16 +219,52 @@ fun ScannersTab() {
         val tabletHost = cfg?.tabletFallback?.host?.takeIf { it.isNotBlank() } ?: getDeviceIpAddress()
         val tabletPort = cfg?.tabletFallback?.port ?: (if (settings.brokerEnabled) settings.brokerPort else 1883)
         val mode  = provisionMode  // app switch is source of truth; Option B will sync to server
+
+        // Determine MQTT creds: server config → stored settings → BuildConfig fallback
         val host  = cfg?.mqttHost?.takeIf { it.isNotBlank() } ?: AppConfig.REMOTE_MQTT_HOST
         val port  = cfg?.mqttPort ?: AppConfig.REMOTE_MQTT_PORT_TLS
         val tls   = cfg?.useTls ?: true
-        val user  = cfg?.mqttUsername ?: BuildConfig.MQTT_USERNAME
-        val pass  = cfg?.mqttPassword ?: BuildConfig.MQTT_PASSWORD
+        val user  = cfg?.mqttUsername?.takeIf { it.isNotBlank() }
+            ?: settings.remoteUsername.takeIf { it.isNotBlank() }
+            ?: BuildConfig.MQTT_USERNAME
+        val pass  = cfg?.mqttPassword?.takeIf { it.isNotBlank() }
+            ?: settings.remotePassword.takeIf { it.isNotBlank() }
+            ?: BuildConfig.MQTT_PASSWORD
 
-        // Read the API token that was issued during Register and stored securely.
-        // If missing (not yet registered), fall back to empty — Pi will still
-        // receive config but cannot call DGX until registered.
-        val deviceToken: String = settings.getDeviceToken(mac) ?: ""
+        // Persist MQTT creds to settings so app bridge connection also uses them
+        if (user.isNotBlank() && mode == "cloud") {
+            settings.remoteUsername = user
+            settings.remotePassword = pass
+            settings.remoteHost = host
+            settings.remotePort = AppConfig.REMOTE_MQTT_PORT_WSS
+            settings.remoteTlsEnabled = true
+            settings.remoteUseWebSocket = true
+            settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
+        }
+
+        // Read stored token. If missing, auto-issue one now (handles pre-registered
+        // scanners and fresh APK installs where Register wasn't tapped with new APK).
+        val storedToken = settings.getDeviceToken(mac)
+        val deviceToken: String = if (!storedToken.isNullOrBlank()) {
+            android.util.Log.d("ScannersTab", "Using stored token for $mac: ${storedToken.take(8)}...")
+            storedToken
+        } else {
+            android.util.Log.d("ScannersTab", "No stored token for $mac — auto-issuing from DGX")
+            try {
+                val issued = ApiService.issueDeviceToken(mac = mac, role = role, tenantId = settings.tenantId)
+                if (issued != null) {
+                    settings.setDeviceToken(mac, issued.apiToken)
+                    android.util.Log.d("ScannersTab", "Auto-issued token for $mac: ${issued.apiToken.take(8)}...")
+                    issued.apiToken
+                } else {
+                    android.util.Log.w("ScannersTab", "Auto token issuance returned null for $mac")
+                    ""
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("ScannersTab", "Auto token issuance FAILED for $mac: ${e.message}")
+                ""
+            }
+        }
 
         return org.json.JSONObject().apply {
             if (ssid.isNotBlank()) { put("ssid", ssid); put("psk", psk) }
@@ -263,8 +299,11 @@ fun ScannersTab() {
                 conn.outputStream.flush()
                 val code = conn.responseCode
                 withContext(Dispatchers.Main) {
-                    if (code == 200) onResult(true, ip)
-                    else onResult(false, "$ip: HTTP $code")
+                    if (code == 200) {
+                        // Restart bridge so it picks up any updated remote MQTT creds
+                        context.sendBroadcast(android.content.Intent("com.blex.app.ACTION_RESTART_SERVICE"))
+                        onResult(true, ip)
+                    } else onResult(false, "$ip: HTTP $code")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -453,7 +492,6 @@ fun ScannersTab() {
                                 // Always register in mst_scanner
                                 ApiService.registerScanner(target.mac, registerScannerName.trim().ifBlank { target.name }, target.type)
                                 // Issue a per-device API token from DGX and store it securely.
-                                // Provision will read this token and push it to the Pi via port 8888.
                                 try {
                                     val device = ApiService.issueDeviceToken(
                                         mac = target.mac,
@@ -462,10 +500,15 @@ fun ScannersTab() {
                                     )
                                     if (device != null) {
                                         settings.setDeviceToken(target.mac, device.apiToken)
-                                        android.util.Log.d("ScannersTab", "API token issued and stored for ${target.mac}")
+                                        android.util.Log.d("ScannersTab", "API token issued for ${target.mac}: ${device.apiToken.take(8)}...")
+                                        registerScannerResult = "✓ Registered + API token issued"
+                                    } else {
+                                        android.util.Log.w("ScannersTab", "issueDeviceToken returned null for ${target.mac}")
+                                        registerScannerResult = "⚠ Registered but token issue failed (null)"
                                     }
                                 } catch (e: Exception) {
-                                    android.util.Log.w("ScannersTab", "issueDeviceToken failed for ${target.mac}: ${e.message}")
+                                    android.util.Log.e("ScannersTab", "issueDeviceToken FAILED for ${target.mac}: ${e.message}")
+                                    registerScannerResult = "⚠ Registered but token failed: ${e.message}"
                                 }
                                 // If master: also register in mst_master so scanner_boot.py can fetch the IP
                                 if (role == "master") {

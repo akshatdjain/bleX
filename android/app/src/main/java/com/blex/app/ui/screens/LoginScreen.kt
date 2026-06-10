@@ -176,34 +176,59 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                             settings.webDashboardUrl.isEmpty()) {
                             settings.webDashboardUrl = AppConfig.REMOTE_WEB_URL
                         }
-                        // Auto-configure remote MQTT bridge (WSS to DGX via Caddy)
-                        if (settings.remoteHost.isEmpty()) {
-                            settings.remoteHost = AppConfig.REMOTE_MQTT_HOST
-                            settings.remotePort = AppConfig.REMOTE_MQTT_PORT_WSS
-                            settings.remoteTlsEnabled = true
-                            settings.remoteUseWebSocket = true
-                            settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
-                            settings.remoteUsername = BuildConfig.MQTT_USERNAME
-                            settings.remotePassword = BuildConfig.MQTT_PASSWORD
-                        }
                         // Wire ApiService immediately so all CRUD calls use correct tenant
                         ApiService.configuredBaseUrl = settings.apiBaseUrl
                         ApiService.tenantId = result.tenantId
                         ApiService.authToken = result.accessToken
 
-                        // Auto-fetch master Pi IP for local master model
-                        // If a Pi master has registered itself for this tenant, auto-fill remoteHost
-                        // so the tablet bridges MQTT to the Pi without manual config
+                        // Fetch tenant MQTT config from server and save — always overrides
+                        // so cloud creds (tab/1234) are correct on every login regardless of
+                        // whether keystore.properties is present in the build.
                         try {
-                            val masterInfo = ApiService.getMasterIp()
-                            if (masterInfo != null && masterInfo.masterIp.isNotEmpty()) {
-                                settings.remoteHost = masterInfo.masterIp
-                                settings.remotePort = 1883
-                                settings.remoteTlsEnabled = false
-                                settings.remoteUseWebSocket = false
+                            val cfg = ApiService.getTenantConfig(result.tenantId)
+                            if (cfg != null && cfg.mqttUsername?.isNotBlank() == true) {
+                                settings.remoteHost = AppConfig.REMOTE_MQTT_HOST
+                                settings.remotePort = AppConfig.REMOTE_MQTT_PORT_WSS
+                                settings.remoteTlsEnabled = true
+                                settings.remoteUseWebSocket = true
+                                settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
+                                settings.remoteUsername = cfg.mqttUsername!!
+                                settings.remotePassword = cfg.mqttPassword ?: ""
+                            } else {
+                                // Fallback to build config or existing values
+                                if (settings.remoteHost.isEmpty()) {
+                                    settings.remoteHost = AppConfig.REMOTE_MQTT_HOST
+                                    settings.remotePort = AppConfig.REMOTE_MQTT_PORT_WSS
+                                    settings.remoteTlsEnabled = true
+                                    settings.remoteUseWebSocket = true
+                                    settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
+                                }
+                                if (settings.remoteUsername.isEmpty()) {
+                                    settings.remoteUsername = BuildConfig.MQTT_USERNAME
+                                    settings.remotePassword = BuildConfig.MQTT_PASSWORD
+                                }
                             }
                         } catch (_: Exception) {
-                            // No master registered yet — stays on WSS/cloud config. Fine.
+                            if (settings.remoteHost.isEmpty()) {
+                                settings.remoteHost = AppConfig.REMOTE_MQTT_HOST
+                                settings.remotePort = AppConfig.REMOTE_MQTT_PORT_WSS
+                                settings.remoteTlsEnabled = true
+                                settings.remoteUseWebSocket = true
+                                settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
+                            }
+                        }
+
+                        // In local mode: override to Pi master IP if registered
+                        if (settings.scannerProvisionMode == "local") {
+                            try {
+                                val masterInfo = ApiService.getMasterIp()
+                                if (masterInfo != null && masterInfo.masterIp.isNotEmpty()) {
+                                    settings.remoteHost = masterInfo.masterIp
+                                    settings.remotePort = 1883
+                                    settings.remoteTlsEnabled = false
+                                    settings.remoteUseWebSocket = false
+                                }
+                            } catch (_: Exception) {}
                         }
 
                         onLoginSuccess()

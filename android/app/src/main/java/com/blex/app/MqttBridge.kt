@@ -31,6 +31,7 @@ class MqttBridge(private val context: Context) {
     private val offlineQueue = ConcurrentLinkedQueue<Pair<String, String>>()
     private val isStarted = AtomicBoolean(false)
     private val isConnectingRemote = AtomicBoolean(false)
+    private val retryScheduled = AtomicBoolean(false)
     private var flushThread: Thread? = null
 
     @Volatile var isLocalConnected: Boolean = false; private set
@@ -160,6 +161,7 @@ class MqttBridge(private val context: Context) {
                 isRemoteConnected = false
                 isConnectingRemote.set(false)
                 log(LogLevel.WARN, "Remote connection lost: ${cause?.message}")
+                // isAutomaticReconnect=true handles reconnection automatically
             }
             override fun messageArrived(topic: String, message: MqttMessage) {}
             override fun deliveryComplete(token: IMqttDeliveryToken?) {}
@@ -168,7 +170,7 @@ class MqttBridge(private val context: Context) {
         val opts = MqttConnectOptions().apply {
             isCleanSession = true
             isAutomaticReconnect = true
-            connectionTimeout = settings.mqttConnectionTimeout
+            connectionTimeout = maxOf(settings.mqttConnectionTimeout, 30) // WSS needs more time
             keepAliveInterval = settings.mqttKeepAlive
             if (settings.remoteUsername.isNotEmpty()) {
                 userName = settings.remoteUsername
@@ -210,6 +212,19 @@ class MqttBridge(private val context: Context) {
                         else -> exception?.message ?: "unknown error"
                     }
                     log(LogLevel.ERROR, "Remote connect failed: $errorDetail")
+                    // isAutomaticReconnect=true handles retries. Only force a fresh client
+                    // once (after 30s) to pick up credential changes from login/provision.
+                    if (retryScheduled.compareAndSet(false, true)) {
+                        Thread {
+                            Thread.sleep(30_000)
+                            retryScheduled.set(false)
+                            if (!isRemoteConnected) {
+                                log(LogLevel.INFO, "Remote retry with fresh creds...")
+                                remoteClient = null
+                                connectRemote(SettingsManager.getInstance(context))
+                            }
+                        }.also { it.isDaemon = true }.start()
+                    }
                 }
             })
         } catch (e: Exception) {
