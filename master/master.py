@@ -15,7 +15,8 @@ import redis
 import threading
 
 import os
-TENANT_ID = os.getenv("TENANT_ID", "")
+TENANT_ID      = os.getenv("TENANT_ID", "")
+BLEX_API_TOKEN = os.getenv("BLEX_API_TOKEN", "")
 
 from config import (
     MQTT_BROKER,
@@ -74,6 +75,8 @@ def load_scanner_zone_map():
     try:
         url = f"{SCANNER_ZONE_API}/watch?version={MAP_VERSION}"
         headers = {"X-Tenant-ID": TENANT_ID} if TENANT_ID else {}
+        if BLEX_API_TOKEN:
+            headers["Authorization"] = f"Bearer {BLEX_API_TOKEN}"
         resp = requests.get(url, headers=headers, timeout=65) # Long-poll timeout
         
         if resp.status_code == 200:
