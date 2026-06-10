@@ -28,6 +28,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - TENANT_ID=${TENANT_ID}
+      - BLEX_API_TOKEN=${BLEX_API_TOKEN}
       - MQTT_TOPIC_BASE=ble/${TENANT_ID}/scanner
       - SCANNER_ZONE_API=http://asset_tracking-asset_api-1:8000/api/runtime/scanner-zone-map
       - API_URL=http://asset_tracking-asset_api-1:8000/api/asset/movement

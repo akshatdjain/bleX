@@ -5,8 +5,6 @@ WORKDIR /app
 # Install system dependencies if required for psycopg2 or others
 RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml .
-
 # Install dependencies directly using pip
 RUN pip install --no-cache-dir \
     "paho-mqtt>=2.1.0" \

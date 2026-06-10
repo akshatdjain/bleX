@@ -143,7 +143,9 @@ class MqttBridge(private val context: Context) {
         log(LogLevel.INFO, "Connecting to remote: $remoteUrl")
 
         if (remoteClient == null) {
-            val clientId = settings.remoteClientId.ifEmpty { "blex-bridge-remote" }
+            val clientId = settings.remoteClientId.ifEmpty {
+                "blex-bridge-${AppConfig.getTabletMac(context).replace(":", "").takeLast(8)}"
+            }
             remoteClient = MqttAsyncClient(remoteUrl, clientId, MemoryPersistence())
         }
         

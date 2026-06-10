@@ -196,7 +196,7 @@ class SettingsManager(context: Context) {
         set(value) = prefs.edit().putString("remote_password", value).apply()
 
     var remoteClientId: String
-        get() = prefs.getString("remote_client_id", "blex-bridge-remote") ?: "blex-bridge-remote"
+        get() = prefs.getString("remote_client_id", "") ?: ""
         set(value) = prefs.edit().putString("remote_client_id", value).apply()
 
     /** Topic filter for bridge: what local topics to forward upstream */
