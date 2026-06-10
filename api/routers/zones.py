@@ -28,14 +28,15 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
                 WHERE ml.timestamp_movement >= NOW() - INTERVAL '24 hours'
             )                                                                   AS movement_count,
             BOOL_OR(s.scanner_status = 'active')                                AS has_active_scanner,
-            COALESCE(
-                json_agg(json_build_object(
-                    'id',   s.id,
-                    'mac',  s.mac_id,
-                    'name', s.name,
-                    'type', s.type
-                )) FILTER (WHERE s.id IS NOT NULL),
-                '[]'
+            (SELECT COALESCE(json_agg(json_build_object(
+                    'id',   s2.id,
+                    'mac',  s2.mac_id,
+                    'name', s2.name,
+                    'type', s2.type
+                 )), '[]'::json)
+             FROM mst_zone_scanner zs2
+             JOIN mst_scanner s2 ON s2.id = zs2.mst_scanner_id
+             WHERE zs2.mst_zone_id = z.id
             )                                                                   AS scanners
         FROM mst_zone z
         LEFT JOIN mst_asset    a  ON a.current_zone_id = z.id
