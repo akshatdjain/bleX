@@ -103,8 +103,8 @@ def _proc_running(name):
     return rc == 0 and bool(out)
 
 def _read_mode():
-    """Read /etc/blex/blex.env into a dict using mode.json-style keys.
-    Translates MODE/ROLE/MQTT_BROKER/etc. into the lowercase keys old callers expect."""
+    """Read /etc/blex/blex.env into a dict.
+    Translates MODE/ROLE/MQTT_BROKER/etc. into the lowercase keys callers expect."""
     raw = {}
     try:
         with open(ENV_FILE) as f:
@@ -302,7 +302,7 @@ def heal_redis(tenant_id="", pi_mac="") -> bool:
 
 
 def heal_mqtt_auth(tenant_id="", pi_mac="") -> bool:
-    """Fix MQTT credentials mismatch between config.py and mode.json."""
+    """Fix MQTT credentials mismatch between blex.env and running config."""
     mode = _read_mode()
     cfg  = _read_scanner_config()
     if not mode or not cfg:
@@ -424,16 +424,16 @@ def heal_network(tenant_id="", pi_mac="") -> bool:
     return ok
 
 
-def heal_mode_json(tenant_id="", pi_mac="") -> bool:
-    """Validate mode.json has all required fields."""
+def heal_blex_env(tenant_id="", pi_mac="") -> bool:
+    """Validate blex.env has all required fields (MODE, TENANT_ID, MQTT_BROKER)."""
     cfg = _read_mode()
     required = {"mode", "tenant_id", "mqtt_host"}
     missing  = required - set(cfg.keys())
     if not missing:
-        _log_event("heal_mode_json", "pass", f"mode={cfg.get('mode')}",
+        _log_event("heal_blex_env", "pass", f"mode={cfg.get('mode')}",
                    tenant_id=tenant_id, pi_mac=pi_mac)
         return True
-    _log_event("heal_mode_json", "fail", f"missing fields: {missing}",
+    _log_event("heal_blex_env", "fail", f"missing fields in blex.env: {missing}",
                tenant_id=tenant_id, pi_mac=pi_mac)
     return False
 
@@ -470,7 +470,7 @@ def full_sweep(master_ip: str, tenant_id: str, pi_mac="", source="watchdog") -> 
 
     results["api"]             = heal_api(tenant_id, pi_mac)
     results["network"]         = heal_network(tenant_id, pi_mac)
-    results["mode_json"]       = heal_mode_json(tenant_id, pi_mac)
+    results["blex_env"]        = heal_blex_env(tenant_id, pi_mac)
     results["mqtt_auth"]       = heal_mqtt_auth(tenant_id, pi_mac)
 
     if is_local and is_master_role:

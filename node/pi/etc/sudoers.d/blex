@@ -1,1 +1,1 @@
-blex ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blex-*.service, /usr/bin/systemctl stop blex-*.service, /usr/bin/systemctl start blex-*.service, /usr/bin/tee /etc/blex/blex.env, /usr/bin/tee /etc/blex/mode.json, /usr/bin/mkdir -p /etc/blex, /usr/bin/nmcli *
+blex ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart blex-*.service, /usr/bin/systemctl stop blex-*.service, /usr/bin/systemctl start blex-*.service, /usr/bin/tee /etc/blex/blex.env, /usr/bin/tee /etc/blex/mode.json, /usr/bin/mkdir -p /etc/blex, /usr/bin/nmcli *, /usr/local/bin/blex-flags.sh

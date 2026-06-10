@@ -192,7 +192,7 @@ def main():
     if mode == "local":
         # ── Local mode: Pi-to-Pi hub ─────────────────────────────────────────
         # Fetch master IP from DGX; retry up to 5 times then fall back to
-        # whatever was written in mode.json during provisioning.
+        # whatever was last written in blex.env during provisioning.
         master_ip = ""
         retries = 0
         while not master_ip and retries < 5:
@@ -204,7 +204,7 @@ def main():
 
         if not master_ip:
             master_ip = mqtt_cfg.get("MQTT_BROKER", "127.0.0.1")
-            print(f"[SCANNER_BOOT] Using mode.json fallback: {master_ip}", flush=True)
+            print(f"[SCANNER_BOOT] Using blex.env fallback: {master_ip}", flush=True)
 
         # Verify reachability before starting
         if not can_reach_mqtt(master_ip, 1883):

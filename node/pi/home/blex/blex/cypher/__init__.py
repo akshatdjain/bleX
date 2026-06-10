@@ -1,11 +1,5 @@
 """
 cypher.py — Shared structured logger for all BleX Pi components.
-
-Usage:
-    from cypher import get_logger
-    log = get_logger("master")
-    log.info("zone confirmed", extra={"asset_mac": "AA:BB", "zone_id": 3})
-    log.error("redis down", exc_info=True)
 """
 import json
 import logging
@@ -76,13 +70,11 @@ def get_logger(comp: str) -> logging.Logger:
 
     fmt = _JsonFormatter(comp, pi_mac, tenant_id)
 
-    # stdout — all levels (systemd journal captures this)
     sh = logging.StreamHandler(sys.stdout)
     sh.setLevel(logging.DEBUG)
     sh.setFormatter(fmt)
     logger.addHandler(sh)
 
-    # rotating file — INFO and above only (keeps blex.log clean)
     os.makedirs(_LOG_DIR, exist_ok=True)
     fh = TimedRotatingFileHandler(
         os.path.join(_LOG_DIR, "blex.log"),
