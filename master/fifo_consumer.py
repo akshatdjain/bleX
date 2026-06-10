@@ -5,6 +5,7 @@
 print("[FIFO] Script started", flush=True)
 
 import json
+import os
 import time
 import requests
 import redis
@@ -18,6 +19,8 @@ from config import (
     API_TIMEOUT,
     CONSUMER_SLEEP_SEC,
 )
+
+BLEX_API_TOKEN = os.getenv("BLEX_API_TOKEN", "")
 
 # -------------------------------------------------
 # REDIS SETUP
@@ -54,6 +57,8 @@ while True:
         try:
             tenant_id = event.get("tenant_id") or ""
             headers = {"X-Tenant-ID": tenant_id} if tenant_id else {}
+            if BLEX_API_TOKEN:
+                headers["Authorization"] = f"Bearer {BLEX_API_TOKEN}"
             resp = requests.post(
                 API_URL,
                 json=event,
