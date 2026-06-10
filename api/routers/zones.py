@@ -2,6 +2,7 @@
 Zone CRUD + zone-scanner assignment endpoints.
 """
 
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select, delete, update, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -48,6 +49,85 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
         }
         for r in rows
     ]
+
+
+@router.get("/{zone_id}")
+async def get_zone(zone_id: int, current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
+    """Zone detail: zone info + assets currently in zone + assigned scanners."""
+    row = (await db.execute(text("""
+        SELECT
+            z.id, z.zone_name AS name, z.description,
+            COUNT(DISTINCT ml.id) FILTER (
+                WHERE ml.timestamp_movement >= NOW() - INTERVAL '24 hours'
+            ) AS movement_count
+        FROM mst_zone z
+        LEFT JOIN movement_log ml ON ml.to_zone_id = z.id
+        WHERE z.id = :zid
+        GROUP BY z.id, z.zone_name, z.description
+    """), {"zid": zone_id})).fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Zone not found")
+
+    from datetime import timezone as _tz
+    now = datetime.now(_tz.utc)
+
+    asset_rows = (await db.execute(text("""
+        SELECT a.id, a.bluetooth_id AS mac,
+               COALESCE(a.asset_name, a.bluetooth_id) AS name,
+               a.last_movement_dt, a.extra
+        FROM mst_asset a
+        WHERE a.current_zone_id = :zid
+    """), {"zid": zone_id})).fetchall()
+
+    assets = []
+    for a in asset_rows:
+        extra = a.extra or {}
+        if isinstance(extra, str):
+            try:
+                import json as _j; extra = _j.loads(extra)
+            except Exception:
+                extra = {}
+        is_alive = extra.get("is_alive", True)
+        if a.last_movement_dt:
+            age = (now - a.last_movement_dt.replace(tzinfo=_tz.utc)
+                   if a.last_movement_dt.tzinfo is None
+                   else (now - a.last_movement_dt)).total_seconds()
+            status = "offline" if not is_alive or age > 300 else "idle" if age > 60 else "active"
+            rel = f"{int(age)}s ago" if age < 60 else f"{int(age//60)}m ago" if age < 3600 else f"{int(age//3600)}h ago"
+        else:
+            status, rel = "offline", "never"
+        assets.append({
+            "id": str(a.id), "mac": a.mac, "name": a.name,
+            "shape": "oval", "status": status,
+            "battery": extra.get("battery"),
+            "rssi": extra.get("deciding_rssi") or extra.get("rssi"),
+            "last_seen": a.last_movement_dt.isoformat() if a.last_movement_dt else None,
+            "last_seen_relative": rel,
+        })
+
+    scanner_rows = (await db.execute(text("""
+        SELECT s.id, s.mac_id AS mac, s.name, s.type, s.scanner_status AS status,
+               s.last_heartbeat
+        FROM mst_scanner s
+        JOIN mst_zone_scanner zs ON zs.mst_scanner_id = s.id
+        WHERE zs.mst_zone_id = :zid
+    """), {"zid": zone_id})).fetchall()
+
+    scanners = [{"id": s.id, "mac": s.mac, "name": s.name or s.mac,
+                 "type": s.type, "status": s.status or "offline"} for s in scanner_rows]
+
+    return {
+        "id": str(row.id),
+        "name": row.name,
+        "description": row.description or "",
+        "movement_count": row.movement_count or 0,
+        "asset_count": len(assets),
+        "is_active": len(assets) > 0 or (row.movement_count or 0) > 0,
+        "scanner_id": None,
+        "assets": assets,
+        "scanners": scanners,
+    }
 
 
 @router.post("")
