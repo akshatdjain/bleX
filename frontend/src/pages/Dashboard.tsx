@@ -10,8 +10,8 @@ export default function Dashboard() {
   const [inactiveOpen, setInactiveOpen] = useState(false);
 
   const sorted = [...zones].sort((a, b) => b.movement_count - a.movement_count);
-  const activeZones = sorted.filter((z) => z.is_active || z.asset_count > 0);
-  const inactiveZones = sorted.filter((z) => !z.is_active && z.asset_count === 0);
+  const activeZones   = sorted.filter((z) => z.is_active);
+  const inactiveZones = sorted.filter((z) => !z.is_active);
 
   const totalAssets = zones.reduce((s, z) => s + z.asset_count, 0);
   const totalMovements = zones.reduce((s, z) => s + z.movement_count, 0);
@@ -21,7 +21,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Zones</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {totalAssets} assets tracked · {totalMovements} movements today
+          {totalAssets} assets tracked · {totalMovements} movements (24h)
         </p>
       </div>
 

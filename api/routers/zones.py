@@ -24,7 +24,7 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
             z.description,
             COUNT(DISTINCT a.id)                                                AS asset_count,
             COUNT(DISTINCT ml.id) FILTER (
-                WHERE ml.timestamp_movement >= CURRENT_DATE
+                WHERE ml.timestamp_movement >= NOW() - INTERVAL '24 hours'
             )                                                                   AS movement_count,
             BOOL_OR(s.scanner_status = 'active')                                AS has_active_scanner
         FROM mst_zone z
@@ -43,7 +43,7 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
             "description":    r.description or "",
             "asset_count":    r.asset_count or 0,
             "movement_count": r.movement_count or 0,
-            "is_active":      bool(r.has_active_scanner) or (r.asset_count or 0) > 0,
+            "is_active":      (r.movement_count or 0) > 0 or (r.asset_count or 0) > 0,
             "scanner_id":     None,
         }
         for r in rows
