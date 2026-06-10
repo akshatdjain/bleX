@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth import sha256_hex
 from database import get_db
-from routers.auth import require_admin
+from routers.auth import require_admin, require_user
 
 
 router = APIRouter(prefix="/api/devices", tags=["Devices"])
@@ -53,7 +53,67 @@ def _device_id_for(mac: str) -> str:
     return f"pi-{mac.replace(':', '').lower()}"
 
 
-# ── Issue ───────────────────────────────────────────────────────────────────
+# ── Tenant self-service: issue a token for their own Pi ─────────────────────
+
+class DeviceProvisionIn(BaseModel):
+    mac: str
+    role: str = "master"
+
+
+@router.post("/provision", response_model=DeviceIssueOut)
+async def provision_device(payload: DeviceProvisionIn,
+                           user: dict = Depends(require_user),
+                           db: AsyncSession = Depends(get_db)):
+    """
+    Tenant users call this to get an API token for their Pi.
+    Tenant is taken from the JWT — users can only issue tokens for their own tenant.
+    Token is returned ONCE; server stores only the sha256 hash.
+    """
+    mac       = payload.mac.upper().strip()
+    tenant_id = user["tenant_id"]
+    token     = secrets.token_urlsafe(32)
+    token_hash = sha256_hex(token)
+    device_id  = _device_id_for(mac)
+
+    # Revoke any existing active token for this mac+tenant
+    await db.execute(text("""
+        UPDATE shared.devices SET is_active = false
+         WHERE mac = :m AND tenant_id = :t
+    """), {"m": mac, "t": tenant_id})
+
+    row = (await db.execute(text("""
+        INSERT INTO shared.devices
+            (device_id, mac, tenant_id, role, token_hash, created_by, is_active)
+        VALUES (:d, :m, :t, :r, :h, :u, true)
+        ON CONFLICT (mac, tenant_id) DO UPDATE SET
+            token_hash = EXCLUDED.token_hash,
+            role       = EXCLUDED.role,
+            is_active  = true,
+            created_at = now(),
+            created_by = EXCLUDED.created_by
+        RETURNING id, device_id, mac, tenant_id, role, is_active, last_seen, created_at
+    """), {
+        "d": device_id, "m": mac, "t": tenant_id,
+        "r": payload.role, "h": token_hash, "u": user["id"],
+    })).fetchone()
+
+    await db.execute(text("""
+        INSERT INTO shared.tenant_events (tenant_id, event_type, actor, payload)
+        VALUES (:tid, 'device_provisioned', :actor, CAST(:p AS jsonb))
+    """), {"tid": tenant_id, "actor": user.get("email", "user"),
+           "p": json.dumps({"mac": mac, "role": payload.role, "device_id": device_id})})
+    await db.commit()
+
+    return DeviceIssueOut(
+        id=row.id, device_id=row.device_id, mac=row.mac,
+        tenant_id=row.tenant_id, role=row.role, is_active=row.is_active,
+        last_seen=row.last_seen.isoformat() if row.last_seen else None,
+        created_at=row.created_at.isoformat() if row.created_at else None,
+        api_token=token,
+    )
+
+
+# ── Issue (admin only) ───────────────────────────────────────────────────────
 
 @router.post("", response_model=DeviceIssueOut)
 async def issue_device(payload: DeviceIssueIn,

@@ -317,6 +317,77 @@ object ApiService {
     }
 
     // ═══════════════════════════════════════════════════════════
+    // PI PROVISIONING
+    // ═══════════════════════════════════════════════════════════
+
+    data class DeviceToken(val apiToken: String, val deviceId: String)
+
+    /**
+     * Step 1 of Pi provisioning: ask DGX to issue a fresh API token for this Pi's MAC.
+     * The server stores sha256(token) in shared.devices; returns the plaintext once.
+     * Tenant is derived from the caller's JWT — no need to pass tenant_id.
+     */
+    suspend fun issueDeviceToken(mac: String, role: String = "master"): DeviceToken? =
+        withContext(Dispatchers.IO) {
+            try {
+                val body = JSONObject().apply {
+                    put("mac", mac)
+                    put("role", role)
+                }
+                val resp = httpPost("/api/devices/provision", body.toString())
+                val j = JSONObject(resp)
+                DeviceToken(
+                    apiToken  = j.getString("api_token"),
+                    deviceId  = j.getString("device_id"),
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+    /**
+     * Step 2 of Pi provisioning: push full config + issued API token to the Pi's
+     * local provisioner service (port 8888). Returns true on success.
+     * piHost is the Pi's local IP discovered via UDP broadcast.
+     */
+    suspend fun provisionPi(
+        piHost: String,
+        tenantConfig: TenantConfig,
+        apiToken: String,
+        piMac: String,
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val body = JSONObject().apply {
+                put("tenant_id",    tenantConfig.tenantId)
+                put("mode",         tenantConfig.mode)
+                put("mqtt_host",    tenantConfig.mqttHost)
+                put("mqtt_port",    tenantConfig.mqttPort)
+                put("use_tls",      tenantConfig.useTls)
+                put("mqtt_username",tenantConfig.mqttUsername ?: "")
+                put("mqtt_password",tenantConfig.mqttPassword ?: "")
+                put("api_token",    apiToken)
+                tenantConfig.tabletFallback?.let { tb ->
+                    put("tablet_fallback", JSONObject().apply {
+                        put("host", tb.host)
+                        put("port", tb.port)
+                    })
+                }
+            }
+            val url = java.net.URL("http://$piHost:8888/provision")
+            val conn = url.openConnection() as java.net.HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.doOutput = true
+            conn.connectTimeout = 10_000
+            conn.readTimeout    = 15_000
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.outputStream.use { it.write(body.toString().toByteArray()) }
+            conn.responseCode == 200
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // AUTHENTICATION
     // ═══════════════════════════════════════════════════════════
 
