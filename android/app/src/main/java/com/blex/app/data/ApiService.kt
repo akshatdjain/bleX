@@ -168,8 +168,8 @@ object ApiService {
             val obj = arr.getJSONObject(i)
             val scannersArr = obj.optJSONArray("scanners") ?: JSONArray()
             ApiZone(
-                id = obj.getInt("id"),
-                zoneName = obj.getString("zone_name"),
+                id = obj.optString("id").toIntOrNull() ?: obj.optInt("id", 0),
+                zoneName = obj.optString("name").ifBlank { obj.optString("zone_name") },
                 description = obj.optString("description", null),
                 scanners = (0 until scannersArr.length()).map { j ->
                     val s = scannersArr.getJSONObject(j)

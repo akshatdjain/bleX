@@ -27,9 +27,18 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
             COUNT(DISTINCT ml.id) FILTER (
                 WHERE ml.timestamp_movement >= NOW() - INTERVAL '24 hours'
             )                                                                   AS movement_count,
-            BOOL_OR(s.scanner_status = 'active')                                AS has_active_scanner
+            BOOL_OR(s.scanner_status = 'active')                                AS has_active_scanner,
+            COALESCE(
+                json_agg(json_build_object(
+                    'id',   s.id,
+                    'mac',  s.mac_id,
+                    'name', s.name,
+                    'type', s.type
+                )) FILTER (WHERE s.id IS NOT NULL),
+                '[]'
+            )                                                                   AS scanners
         FROM mst_zone z
-        LEFT JOIN mst_asset   a  ON a.current_zone_id = z.id
+        LEFT JOIN mst_asset    a  ON a.current_zone_id = z.id
         LEFT JOIN movement_log ml ON ml.to_zone_id = z.id
         LEFT JOIN mst_zone_scanner zs ON zs.mst_zone_id = z.id
         LEFT JOIN mst_scanner  s  ON s.id = zs.mst_scanner_id
@@ -37,6 +46,7 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
         ORDER BY z.id
     """))).fetchall()
 
+    import json as _json
     return [
         {
             "id":             str(r.id),
@@ -46,6 +56,7 @@ async def list_zones(current_user: dict = Depends(require_tenant_match), db: Asy
             "movement_count": r.movement_count or 0,
             "is_active":      (r.movement_count or 0) > 0 or (r.asset_count or 0) > 0,
             "scanner_id":     None,
+            "scanners":       _json.loads(r.scanners) if isinstance(r.scanners, str) else (r.scanners or []),
         }
         for r in rows
     ]
