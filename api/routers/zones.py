@@ -3,7 +3,7 @@ Zone CRUD + zone-scanner assignment endpoints.
 """
 
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_smart_db as get_tenant_db
@@ -17,27 +17,37 @@ router = APIRouter(prefix="/api/zones", tags=["Zones"])
 
 @router.get("")
 async def list_zones(current_user: dict = Depends(require_tenant_match), db: AsyncSession = Depends(get_tenant_db)):
-    result = await db.execute(select(MstZone).order_by(MstZone.id))
-    zones = result.scalars().all()
-    out = []
-    for z in zones:
-        stmt = (
-            select(MstScanner.id, MstScanner.mac_id, MstScanner.name, MstScanner.type)
-            .join(MstZoneScanner, MstZoneScanner.mst_scanner_id == MstScanner.id)
-            .where(MstZoneScanner.mst_zone_id == z.id)
-        )
-        scanners_result = await db.execute(stmt)
-        scanners = [
-            {"id": s.id, "mac": s.mac_id, "name": s.name, "type": s.type}
-            for s in scanners_result
-        ]
-        out.append({
-            "id": z.id,
-            "zone_name": z.zone_name,
-            "description": z.description,
-            "scanners": scanners
-        })
-    return out
+    rows = (await db.execute(text("""
+        SELECT
+            z.id,
+            z.zone_name                                                         AS name,
+            z.description,
+            COUNT(DISTINCT a.id)                                                AS asset_count,
+            COUNT(DISTINCT ml.id) FILTER (
+                WHERE ml.timestamp_movement >= CURRENT_DATE
+            )                                                                   AS movement_count,
+            BOOL_OR(s.scanner_status = 'active')                                AS has_active_scanner
+        FROM mst_zone z
+        LEFT JOIN mst_asset   a  ON a.current_zone_id = z.id
+        LEFT JOIN movement_log ml ON ml.to_zone_id = z.id
+        LEFT JOIN mst_zone_scanner zs ON zs.mst_zone_id = z.id
+        LEFT JOIN mst_scanner  s  ON s.id = zs.mst_scanner_id
+        GROUP BY z.id, z.zone_name, z.description
+        ORDER BY z.id
+    """))).fetchall()
+
+    return [
+        {
+            "id":             str(r.id),
+            "name":           r.name,
+            "description":    r.description or "",
+            "asset_count":    r.asset_count or 0,
+            "movement_count": r.movement_count or 0,
+            "is_active":      bool(r.has_active_scanner) or (r.asset_count or 0) > 0,
+            "scanner_id":     None,
+        }
+        for r in rows
+    ]
 
 
 @router.post("")
