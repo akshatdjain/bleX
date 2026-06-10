@@ -334,11 +334,10 @@ object ApiService {
                     put("mac", mac)
                     put("role", role)
                 }
-                val resp = httpPost("/api/devices/provision", body.toString())
-                val j = JSONObject(resp)
+                val resp = httpPost("/api/devices/provision", body)
                 DeviceToken(
-                    apiToken  = j.getString("api_token"),
-                    deviceId  = j.getString("device_id"),
+                    apiToken  = resp.getString("api_token"),
+                    deviceId  = resp.getString("device_id"),
                 )
             } catch (e: Exception) {
                 null
@@ -492,34 +491,4 @@ object ApiService {
             parsed
         }
 
-    // ═══════════════════════════════════════════════════════════
-    // DEVICE TOKEN ISSUANCE (admin-only)
-    // ═══════════════════════════════════════════════════════════
-
-    data class DeviceIssueResult(
-        val deviceId: String,
-        val mac: String,
-        val tenantId: String,
-        val role: String,
-        val apiToken: String,  // ONLY available immediately after issuance — never persisted
-    )
-
-    /** Admin-only. Issues a per-Pi API token. Server stores sha256(token); the
-     *  plaintext returned here must be pushed to the Pi (via provisioning POST)
-     *  and immediately forgotten by the app. Throws on non-200. */
-    suspend fun issueDeviceToken(tenantId: String, mac: String, role: String = "scanner"): DeviceIssueResult =
-        withContext(Dispatchers.IO) {
-            val resp = httpPost("/api/devices", JSONObject().apply {
-                put("tenant_id", tenantId)
-                put("mac", mac.uppercase())
-                put("role", role)
-            })
-            DeviceIssueResult(
-                deviceId  = resp.getString("device_id"),
-                mac       = resp.getString("mac"),
-                tenantId  = resp.getString("tenant_id"),
-                role      = resp.getString("role"),
-                apiToken  = resp.getString("api_token"),
-            )
-        }
 }
