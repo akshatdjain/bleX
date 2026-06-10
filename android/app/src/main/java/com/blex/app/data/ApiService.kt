@@ -327,7 +327,7 @@ object ApiService {
      * The server stores sha256(token) in shared.devices; returns the plaintext once.
      * Tenant is derived from the caller's JWT — no need to pass tenant_id.
      */
-    suspend fun issueDeviceToken(mac: String, role: String = "master"): DeviceToken? =
+    suspend fun issueDeviceToken(mac: String, role: String = "master", tenantId: String = ""): DeviceToken? =
         withContext(Dispatchers.IO) {
             try {
                 val body = JSONObject().apply {
