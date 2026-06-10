@@ -570,25 +570,40 @@ fun ScannersTab() {
                     provisionMode = "local"
                     settings.scannerProvisionMode = "local"
                     scope.launch {
-                        // Restore saved master IP — no API needed, preserves whatever Pi was master before
-                        val savedIp = settings.localMasterIp
-                        if (savedIp.isNotEmpty()) {
-                            settings.remoteHost = savedIp
-                        } else {
-                            // Fallback: ask DGX (first time or cleared storage)
-                            try {
-                                val master = ApiService.getMasterIp()
-                                if (master != null && master.masterIp.isNotEmpty()) {
-                                    settings.remoteHost = master.masterIp
-                                    settings.localMasterIp = master.masterIp
-                                }
-                            } catch (_: Exception) {}
+                        // 1. Try API — Pi registers its IP in the DB on boot
+                        var masterIp = ""
+                        try {
+                            val master = ApiService.getMasterIp()
+                            if (master != null && master.masterIp.isNotEmpty()) {
+                                masterIp = master.masterIp
+                                settings.localMasterIp = masterIp
+                            }
+                        } catch (_: Exception) {}
+
+                        // 2. Fallback: find the scanner card provisioned as master role
+                        if (masterIp.isEmpty()) {
+                            val masterScanner = scanners.firstOrNull {
+                                settings.getScannerRole(it.mac) == "master"
+                            }
+                            if (masterScanner != null) {
+                                masterIp = masterScanner.ip
+                                settings.localMasterIp = masterIp
+                                android.util.Log.d("ScannersTab", "Master IP from UDP discovery fallback: $masterIp")
+                            }
                         }
-                        settings.remoteUseWebSocket = false
-                        settings.remoteTlsEnabled = false
+
+                        // 3. Last resort: use previously saved IP
+                        if (masterIp.isEmpty()) masterIp = settings.localMasterIp
+
+                        // Switch bridge to local Pi — plain TCP, no TLS, no WebSocket
+                        if (masterIp.isNotEmpty()) settings.remoteHost = masterIp
                         settings.remotePort = 1883
+                        settings.remoteTlsEnabled = false
+                        settings.remoteUseWebSocket = false
+                        settings.remoteWebSocketPath = ""
                         context.sendBroadcast(Intent("com.blex.app.ACTION_RESTART_SERVICE"))
-                        // Auto-push local mode to all discovered Pis (no WiFi creds — mode change only)
+
+                        // Push local mode config to all discovered Pis
                         for (s in scanners) {
                             pushWifiToScanner(s.ip, s.mac, "", "") { _, _ -> }
                         }
@@ -642,10 +657,12 @@ fun ScannersTab() {
                             settings.remoteTlsEnabled = true
                             settings.remoteUseWebSocket = true
                             settings.remoteWebSocketPath = AppConfig.REMOTE_MQTT_WSS_PATH
-                            settings.remoteUsername = BuildConfig.MQTT_USERNAME
-                            settings.remotePassword = BuildConfig.MQTT_PASSWORD
+                            // Use stored creds from tenant config (set at login) — don't overwrite with empty BuildConfig
+                            if (settings.remoteUsername.isEmpty()) {
+                                settings.remoteUsername = BuildConfig.MQTT_USERNAME
+                                settings.remotePassword = BuildConfig.MQTT_PASSWORD
+                            }
                             context.sendBroadcast(Intent("com.blex.app.ACTION_RESTART_SERVICE"))
-                            // Auto-push cloud mode to all discovered Pis (no WiFi creds — mode change only)
                             for (s in scanners) {
                                 pushWifiToScanner(s.ip, s.mac, "", "") { _, _ -> }
                             }
