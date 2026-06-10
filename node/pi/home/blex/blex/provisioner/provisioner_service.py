@@ -98,10 +98,25 @@ def _build_env(config: dict) -> str:
     return "".join(f"{k}={v}\n" for k, v in env.items())
 
 
-def _write_env_and_flags(content: str):
-    """Write /etc/blex/blex.env, then refresh /run/blex/ flags."""
+def _write_env_and_flags(content: str, config: dict = None):
+    """Write /etc/blex/blex.env + legacy mode.json, then refresh /run/blex/ flags."""
     subprocess.run(["sudo", "mkdir", "-p", BLEX_ENV_DIR], capture_output=True)
     subprocess.run(["sudo", "tee", BLEX_ENV_FILE], input=content.encode(), capture_output=True)
+    # Keep mode.json in sync — still read by sage.py and scanner_boot.py
+    if config:
+        mode = config.get("mode", "cloud")
+        mode_json = json.dumps({
+            "mode":         mode,
+            "role":         config.get("role", "master"),
+            "tenant_id":    config.get("tenant_id", ""),
+            "mqtt_host":    config.get("mqtt_host", "") if mode != "local" else "127.0.0.1",
+            "mqtt_port":    int(config.get("mqtt_port", 1883)) if mode != "local" else 1883,
+            "use_tls":      config.get("use_tls", False) if mode != "local" else False,
+            "mqtt_username": config.get("mqtt_username", "") if mode != "local" else "",
+            "mqtt_password": config.get("mqtt_password", "") if mode != "local" else "",
+        }, indent=2)
+        subprocess.run(["sudo", "tee", "/etc/blex/mode.json"],
+                       input=mode_json.encode(), capture_output=True)
     subprocess.run(["sudo", FLAGS_SCRIPT], capture_output=True)
 
 
