@@ -25,7 +25,7 @@ _provision_status = {"state": "idle", "ssid": None}
 _STATIC_DEFAULTS = {
     "REDIS_HOST":           "127.0.0.1",
     "REDIS_PORT":           "6379",
-    "REDIS_PASSWORD":       "",
+    "REDIS_PASSWORD":       "1234",
     "SCANNER_ZONE_API":     "https://sigmatic-asc.tech/asset/api/runtime/scanner-zone-map",
     "API_URL":              "https://sigmatic-asc.tech/asset/api/asset/movement",
     "HEALTH_API_BASE":      "https://sigmatic-asc.tech/asset/api/health",
