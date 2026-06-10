@@ -83,18 +83,17 @@ async def provision_device(payload: DeviceProvisionIn,
 
     row = (await db.execute(text("""
         INSERT INTO shared.devices
-            (device_id, mac, tenant_id, role, token_hash, created_by, is_active)
-        VALUES (:d, :m, :t, :r, :h, :u, true)
+            (device_id, mac, tenant_id, role, token_hash, is_active)
+        VALUES (:d, :m, :t, :r, :h, true)
         ON CONFLICT (mac, tenant_id) DO UPDATE SET
             token_hash = EXCLUDED.token_hash,
             role       = EXCLUDED.role,
             is_active  = true,
-            created_at = now(),
-            created_by = EXCLUDED.created_by
+            created_at = now()
         RETURNING id, device_id, mac, tenant_id, role, is_active, last_seen, created_at
     """), {
         "d": device_id, "m": mac, "t": tenant_id,
-        "r": payload.role, "h": token_hash, "u": user["id"],
+        "r": payload.role, "h": token_hash,
     })).fetchone()
 
     await db.execute(text("""
