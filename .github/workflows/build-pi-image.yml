@@ -1,0 +1,142 @@
+name: Build BleX Pi Image
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v3.2.0)'
+        required: true
+        default: 'v3.2.0'
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout BleX repo
+        uses: actions/checkout@v4
+        with:
+          path: blex
+
+      - name: Install pi-gen dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            coreutils quilt parted qemu-user-static debootstrap zerofree \
+            zip dosfstools libarchive-tools libcap2-bin grep rsync \
+            xz-utils file git curl bc gpg pigz xxd arch-test binfmt-support
+
+      - name: Clone pi-gen
+        run: git clone --depth=1 https://github.com/RPi-Distro/pi-gen.git
+
+      - name: Configure pi-gen
+        run: |
+          cat > pi-gen/config << 'CONF'
+          IMG_NAME=blex-pi
+          RELEASE=bookworm
+          DEPLOY_COMPRESSION=xz
+          LOCALE_DEFAULT=en_GB.UTF-8
+          TARGET_HOSTNAME=raspberrypi
+          TIMEZONE_DEFAULT=Etc/UTC
+          FIRST_USER_NAME=blex
+          FIRST_USER_PASS=1234
+          ENABLE_SSH=1
+          STAGE_LIST="stage0 stage1 stage2 stage-blex"
+          CONF
+          touch pi-gen/stage3/SKIP pi-gen/stage4/SKIP pi-gen/stage5/SKIP
+          touch pi-gen/stage3/SKIP_IMAGES pi-gen/stage4/SKIP_IMAGES pi-gen/stage5/SKIP_IMAGES
+
+      - name: Create BleX stage
+        run: |
+          mkdir -p pi-gen/stage-blex/00-blex-setup/files
+          cp -r blex/node/pi/home/blex/blex pi-gen/stage-blex/00-blex-setup/files/blex-code
+          cp blex/node/pi/systemd/*.service pi-gen/stage-blex/00-blex-setup/files/
+          cp blex/node/pi/usr/local/bin/blex-flags.sh pi-gen/stage-blex/00-blex-setup/files/
+          cp blex/node/pi/etc/sudoers.d/blex pi-gen/stage-blex/00-blex-setup/files/sudoers-blex
+          cp blex/node/pi/etc/blex/blex.env.example pi-gen/stage-blex/00-blex-setup/files/blex.env.example
+
+      - name: Write stage install script
+        run: |
+          cat > pi-gen/stage-blex/00-blex-setup/00-run.sh << 'SCRIPT'
+          #!/bin/bash -e
+
+          on_chroot << EOF
+          pip3 install --break-system-packages \
+            "paho-mqtt==2.1.0" "redis==6.1.0" "requests==2.32.3" \
+            "cryptography==43.0.0" "PyJWT==2.10.1"
+          id blex 2>/dev/null || useradd -m -s /bin/bash -G sudo,bluetooth blex
+          echo "blex:1234" | chpasswd
+          mkdir -p /home/blex/blex/logs
+          chown -R blex:blex /home/blex
+          apt-get install -y redis-server mosquitto
+          echo "requirepass 1234" >> /etc/redis/redis.conf
+          systemctl enable redis-server
+          nmcli connection add type wifi con-name setup ssid setup \
+            wifi-sec.key-mgmt wpa-psk wifi-sec.psk "setup@123" \
+            connection.autoconnect yes connection.autoconnect-priority 5 || true
+          EOF
+
+          install -d "${ROOTFS_DIR}/home/blex/blex"
+          cp -r "${STAGE_DIR}/00-blex-setup/files/blex-code/." "${ROOTFS_DIR}/home/blex/blex/"
+          chown -R 1000:1000 "${ROOTFS_DIR}/home/blex/blex"
+
+          install -d "${ROOTFS_DIR}/etc/blex"
+          cp "${STAGE_DIR}/00-blex-setup/files/blex.env.example" "${ROOTFS_DIR}/etc/blex/blex.env"
+
+          install -m 755 "${STAGE_DIR}/00-blex-setup/files/blex-flags.sh" \
+            "${ROOTFS_DIR}/usr/local/bin/blex-flags.sh"
+
+          for svc in blex-discovery blex-master blex-mode blex-provisioner \
+                     blex-sage-watch blex-scanner; do
+            install -m 644 "${STAGE_DIR}/00-blex-setup/files/${svc}.service" \
+              "${ROOTFS_DIR}/etc/systemd/system/"
+          done
+          install -m 644 "${STAGE_DIR}/00-blex-setup/files/blex-sage@.service" \
+            "${ROOTFS_DIR}/etc/systemd/system/blex-sage@.service"
+
+          on_chroot << EOF
+          systemctl enable blex-discovery blex-mode blex-provisioner blex-sage-watch blex-scanner
+          EOF
+
+          install -m 440 "${STAGE_DIR}/00-blex-setup/files/sudoers-blex" \
+            "${ROOTFS_DIR}/etc/sudoers.d/blex"
+          SCRIPT
+          chmod +x pi-gen/stage-blex/00-blex-setup/00-run.sh
+
+      - name: Build image
+        run: cd pi-gen && sudo bash build.sh
+
+      - name: Package image
+        run: |
+          VERSION="${{ github.ref_name }}"
+          [ -z "$VERSION" ] && VERSION="${{ inputs.version }}"
+          IMAGE=$(find pi-gen/deploy -name "*.img.xz" | head -1)
+          cp "$IMAGE" "blex-pi-${VERSION}.img.xz"
+          ls -lh blex-pi-*.img.xz
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name || inputs.version }}
+          name: BleX Pi Image ${{ github.ref_name || inputs.version }}
+          body: |
+            ## BleX Pi Image ${{ github.ref_name || inputs.version }}
+
+            ### Flash
+            1. Download `blex-pi-*.img.xz`
+            2. Flash with Raspberry Pi Imager
+            3. Pi boots → connects to `setup` WiFi (pass: `setup@123`)
+            4. Open BleX app → Register → Provision → done
+
+            ### Includes
+            - Raspberry Pi OS Bookworm Lite 64-bit
+            - All BleX services enabled
+            - Redis + Mosquitto pre-installed
+            - Unprovisioned — blank tenant/token
+          files: blex-pi-*.img.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
