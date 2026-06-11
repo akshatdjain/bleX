@@ -18,8 +18,14 @@ router = APIRouter(prefix="/api/runtime", tags=["Runtime"])
 
 
 def _check_device_tenant(principal: dict, requested: Optional[str]):
-    """Defense in depth: device tokens can only access their own tenant_id."""
-    if principal.get("type") == "device" and requested and requested != principal.get("tenant_id"):
+    """Defense in depth: device tokens can only access their own tenant_id.
+    Service-role tokens are exempt — they may read any tenant's data."""
+    if (
+        principal.get("type") == "device"
+        and principal.get("role") != "service"
+        and requested
+        and requested != principal.get("tenant_id")
+    ):
         raise HTTPException(403, "Device tenant mismatch")
 
 

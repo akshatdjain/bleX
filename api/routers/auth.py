@@ -497,13 +497,26 @@ async def get_principal(request: Request, db: AsyncSession = Depends(get_db)) ->
     raise HTTPException(401, "Invalid token")
 
 
-async def get_principal_db(principal: dict = Depends(get_principal)):
+async def get_principal_db(request: Request, principal: dict = Depends(get_principal)):
     """Tenant-scoped DB session derived from the authenticated principal's
     tenant_id. The token (JWT or device) is the single source of truth —
-    no X-Tenant-ID header trust, no silent `public` fallback."""
+    no X-Tenant-ID header trust, no silent `public` fallback.
+
+    Exception: service-role device tokens derive their schema from the
+    X-Tenant-ID request header so they can act on behalf of any tenant.
+    """
     from database import AsyncSessionLocal, _TENANT_RE
     from sqlalchemy import text
-    tid = principal.get("tenant_id")
+
+    if principal.get("role") == "service":
+        # Service token: trust X-Tenant-ID header to select the target tenant
+        header_tid = request.headers.get("X-Tenant-ID", "")
+        if not header_tid or not _TENANT_RE.match(header_tid):
+            raise HTTPException(400, "Service token requires a valid X-Tenant-ID header")
+        tid = header_tid
+    else:
+        tid = principal.get("tenant_id")
+
     schema = f"t_{tid.lower()}" if tid and _TENANT_RE.match(tid) else "public"
     async with AsyncSessionLocal() as session:
         await session.execute(text(f"SET search_path TO {schema}, public"))
@@ -532,10 +545,17 @@ async def require_admin(p: dict = Depends(get_principal)) -> dict:
 
 def require_device(tenant_id_param: str = "tenant_id"):
     """Factory: dependency that requires a device token whose tenant matches
-    a path/query/header param. Defaults to looking for `tenant_id`."""
+    a path/query/header param. Defaults to looking for `tenant_id`.
+
+    Service-role device tokens skip the tenant-match check — they are
+    authorised to act on behalf of any tenant.
+    """
     async def _dep(request: Request, p: dict = Depends(get_principal)) -> dict:
         if p["type"] != "device":
             raise HTTPException(403, "Device token required")
+        # Service role: skip tenant-match check entirely
+        if p.get("role") == "service":
+            return p
         path_tid   = request.path_params.get(tenant_id_param) if hasattr(request, "path_params") else None
         query_tid  = request.query_params.get(tenant_id_param) if request.query_params else None
         header_tid = request.headers.get("X-Tenant-ID")
